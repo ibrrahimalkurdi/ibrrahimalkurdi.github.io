@@ -53,11 +53,11 @@
         body { font-family: var(--font-main); background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; padding: 1rem; }
         .container { 
             width: 100%; 
-            max-width: 800px; /*  پانییەکەی کەمکراوەتەوە بۆ شێوازێکی تەسکتر */
+            max-width: 800px;
             margin: auto; 
             display: flex; 
             flex-direction: column; 
-            gap: 1.5rem; /* بۆشایی نێوان کارتەکان کەمکراوەتەوە */
+            gap: 1.5rem;
         }
         .card { background-color: var(--card-bg-color); border-radius: 1rem; box-shadow: var(--shadow); border: 1px solid var(--border-color); padding: 1.5rem; transition: background-color 0.3s, border-color 0.3s; }
         .header-card { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; }
@@ -230,7 +230,7 @@
             
             <div class="card" id="contact-us-card">
                 <h2>پەیوەندی ب مە بکە</h2>
-                <p>بۆ هەر کێشەیەکێ یان پێشنیارەکێ، دگەل مە باخڤە.</p>
+                <p>بۆ هەر کێشەیەکێ یان پێشنیارەکێ, دگەل مە باخڤە.</p>
                 <div class="contact-links-container">
                     <a href="https://t.me/IslamProject" target="_blank" class="contact-link telegram">
                         <svg viewBox="0 0 24 24"><path d="M22 2L11 13L2 9L4 20L22 2Z M22 2L15 22L11 13L22 2Z"></path></svg>
@@ -363,7 +363,6 @@
 
         async function loadStateFromFirestore() {
             if (!currentUser) return;
-            showLoader();
             const docRef = db.collection('userSchedules').doc(currentUser.uid);
             try {
                 const doc = await docRef.get();
@@ -404,6 +403,7 @@
                 allTasks = []; overallSubjects = []; progressHistory = [];
             }
             renderAll();
+            hideLoader(); //  <-- گوهارتنا گرنگ 1: چارەسەرکرنا کێشەیا بارکرنێ
         }
 
         // --- HELPER FUNCTIONS ---
@@ -476,7 +476,7 @@
                         </td>
                     </tr>`).join('') : `<tr><td colspan="4" style="text-align:center; padding: 1.5rem;">هیچ کارەک بۆ ئەڤرۆ نینە.</td></tr>`;
             } else {
-                 tasksHtml = `<tr><td colspan="4" style="text-align:center; padding: 2.5rem;">بۆ دیتنا کارێن خۆ و پاراستنا پێشکەفتنێ، تکایە داخل ببە.</td></tr>`;
+                 tasksHtml = `<tr><td colspan="4" style="text-align:center; padding: 2.5rem;">بۆ دیتنا کارێن خۆ و پاراستنا پێشکەفتنێ, تکایە داخل ببە.</td></tr>`;
             }
 
             const completed = tasksForToday.filter(t => t.isComplete).length;
@@ -505,7 +505,7 @@
             let completedCount = 0;
 
             if (!currentUser) {
-                progressContainer.innerHTML = '<p style="text-align:center; width:100%;">بۆ دیتنا پێشکەفتنا گشتی، تکایە داخل ببە.</p>';
+                progressContainer.innerHTML = '<p style="text-align:center; width:100%;">بۆ دیتنا پێشکەفتنا گشتی, تکایە داخل ببە.</p>';
                 achievementsCard.classList.add('hidden');
                 return;
             }
@@ -795,7 +795,11 @@
         // --- APP INITIALIZATION ---
         function initApp() {
             showLoader();
-            if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+            // گوهارتنا گرنگ 2: دانانا شێوازێ تاری وەک بنەرەت
+            if (localStorage.getItem('theme') !== 'light') {
+                document.body.classList.add('dark-mode');
+            }
+
             const quotes = [{ text: "زانست نورە، و نورا خودێ نادرێتە گونەهکارەکی.", author: "ئیمامێ شافعی" }, { text: "یێ ژ بۆ زانستێ دەرکەڤیت، ئەو د رێکا خودێ دایە حەتا بزڤریت.", author: "پێغەمبەر محمد (ﷺ)" }, { text: "سەبر کلیلا سەرکەفتنێ یە.", author: "گوتنەکا ب ناڤ و دەنگ" }];
             const today = new Date(); const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 864e5);
             const quote = quotes[dayOfYear % quotes.length];
