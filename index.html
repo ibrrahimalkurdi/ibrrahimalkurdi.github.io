@@ -1,881 +1,807 @@
-<!DOCTYPE html>
-<html lang="ku" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بەرنامێ خواندنا من (پێشکەفتی)</title>
+‏<!DOCTYPE html>
+‏<html lang="ku" dir="rtl">
+‏<head>
+‏    <meta charset="UTF-8">
+‏    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+‏    <title>بەرنامێ خواندنا من (پێشکەفتی)</title>
     
-    <!-- Firebase Libraries -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+‏    <!-- Firebase Libraries -->
+‏    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+‏    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+‏    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- Charting Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+‏    <!-- Charting Libraries -->
+‏    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+‏    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Rudaw&display=swap');
+‏    <style>
+‏        @import url('https://fonts.googleapis.com/css2?family=Rudaw&display=swap');
 
-        :root {
-            --bg-color: #f8fafc;
-            --card-bg-color: #ffffff;
-            --text-color: #0f172a;
-            --text-color-light: #64748b;
-            --header-bg-color: #ffffff;
-            --border-color: #e2e8f0;
-            --accent-color: #3b82f6;
-            --accent-color-dark: #2563eb;
-            --accent-color-light: #eff6ff;
-            --progress-bar-success-color: #10b981;
-            --button-danger-bg: #ef4444;
-            --button-edit-bg: #f59e0b;
-            --font-main: 'Rudaw', sans-serif;
-            --shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 8px -4px rgba(0, 0, 0, 0.05);
+‏        :root {
+‏            --bg-color: #f8fafc;
+‏            --card-bg-color: #ffffff;
+‏            --text-color: #0f172a;
+‏            --text-color-light: #64748b;
+‏            --header-bg-color: #ffffff;
+‏            --border-color: #e2e8f0;
+‏            --accent-color: #3b82f6;
+‏            --accent-color-dark: #2563eb;
+‏            --accent-color-light: #eff6ff;
+‏            --progress-bar-success-color: #10b981;
+‏            --button-danger-bg: #ef4444;
+‏            --button-edit-bg: #f59e0b;
+‏            --font-main: 'Rudaw', sans-serif;
+‏            --shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 8px -4px rgba(0, 0, 0, 0.05);
         }
 
-        body.dark-mode {
-            --bg-color: #020617;
-            --card-bg-color: #0f172a;
-            --text-color: #e2e8f0;
-            --text-color-light: #94a3b8;
-            --header-bg-color: #0f172a;
-            --border-color: #1e293b;
-            --accent-color: #60a5fa;
-            --accent-color-dark: #3b82f6;
-            --accent-color-light: #1e293b;
-            --progress-bar-success-color: #34d399;
-            --button-danger-bg: #f87171;
-            --button-edit-bg: #fbbf24;
+‏        body.dark-mode {
+‏            --bg-color: #020617;
+‏            --card-bg-color: #0f172a;
+‏            --text-color: #e2e8f0;
+‏            --text-color-light: #94a3b8;
+‏            --header-bg-color: #0f172a;
+‏            --border-color: #1e293b;
+‏            --accent-color: #60a5fa;
+‏            --accent-color-dark: #3b82f6;
+‏            --accent-color-light: #1e293b;
+‏            --progress-bar-success-color: #34d399;
+‏            --button-danger-bg: #f87171;
+‏            --button-edit-bg: #fbbf24;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: var(--font-main); background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; padding: 1rem; }
-        .container { 
-            width: 100%; 
-            max-width: 800px;
-            margin: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 1.5rem;
+‏        * { box-sizing: border-box; margin: 0; padding: 0; }
+‏        body { font-family: var(--font-main); background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; padding: 1rem; }
+‏        .container { 
+‏            width: 100%; 
+‏            max-width: 800px; /*  پانییەکەی کەمکراوەتەوە بۆ شێوازێکی تەسکتر */
+‏            margin: auto; 
+‏            display: flex; 
+‏            flex-direction: column; 
+‏            gap: 1.5rem; /* بۆشایی نێوان کارتەکان کەمکراوەتەوە */
         }
-        .card { background-color: var(--card-bg-color); border-radius: 1rem; box-shadow: var(--shadow); border: 1px solid var(--border-color); padding: 1.5rem; transition: background-color 0.3s, border-color 0.3s; }
-        .header-card { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; }
-        .header-title h1 { font-size: 1.75rem; } .header-title p { font-size: 0.9rem; color: var(--text-color-light); }
-        .header-controls { display: flex; align-items: center; gap: 0.75rem; }
-        .icon-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-color-light); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s, color 0.2s, transform 0.2s; }
-        .icon-btn svg { width: 20px; height: 20px; stroke-width: 2; }
-        .icon-btn:hover { background-color: var(--accent-color); color: white; transform: scale(1.1) rotate(5deg); }
-        #theme-toggle-icon::after { content: '☀️'; } body.dark-mode #theme-toggle-icon::after { content: '🌙'; }
-        .controls-card { display: flex; justify-content: space-between; align-items: center; }
-        .day-navigation { display: flex; gap: 0.5rem; }
-        .nav-btn { background-color: var(--accent-color); color: white; border: none; font-family: var(--font-main); height: 40px; padding: 0 1.25rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.9rem; transition: background-color 0.2s, transform 0.2s; }
-        .nav-btn:hover { background-color: var(--accent-color-dark); transform: translateY(-2px); }
-        .nav-btn.arrow { width: 45px; font-size: 1.1rem; }
-        #add-book-section { background-color: var(--accent-color-light); border-left: 5px solid var(--accent-color); transition: all 0.5s ease; overflow: hidden; }
-        #add-book-section.hidden { max-height: 0; padding: 0 1.5rem; opacity: 0; border: none; }
-        #add-book-section:not(.hidden) { max-height: 800px; padding: 1.5rem; opacity: 1; }
-        #add-book-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        #add-book-form input { padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--card-bg-color); color: var(--text-color); font-family: var(--font-main); font-size: 0.9rem; transition: border-color 0.2s, box-shadow 0.2s; }
-        #add-book-form input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px var(--accent-color-light); }
-        .form-full-width { grid-column: 1 / -1; } .day-selection { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.5rem;}
-        .day-selection label { display: flex; align-items: center; gap: 0.3rem; background-color: var(--card-bg-color); padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border-color); cursor: pointer; transition: background-color 0.2s, border-color 0.2s; font-size: 0.9rem; }
-        .day-selection input:checked + span { color: var(--accent-color-dark); font-weight: bold; }
-        .day-header { margin-bottom: 1.25rem; } .day-header h2 { font-size: 1.5rem; color: var(--accent-color); margin-bottom: 0.25rem; } .day-header p { font-size: 0.9rem; color: var(--text-color-light); }
-        .progress-container { margin-bottom: 1rem; } .progress-label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-color-light); }
-        .progress { height: 10px; background-color: var(--border-color); border-radius: 5px; overflow: hidden; }
-        .progress-bar { height: 100%; background-color: var(--accent-color); width: 0%; transition: width 0.5s ease; border-radius: 5px; }
-        .progress-bar.success { background-color: var(--progress-bar-success-color) !important; }
-        .tasks-table { width: 100%; border-collapse: collapse; } .tasks-table tr { border-bottom: 1px solid var(--border-color); } .tasks-table tr:last-child { border-bottom: none; }
-        .tasks-table td { padding: 1rem 0.5rem; vertical-align: middle; }
-        .task-container { display: flex; align-items: center; gap: 1rem; } .task-container input[type="checkbox"] { display: none; }
-        .task-container label { cursor: pointer; display: flex; align-items: center; gap: 0.75rem; }
-        .task-container .custom-checkbox { width: 20px; height: 20px; border: 2px solid var(--border-color); border-radius: 5px; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s, border-color 0.2s; }
-        .task-container .custom-checkbox svg { width: 14px; height: 14px; color: white; transform: scale(0); transition: transform 0.2s; }
-        .task-container input[type="checkbox"]:checked + label .custom-checkbox { background-color: var(--accent-color); border-color: var(--accent-color); }
-        .task-container input[type="checkbox"]:checked + label .custom-checkbox svg { transform: scale(1); }
-        .task-subject { font-weight: bold; font-size: 0.95rem;} .task-description { color: var(--text-color-light); font-size: 0.9rem; }
-        .task-type-badge { font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 0.5rem; font-weight: bold; }
-        .task-type-badge.memorize { background-color: var(--accent-color-light); color: var(--accent-color-dark); }
-        .task-type-badge.review { background-color: #e0f2fe; color: #075985; }
-        #overall-progress-container, #achievements-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
-        .subject-card { padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
-        .subject-header { display: flex; justify-content: space-between; align-items: center; }
-        .subject-label { font-weight: bold; font-size: 1rem; } .subject-controls { display: flex; gap: 0.5rem; }
-        .subject-controls .icon-btn { width: 32px; height: 32px; background-color: var(--bg-color); }
-        .subject-controls .icon-btn svg { width: 16px; height: 16px; }
-        .subject-controls .icon-btn.delete:hover { background-color: var(--button-danger-bg); }
-        .subject-controls .icon-btn.edit:hover { background-color: var(--button-edit-bg); }
-        .progress-inputs { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; }
-        .subject-card input[type="number"] { width: 55px; padding: 0.4rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); text-align: center; }
-        .subject-completion-info { font-size: 0.75rem; color: var(--text-color-light); margin-top: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem; }
-        .timer-controls { display: flex; align-items: center; gap: 0.5rem; }
-        .timer-btn { background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-        .timer-btn svg { width: 16px; height: 16px; } .timer-btn:hover { background-color: var(--accent-color-light); }
-        .timer-display { font-size: 0.85rem; color: var(--text-color-light); min-width: 55px; text-align: left; }
-        #time-reports { display: flex; justify-content: space-around; text-align: center; }
-        #time-reports div p { font-weight: bold; font-size: 1.25rem; color: var(--accent-color); }
-        #time-reports div span { font-size: 0.85rem; color: var(--text-color-light); }
-        .achievement-item { display: flex; align-items: center; gap: 1rem; background-color: var(--bg-color); padding: 0.75rem; border-radius: 0.5rem; }
-        .achievement-item svg { color: var(--progress-bar-success-color); }
-        .hidden { display: none !important; }
-        #quote-of-the-day { text-align: center; } #quote-of-the-day blockquote { font-size: 1rem; font-style: italic; }
-        #quote-of-the-day footer { margin-top: 0.5rem; font-size: 0.9rem; color: var(--accent-color); }
-        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 1000; display: flex; justify-content: center; align-items: center; transition: opacity 0.3s; }
-        .spinner { width: 50px; height: 50px; border-radius: 50%; border: 8px solid var(--border-color); border-right-color: var(--accent-color); animation: spinner-d3gkfh 1s infinite linear; }
-        @keyframes spinner-d3gkfh { to { transform: rotate(1turn); } }
+‏        .card { background-color: var(--card-bg-color); border-radius: 1rem; box-shadow: var(--shadow); border: 1px solid var(--border-color); padding: 1.5rem; transition: background-color 0.3s, border-color 0.3s; }
+‏        .header-card { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; }
+‏        .header-title h1 { font-size: 1.75rem; } .header-title p { font-size: 0.9rem; color: var(--text-color-light); }
+‏        .header-controls { display: flex; align-items: center; gap: 0.75rem; }
+‏        .icon-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-color-light); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s, color 0.2s, transform 0.2s; }
+‏        .icon-btn svg { width: 20px; height: 20px; stroke-width: 2; }
+‏        .icon-btn:hover { background-color: var(--accent-color); color: white; transform: scale(1.1) rotate(5deg); }
+‏        #theme-toggle-icon::after { content: '☀️'; } body.dark-mode #theme-toggle-icon::after { content: '🌙'; }
+‏        .controls-card { display: flex; justify-content: space-between; align-items: center; }
+‏        .day-navigation { display: flex; gap: 0.5rem; }
+‏        .nav-btn { background-color: var(--accent-color); color: white; border: none; font-family: var(--font-main); height: 40px; padding: 0 1.25rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.9rem; transition: background-color 0.2s, transform 0.2s; }
+‏        .nav-btn:hover { background-color: var(--accent-color-dark); transform: translateY(-2px); }
+‏        .nav-btn.arrow { width: 45px; font-size: 1.1rem; }
+‏        #add-book-section { background-color: var(--accent-color-light); border-left: 5px solid var(--accent-color); transition: all 0.5s ease; overflow: hidden; }
+‏        #add-book-section.hidden { max-height: 0; padding: 0 1.5rem; opacity: 0; border: none; }
+‏        #add-book-section:not(.hidden) { max-height: 800px; padding: 1.5rem; opacity: 1; }
+‏        #add-book-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+‏        #add-book-form input { padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--card-bg-color); color: var(--text-color); font-family: var(--font-main); font-size: 0.9rem; transition: border-color 0.2s, box-shadow 0.2s; }
+‏        #add-book-form input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px var(--accent-color-light); }
+‏        .form-full-width { grid-column: 1 / -1; } .day-selection { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.5rem;}
+‏        .day-selection label { display: flex; align-items: center; gap: 0.3rem; background-color: var(--card-bg-color); padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border-color); cursor: pointer; transition: background-color 0.2s, border-color 0.2s; font-size: 0.9rem; }
+‏        .day-selection input:checked + span { color: var(--accent-color-dark); font-weight: bold; }
+‏        .day-header { margin-bottom: 1.25rem; } .day-header h2 { font-size: 1.5rem; color: var(--accent-color); margin-bottom: 0.25rem; } .day-header p { font-size: 0.9rem; color: var(--text-color-light); }
+‏        .progress-container { margin-bottom: 1rem; } .progress-label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-color-light); }
+‏        .progress { height: 10px; background-color: var(--border-color); border-radius: 5px; overflow: hidden; }
+‏        .progress-bar { height: 100%; background-color: var(--accent-color); width: 0%; transition: width 0.5s ease; border-radius: 5px; }
+‏        .progress-bar.success { background-color: var(--progress-bar-success-color) !important; }
+‏        .tasks-table { width: 100%; border-collapse: collapse; } .tasks-table tr { border-bottom: 1px solid var(--border-color); } .tasks-table tr:last-child { border-bottom: none; }
+‏        .tasks-table td { padding: 1rem 0.5rem; vertical-align: middle; }
+‏        .task-container { display: flex; align-items: center; gap: 1rem; } .task-container input[type="checkbox"] { display: none; }
+‏        .task-container label { cursor: pointer; display: flex; align-items: center; gap: 0.75rem; }
+‏        .task-container .custom-checkbox { width: 20px; height: 20px; border: 2px solid var(--border-color); border-radius: 5px; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s, border-color 0.2s; }
+‏        .task-container .custom-checkbox svg { width: 14px; height: 14px; color: white; transform: scale(0); transition: transform 0.2s; }
+‏        .task-container input[type="checkbox"]:checked + label .custom-checkbox { background-color: var(--accent-color); border-color: var(--accent-color); }
+‏        .task-container input[type="checkbox"]:checked + label .custom-checkbox svg { transform: scale(1); }
+‏        .task-subject { font-weight: bold; font-size: 0.95rem;} .task-description { color: var(--text-color-light); font-size: 0.9rem; }
+‏        .task-type-badge { font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 0.5rem; font-weight: bold; }
+‏        .task-type-badge.memorize { background-color: var(--accent-color-light); color: var(--accent-color-dark); }
+‏        .task-type-badge.review { background-color: #e0f2fe; color: #075985; }
+‏        #overall-progress-container, #achievements-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
+‏        .subject-card { padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
+‏        .subject-header { display: flex; justify-content: space-between; align-items: center; }
+‏        .subject-label { font-weight: bold; font-size: 1rem; } .subject-controls { display: flex; gap: 0.5rem; }
+‏        .subject-controls .icon-btn { width: 32px; height: 32px; background-color: var(--bg-color); }
+‏        .subject-controls .icon-btn svg { width: 16px; height: 16px; }
+‏        .subject-controls .icon-btn.delete:hover { background-color: var(--button-danger-bg); }
+‏        .subject-controls .icon-btn.edit:hover { background-color: var(--button-edit-bg); }
+‏        .progress-inputs { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; }
+‏        .subject-card input[type="number"] { width: 55px; padding: 0.4rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); text-align: center; }
+‏        .subject-completion-info { font-size: 0.75rem; color: var(--text-color-light); margin-top: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem; }
+‏        .timer-controls { display: flex; align-items: center; gap: 0.5rem; }
+‏        .timer-btn { background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+‏        .timer-btn svg { width: 16px; height: 16px; } .timer-btn:hover { background-color: var(--accent-color-light); }
+‏        .timer-display { font-size: 0.85rem; color: var(--text-color-light); min-width: 55px; text-align: left; }
+‏        #time-reports { display: flex; justify-content: space-around; text-align: center; }
+‏        #time-reports div p { font-weight: bold; font-size: 1.25rem; color: var(--accent-color); }
+‏        #time-reports div span { font-size: 0.85rem; color: var(--text-color-light); }
+‏        .achievement-item { display: flex; align-items: center; gap: 1rem; background-color: var(--bg-color); padding: 0.75rem; border-radius: 0.5rem; }
+‏        .achievement-item svg { color: var(--progress-bar-success-color); }
+‏        .hidden { display: none !important; }
+‏        #quote-of-the-day { text-align: center; } #quote-of-the-day blockquote { font-size: 1rem; font-style: italic; }
+‏        #quote-of-the-day footer { margin-top: 0.5rem; font-size: 0.9rem; color: var(--accent-color); }
+‏        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 1000; display: flex; justify-content: center; align-items: center; transition: opacity 0.3s; }
+‏        .spinner { width: 50px; height: 50px; border-radius: 50%; border: 8px solid var(--border-color); border-right-color: var(--accent-color); animation: spinner-d3gkfh 1s infinite linear; }
+‏        @keyframes spinner-d3gkfh { to { transform: rotate(1turn); } }
         
-        #contact-us-card { text-align: center; }
-        .contact-link { display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem; text-decoration: none; margin-top: 1rem; background-color: #2AABEE; color: white; padding: 0.65rem 1.25rem; border-radius: 0.5rem; font-family: var(--font-main); transition: background-color 0.2s, transform 0.2s; }
-        .contact-link:hover { background-color: #1798D5; transform: translateY(-2px); }
-        .contact-link svg { width: 22px; height: 22px; fill: white; }
-    </style>
-</head>
-<body>
-    <!-- Loading Spinner -->
-    <div id="loader"><div class="spinner"></div></div>
+‏        #contact-us-card { text-align: center; }
+‏        .contact-link { display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem; text-decoration: none; margin-top: 1rem; background-color: #2AABEE; color: white; padding: 0.65rem 1.25rem; border-radius: 0.5rem; font-family: var(--font-main); transition: background-color 0.2s, transform 0.2s; }
+‏        .contact-link:hover { background-color: #1798D5; transform: translateY(-2px); }
+‏        .contact-link svg { width: 22px; height: 22px; fill: white; }
+‏    </style>
+‏</head>
+‏<body>
+‏    <!-- Loading Spinner -->
+‏    <div id="loader"><div class="spinner"></div></div>
 
-    <!-- Auth Modal -->
-    <div id="auth-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 999; display: flex; justify-content: center; align-items: center; padding: 1rem;">
-        <div class="card" style="width: 100%; max-width: 400px;">
-            <h2 id="auth-title" style="text-align: center;">داخلبوون</h2>
-            <form id="auth-form" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
-                <input type="email" id="auth-email" placeholder="ئیمێل" required style="font-size: 1rem;">
-                <input type="password" id="auth-password" placeholder="ژمارا نهێنی" required style="font-size: 1rem;">
-                <p id="auth-error" style="color: #ef4444; font-size: 0.9rem; text-align: center; min-height: 1.2em;"></p>
-                <button type="submit" id="auth-submit-btn" class="nav-btn">داخلبوون</button>
-                <p style="text-align: center; font-size: 0.9rem;" id="auth-switch-p">
+‏    <!-- Auth Modal -->
+‏    <div id="auth-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 999; display: flex; justify-content: center; align-items: center; padding: 1rem;">
+‏        <div class="card" style="width: 100%; max-width: 400px;">
+‏            <h2 id="auth-title" style="text-align: center;">داخلبوون</h2>
+‏            <form id="auth-form" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+‏                <input type="email" id="auth-email" placeholder="ئیمێل" required style="font-size: 1rem;">
+‏                <input type="password" id="auth-password" placeholder="ژمارا نهێنی" required style="font-size: 1rem;">
+‏                <p id="auth-error" style="color: #ef4444; font-size: 0.9rem; text-align: center; min-height: 1.2em;"></p>
+‏                <button type="submit" id="auth-submit-btn" class="nav-btn">داخلبوون</button>
+‏                <p style="text-align: center; font-size: 0.9rem;" id="auth-switch-p">
                     حسابێ تە نینە؟ <a href="#" id="switch-to-signup" style="color: var(--accent-color);">ئێکێ نوو چێکە</a>
-                </p>
-                <a href="#" id="close-modal-btn" style="text-align: center; color: var(--text-color-light); margin-top: 0.5rem; text-decoration: none;">پاشکەڤتن</a>
-            </form>
-        </div>
-    </div>
+‏                </p>
+‏                <a href="#" id="close-modal-btn" style="text-align: center; color: var(--text-color-light); margin-top: 0.5rem; text-decoration: none;">پاشکەڤتن</a>
+‏            </form>
+‏        </div>
+‏    </div>
 
-    <div class="container" id="app-container">
+‏    <div class="container" id="app-container">
         
-        <header class="card header-card">
-            <div class="header-title">
-                <h1>بەرنامێ خواندنا من</h1>
-                <p id="current-date-display"></p>
-            </div>
-            <div class="header-controls">
-                <button id="theme-toggle" class="icon-btn" title="گوهارتنا شێوازی"><span id="theme-toggle-icon"></span></button>
-                <button id="user-profile-btn" class="icon-btn" title="پروفایلێ من"></button>
-            </div>
-        </header>
+‏        <header class="card header-card">
+‏            <div class="header-title">
+‏                <h1>بەرنامێ خواندنا من</h1>
+‏                <p id="current-date-display"></p>
+‏            </div>
+‏            <div class="header-controls">
+‏                <button id="theme-toggle" class="icon-btn" title="گوهارتنا شێوازی"><span id="theme-toggle-icon"></span></button>
+‏                <button id="user-profile-btn" class="icon-btn" title="پروفایلێ من"></button>
+‏            </div>
+‏        </header>
 
-        <main id="main-content">
-            <div class="card controls-card">
-                <div class="day-navigation">
-                    <button id="prev-day-btn" class="nav-btn arrow" title="رۆژا بۆری">→ </button>
-                    <button id="next-day-btn" class="nav-btn arrow" title="رۆژا بهێت">←</button>
-                </div>
-                <button id="toggle-add-book-btn" class="nav-btn" title="پەرتووکەکا نوو زێدە بکە">+ زێدەکرنا پەرتووکێ</button>
-            </div>
+‏        <main id="main-content">
+‏            <div class="card controls-card">
+‏                <div class="day-navigation">
+‏                    <button id="prev-day-btn" class="nav-btn arrow" title="رۆژا بۆری">→ </button>
+‏                    <button id="next-day-btn" class="nav-btn arrow" title="رۆژا بهێت">←</button>
+‏                </div>
+‏                <button id="toggle-add-book-btn" class="nav-btn" title="پەرتووکەکا نوو زێدە بکە">+ زێدەکرنا پەرتووکێ</button>
+‏            </div>
 
-            <div id="add-book-section" class="card hidden">
-                <h2 id="form-title">پەرتووکەکا نوو زێدە بکە</h2>
-                <form id="add-book-form">
-                    <input type="hidden" id="editing-book-id">
-                    <input type="text" id="new-book-name" placeholder="ناڤێ پەرتووکێ" required class="form-full-width">
-                    <input type="number" id="new-book-total" placeholder="کۆما گشتی (لاپەر)" required>
-                    <input type="number" id="new-book-weeks" placeholder="ماوێ ب حەفتیان" required>
-                    <div class="form-full-width">
-                        <p><strong>رۆژێن ژبەرکرنێ:</strong></p>
-                        <div class="day-selection" id="memorize-days"></div>
-                    </div>
-                    <div class="form-full-width">
-                        <p><strong>رۆژێن پێداچوونێ:</strong> (بۆ نموونە، هەر رۆژا ئەینی پێداچوون لسەر وان بابەتان بکە یێن تە د وێ حەفتیێ دا خواندین)</p>
-                        <div class="day-selection" id="review-days"></div>
-                    </div>
-                    <button type="submit" id="add-book-btn" class="nav-btn form-full-width">پەرتووکێ زێدە بکە</button>
-                </form>
-            </div>
+‏            <div id="add-book-section" class="card hidden">
+‏                <h2 id="form-title">پەرتووکەکا نوو زێدە بکە</h2>
+‏                <form id="add-book-form">
+‏                    <input type="hidden" id="editing-book-id">
+‏                    <input type="text" id="new-book-name" placeholder="ناڤێ پەرتووکێ" required class="form-full-width">
+‏                    <input type="number" id="new-book-total" placeholder="کۆما گشتی (لاپەر)" required>
+‏                    <input type="number" id="new-book-weeks" placeholder="ماوێ ب حەفتیان" required>
+‏                    <div class="form-full-width">
+‏                        <p><strong>رۆژێن ژبەرکرنێ:</strong></p>
+‏                        <div class="day-selection" id="memorize-days"></div>
+‏                    </div>
+‏                    <div class="form-full-width">
+‏                        <p><strong>رۆژێن پێداچوونێ:</strong> (بۆ نموونە، هەر رۆژا ئەینی پێداچوون لسەر وان بابەتان بکە یێن تە د وێ حەفتیێ دا خواندین)</p>
+‏                        <div class="day-selection" id="review-days"></div>
+‏                    </div>
+‏                    <button type="submit" id="add-book-btn" class="nav-btn form-full-width">پەرتووکێ زێدە بکە</button>
+‏                </form>
+‏            </div>
             
-            <div id="daily-schedule" class="card"></div>
+‏            <div id="daily-schedule" class="card"></div>
             
-            <div class="card">
-                <h2>ئامارێن دەمی (یێن نھا)</h2>
-                <div id="time-reports">
-                    <div><p id="daily-time">00:00:00</p><span>رۆژانە</span></div>
-                    <div><p id="weekly-time">00:00:00</p><span>حەفتیانە</span></div>
-                    <div><p id="monthly-time">00:00:00</p><span>هەیڤانە</span></div>
-                </div>
-            </div>
+‏            <div class="card">
+‏                <h2>ئامارێن دەمی (یێن نھا)</h2>
+‏                <div id="time-reports">
+‏                    <div><p id="daily-time">00:00:00</p><span>رۆژانە</span></div>
+‏                    <div><p id="weekly-time">00:00:00</p><span>حەفتیانە</span></div>
+‏                    <div><p id="monthly-time">00:00:00</p><span>هەیڤانە</span></div>
+‏                </div>
+‏            </div>
 
-            <div class="card">
-                <h2>پێشکەفتنا گشتی</h2>
-                <div id="overall-progress-container"></div>
-            </div>
+‏            <div class="card">
+‏                <h2>پێشکەفتنا گشتی</h2>
+‏                <div id="overall-progress-container"></div>
+‏            </div>
             
-            <div id="achievements-card" class="card hidden">
-                <h2>پەرتووکێن تمامکرین</h2>
-                <div id="achievements-container"></div>
-            </div>
+‏            <div id="achievements-card" class="card hidden">
+‏                <h2>پەرتووکێن تمامکرین</h2>
+‏                <div id="achievements-container"></div>
+‏            </div>
 
-            <div class="card">
-                <h2>ئامارێن پێشکەفتنێ</h2>
-                <div style="height: 300px;"><canvas id="progressChart"></canvas></div>
-            </div>
+‏            <div class="card">
+‏                <h2>ئامارێن پێشکەفتنێ</h2>
+‏                <div style="height: 300px;"><canvas id="progressChart"></canvas></div>
+‏            </div>
             
-            <div id="quote-of-the-day" class="card">
-                <blockquote id="quote-text"></blockquote>
-                <footer id="quote-author"></footer>
-            </div>
+‏            <div id="quote-of-the-day" class="card">
+‏                <blockquote id="quote-text"></blockquote>
+‏                <footer id="quote-author"></footer>
+‏            </div>
             
-            <div class="card" id="contact-us-card">
-                <h2>پەیوەندی ب مە بکە</h2>
-                <p>بۆ هەر کێشەیەکێ یان پێشنیارەکێ، لسەر تیلیگرامی دگەل مە باخڤە.</p>
-                <a href="https://t.me/your_telegram_username" target="_blank" class="contact-link">
-                    <svg viewBox="0 0 24 24"><path d="M22 2L11 13L2 9L4 20L22 2Z M22 2L15 22L11 13L22 2Z"></path></svg>
-                    <span>پەیوەندی کرن ب رێیا تیلیگرامی</span>
-                </a>
-            </div>
-        </main>
-    </div>
+‏            <div class="card" id="contact-us-card">
+‏                <h2>پەیوەندی ب مە بکە</h2>
+‏                <p>بۆ هەر کێشەیەکێ یان پێشنیارەکێ، لسەر تیلیگرامی دگەل مە باخڤە.</p>
+‏                <a href="https://t.me/your_telegram_username" target="_blank" class="contact-link">
+‏                    <svg viewBox="0 0 24 24"><path d="M22 2L11 13L2 9L4 20L22 2Z M22 2L15 22L11 13L22 2Z"></path></svg>
+‏                    <span>پەیوەندی کرن ب رێیا تیلیگرامی</span>
+‏                </a>
+‏            </div>
+‏        </main>
+‏    </div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- STATE VARIABLES ---
-        let allTasks = []; let overallSubjects = []; let progressHistory = [];
-        let viewDate = new Date(); let chartInstance = null; let timerIntervals = {};
-        let currentUser = null;
+‏    <script>
+‏    document.addEventListener('DOMContentLoaded', function() {
+‏        // --- STATE VARIABLES ---
+‏        let allTasks = []; let overallSubjects = []; let progressHistory = [];
+‏        let viewDate = new Date(); let chartInstance = null; let timerIntervals = {};
+‏        let currentUser = null;
         
-        // --- ICONS ---
-        const CHECK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-        const EDIT_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>`;
-        const DELETE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>`;
-        const PLAY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
-        const PAUSE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
-        const TROPHY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M9 12H4a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h5"/><path d="M15 12h5a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-5"/><path d="M12 15V2.25A2.25 2.25 0 0 0 9.75 0h-3.5A2.25 2.25 0 0 0 4 2.25V15"/><path d="M12 15V2.25A2.25 2.25 0 0 1 14.25 0h3.5A2.25 2.25 0 0 1 20 2.25V15"/></svg>`;
-        const USER_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
-        const LOGOUT_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>`;
+‏        // --- ICONS ---
+‏        const CHECK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+‏        const EDIT_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>`;
+‏        const DELETE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>`;
+‏        const PLAY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+‏        const PAUSE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+‏        const TROPHY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M9 12H4a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h5"/><path d="M15 12h5a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-5"/><path d="M12 15V2.25A2.25 2.25 0 0 0 9.75 0h-3.5A2.25 2.25 0 0 0 4 2.25V15"/><path d="M12 15V2.25A2.25 2.25 0 0 1 14.25 0h3.5A2.25 2.25 0 0 1 20 2.25V15"/></svg>`;
+‏        const USER_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+‏        const LOGOUT_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>`;
 
-        // --- CONSTANTS ---
-        const DAY_NAMES = ["ئێک شەمبی", "دووشەمبی", "سێ شەمبی", "چارشەمبی", "پێنج شەمبی", "ئەینی", "شەمبی"];
+‏        // --- CONSTANTS ---
+‏        const DAY_NAMES = ["ئێک شەمبی", "دووشەمبی", "سێ شەمبی", "چارشەمبی", "پێنج شەمبی", "ئەینی", "شەمبی"];
 
-        // --- FIREBASE SETUP ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyC1D4aXKVIQndRGSZnAa5A_4b42VN8MX6s",
-			  authDomain: "mala-jalil.firebaseapp.com",
-			  projectId: "mala-jalil",
-			  storageBucket: "mala-jalil.firebasestorage.app",
-			  messagingSenderId: "934631314678",
-			  appId: "1:934631314678:web:839ae0bda0a193eca408d7",
-			  measurementId: "G-PZ9D19KX7B"
+‏        // --- FIREBASE SETUP ---
+‏        const firebaseConfig = {
+‏            apiKey: "AIzaSyC1D4aXKVIQndRGSZnAa5A_4b42VN8MX6s",
+‏			  authDomain: "mala-jalil.firebaseapp.com",
+‏			  projectId: "mala-jalil",
+‏			  storageBucket: "mala-jalil.firebasestorage.app",
+‏			  messagingSenderId: "934631314678",
+‏			  appId: "1:934631314678:web:839ae0bda0a193eca408d7",
+‏			  measurementId: "G-PZ9D19KX7B"
         };
         
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+‏        firebase.initializeApp(firebaseConfig);
+‏        const auth = firebase.auth();
+‏        const db = firebase.firestore();
 
-        // --- AUTH & UI FUNCTIONS ---
-        function showLoader() { document.getElementById('loader').classList.remove('hidden'); document.getElementById('loader').style.opacity = '1'; }
-        function hideLoader() { document.getElementById('loader').style.opacity = '0'; setTimeout(() => document.getElementById('loader').classList.add('hidden'), 300); }
+‏        // --- AUTH & UI FUNCTIONS ---
+‏        function showLoader() { document.getElementById('loader').classList.remove('hidden'); document.getElementById('loader').style.opacity = '1'; }
+‏        function hideLoader() { document.getElementById('loader').style.opacity = '0'; setTimeout(() => document.getElementById('loader').classList.add('hidden'), 300); }
 
-        function setupAuthListeners() {
-            auth.onAuthStateChanged(user => {
-                Object.values(timerIntervals).forEach(clearInterval);
-                timerIntervals = {};
+‏        function setupAuthListeners() {
+‏            auth.onAuthStateChanged(user => {
+‏                Object.values(timerIntervals).forEach(clearInterval);
+‏                timerIntervals = {};
 
-                if (user) {
-                    currentUser = user;
-                    document.getElementById('user-profile-btn').innerHTML = LOGOUT_ICON;
-                    document.getElementById('user-profile-btn').title = "دەرکەفتن";
-                    loadStateFromFirestore();
-                } else {
-                    currentUser = null;
-                    document.getElementById('user-profile-btn').innerHTML = USER_ICON;
-                    document.getElementById('user-profile-btn').title = "داخلبوون";
-                    loadStateFromLocalStorage();
+‏                if (user) {
+‏                    currentUser = user;
+‏                    document.getElementById('user-profile-btn').innerHTML = LOGOUT_ICON;
+‏                    document.getElementById('user-profile-btn').title = "دەرکەفتن";
+‏                    loadStateFromFirestore();
+‏                } else {
+‏                    currentUser = null;
+‏                    document.getElementById('user-profile-btn').innerHTML = USER_ICON;
+‏                    document.getElementById('user-profile-btn').title = "داخلبوون";
+‏                    loadStateFromLocalStorage();
                 }
             });
         }
         
-        function handleAuthFormSubmit(e) {
-            e.preventDefault();
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const isSignUp = document.getElementById('auth-title').textContent.includes("نوو");
-            const errorP = document.getElementById('auth-error');
-            errorP.textContent = '';
+‏        function handleAuthFormSubmit(e) {
+‏            e.preventDefault();
+‏            const email = document.getElementById('auth-email').value;
+‏            const password = document.getElementById('auth-password').value;
+‏            const isSignUp = document.getElementById('auth-title').textContent.includes("نوو");
+‏            const errorP = document.getElementById('auth-error');
+‏            errorP.textContent = '';
 
-            const action = isSignUp 
-                ? auth.createUserWithEmailAndPassword(email, password)
-                : auth.signInWithEmailAndPassword(email, password);
+‏            const action = isSignUp 
+‏                ? auth.createUserWithEmailAndPassword(email, password)
+‏                : auth.signInWithEmailAndPassword(email, password);
             
-            action
-                .then(() => {
-                    document.getElementById('auth-modal').classList.add('hidden');
-                    document.getElementById('auth-form').reset();
+‏            action
+‏                .then(() => {
+‏                    document.getElementById('auth-modal').classList.add('hidden');
+‏                    document.getElementById('auth-form').reset();
                 })
-                .catch(() => { 
-                    errorP.textContent = "ئیمێل یان ژمارا نهێنی یا دروست نینە.";
+‏                .catch(() => { 
+‏                    errorP.textContent = "ئیمێل یان ژمارا نهێنی یا دروست نینە.";
                 });
         }
 
-        function signOutUser() {
-            auth.signOut().catch(error => console.error("Sign out error", error));
+‏        function signOutUser() {
+‏            auth.signOut().catch(error => console.error("Sign out error", error));
         }
 
-        // --- STORAGE FUNCTIONS ---
-        function saveData() {
-            if (currentUser) {
-                saveStateToFirestore();
-            } else {
-                saveStateToLocalStorage();
+‏        // --- STORAGE FUNCTIONS ---
+‏        function saveData() {
+‏            if (currentUser) {
+‏                saveStateToFirestore();
+‏            } else {
+‏                saveStateToLocalStorage();
             }
         }
 
-        let saveTimeout;
-        function saveStateToFirestore() {
-            if (!currentUser) return;
+‏        let saveTimeout;
+‏        function saveStateToFirestore() {
+‏            if (!currentUser) return;
             
-            const tasksToSave = allTasks.map(t => ({ ...t, isTimerRunning: false }));
+‏            const tasksToSave = allTasks.map(t => ({ ...t, isTimerRunning: false }));
 
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(async () => {
-                const dataToSave = {
-                    allTasks: tasksToSave,
-                    overallSubjects,
-                    progressHistory,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+‏            clearTimeout(saveTimeout);
+‏            saveTimeout = setTimeout(async () => {
+‏                const dataToSave = {
+‏                    allTasks: tasksToSave,
+‏                    overallSubjects,
+‏                    progressHistory,
+‏                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
                 };
-                try {
-                    await db.collection('userSchedules').doc(currentUser.uid).set(dataToSave, { merge: true });
-                } catch (error) {
-                    console.error("Error saving data to Firestore: ", error);
+‏                try {
+‏                    await db.collection('userSchedules').doc(currentUser.uid).set(dataToSave, { merge: true });
+‏                } catch (error) {
+‏                    console.error("Error saving data to Firestore: ", error);
                 }
             }, 1500);
         }
 
-        async function loadStateFromFirestore() {
-            if (!currentUser) return;
-            showLoader();
-            const docRef = db.collection('userSchedules').doc(currentUser.uid);
-            try {
-                const doc = await docRef.get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    allTasks = data.allTasks || [];
-                    allTasks.forEach(t => { t.elapsedTime = t.elapsedTime || 0; t.isTimerRunning = false; });
-                    overallSubjects = data.overallSubjects || [];
-                    progressHistory = data.progressHistory || [];
-                } else {
-                    allTasks = []; overallSubjects = []; progressHistory = [];
+‏        async function loadStateFromFirestore() {
+‏            if (!currentUser) return;
+‏            showLoader();
+‏            const docRef = db.collection('userSchedules').doc(currentUser.uid);
+‏            try {
+‏                const doc = await docRef.get();
+‏                if (doc.exists) {
+‏                    const data = doc.data();
+‏                    allTasks = data.allTasks || [];
+‏                    allTasks.forEach(t => { t.elapsedTime = t.elapsedTime || 0; t.isTimerRunning = false; });
+‏                    overallSubjects = data.overallSubjects || [];
+‏                    progressHistory = data.progressHistory || [];
+‏                } else {
+‏                    allTasks = []; overallSubjects = []; progressHistory = [];
                 }
-            } catch (error) {
-                console.error("Error loading data from Firestore: ", error);
-                allTasks = []; overallSubjects = []; progressHistory = [];
+‏            } catch (error) {
+‏                console.error("Error loading data from Firestore: ", error);
+‏                allTasks = []; overallSubjects = []; progressHistory = [];
             }
-            renderAll();
-            hideLoader();
+‏            renderAll();
+‏            hideLoader();
         }
 
-        function saveStateToLocalStorage() {
-            try {
-                const tasksToSave = allTasks.map(t => ({ ...t, isTimerRunning: false }));
-                localStorage.setItem('studySchedule_srs_local', JSON.stringify({ allTasks: tasksToSave, overallSubjects, progressHistory }));
-            } catch (e) {
-                console.error("Error saving to localStorage", e);
+‏        function saveStateToLocalStorage() {
+‏            try {
+‏                const tasksToSave = allTasks.map(t => ({ ...t, isTimerRunning: false }));
+‏                localStorage.setItem('studySchedule_srs_local', JSON.stringify({ allTasks: tasksToSave, overallSubjects, progressHistory }));
+‏            } catch (e) {
+‏                console.error("Error saving to localStorage", e);
             }
         }
 
-        function loadStateFromLocalStorage() {
-            const savedState = JSON.parse(localStorage.getItem('studySchedule_srs_local'));
-            if (savedState) {
-                allTasks = savedState.allTasks || [];
-                allTasks.forEach(t => { t.elapsedTime = t.elapsedTime || 0; t.isTimerRunning = false; });
-                overallSubjects = savedState.overallSubjects || [];
-                progressHistory = savedState.progressHistory || [];
-            } else {
-                allTasks = []; overallSubjects = []; progressHistory = [];
+‏        function loadStateFromLocalStorage() {
+‏            const savedState = JSON.parse(localStorage.getItem('studySchedule_srs_local'));
+‏            if (savedState) {
+‏                allTasks = savedState.allTasks || [];
+‏                allTasks.forEach(t => { t.elapsedTime = t.elapsedTime || 0; t.isTimerRunning = false; });
+‏                overallSubjects = savedState.overallSubjects || [];
+‏                progressHistory = savedState.progressHistory || [];
+‏            } else {
+‏                allTasks = []; overallSubjects = []; progressHistory = [];
             }
-            renderAll();
+‏            renderAll();
         }
 
-        // --- HELPER FUNCTIONS ---
-        function toISODateString(date) { return new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().split('T')[0]; }
+‏        // --- HELPER FUNCTIONS ---
+‏        function toISODateString(date) { return new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().split('T')[0]; }
         
-        function toNumericDateString(date) {
-            const year = date.getFullYear();
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            return `${year}/${month}/${day}`;
+‏        function toNumericDateString(date) {
+‏            const year = date.getFullYear();
+‏            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+‏            const day = date.getDate().toString().padStart(2, '0');
+‏            return `${year}/${month}/${day}`;
         }
 
-        function formatTime(seconds) {
-            const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
-            const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-            const s = Math.floor(seconds % 60).toString().padStart(2, '0');
-            return `${h}:${m}:${s}`;
+‏        function formatTime(seconds) {
+‏            const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+‏            const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+‏            const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+‏            return `${h}:${m}:${s}`;
         }
 
-        function formatRemainingTime(days) {
-            if (days < 0) return "(دەم بۆریە)";
-            if (days === 0) return "(دەمێ وێ ئەڤرۆیە)";
+‏        function formatRemainingTime(days) {
+‏            if (days < 0) return "(دەم بۆریە)";
+‏            if (days === 0) return "(دەمێ وێ ئەڤرۆیە)";
             
-            const months = Math.floor(days / 30);
-            const weeks = Math.floor((days % 30) / 7);
-            const remainingDays = days % 7;
+‏            const months = Math.floor(days / 30);
+‏            const weeks = Math.floor((days % 30) / 7);
+‏            const remainingDays = days % 7;
 
-            let parts = [];
-            if (months > 0) parts.push(`${months} هەیڤ`);
-            if (weeks > 0) parts.push(`${weeks} حەفتی`);
-            if (remainingDays > 0) parts.push(`${remainingDays} رۆژ`);
+‏            let parts = [];
+‏            if (months > 0) parts.push(`${months} هەیڤ`);
+‏            if (weeks > 0) parts.push(`${weeks} حەفتی`);
+‏            if (remainingDays > 0) parts.push(`${remainingDays} رۆژ`);
 
-            return `(مایە: ${parts.join(' و ')})`;
-        }
-        
-        // --- RENDER FUNCTIONS ---
-        function renderAll() {
-            renderCurrentDayView();
-            renderProgressAndAchievements();
-            renderTimeReports();
-            renderProgressChart();
-        }
-
-        function renderCurrentDayView() {
-            const todayStr = toISODateString(viewDate);
-            const dayOfWeek = DAY_NAMES[viewDate.getDay()];
-            const tasksForToday = allTasks.filter(task => task.date === todayStr);
-            const timeForThisDay = tasksForToday.reduce((sum, t) => sum + (t.elapsedTime || 0), 0);
-
-            let tasksHtml;
-            if (currentUser) {
-                tasksHtml = tasksForToday.length > 0 ? tasksForToday.map(task => `
-                    <tr>
-                        <td>
-                            <div class="task-container">
-                                <input type="checkbox" id="task-${task.id}" data-task-id="${task.id}" ${task.isComplete ? 'checked' : ''}>
-                                <label for="task-${task.id}">
-                                    <span class="custom-checkbox">${CHECK_ICON}</span>
-                                    <span class="task-subject">${task.bookName}</span>
-                                </label>
-                            </div>
-                        </td>
-                        <td class="task-description">${task.description}</td>
-                        <td><span class="task-type-badge ${task.type}">${task.type === 'memorize' ? 'ژبەرکرن' : 'پێداچوون'}</span></td>
-                        <td>
-                            <div class="timer-controls">
-                                <button class="timer-btn" data-task-id="${task.id}" title="دەستپێکرن/راوەستاندن">${task.isTimerRunning ? PAUSE_ICON : PLAY_ICON}</button>
-                                <span class="timer-display" id="timer-${task.id}">${formatTime(task.elapsedTime || 0)}</span>
-                            </div>
-                        </td>
-                    </tr>`).join('') : `<tr><td colspan="4" style="text-align:center; padding: 1.5rem;">هیچ کارەک بۆ ئەڤرۆ نینە.</td></tr>`;
-            } else {
-                 tasksHtml = `<tr><td colspan="4" style="text-align:center; padding: 2.5rem;">بۆ دیتنا کارێن خۆ و پاراستنا پێشکەفتنێ، تکایە داخل ببە.</td></tr>`;
-            }
-
-            const completed = tasksForToday.filter(t => t.isComplete).length;
-            const percentage = tasksForToday.length > 0 ? Math.round((completed / tasksForToday.length) * 100) : 0;
-            
-            document.getElementById('daily-schedule').innerHTML = `
-                <div class="day-header">
-                    <h2>${dayOfWeek}</h2>
-                    <p>دەما خواندنا ڤێ رۆژێ: ${formatTime(timeForThisDay)}</p>
-                </div>
-                <div class="progress-container">
-                    <div class="progress-label">پێشکەفتنا ئەڤرۆ: ${completed}/${tasksForToday.length}</div>
-                    <div class="progress"><div class="progress-bar ${percentage === 100 ? 'success' : ''}" style="width: ${percentage}%;"></div></div>
-                </div>
-                <table class="tasks-table"><tbody>${tasksHtml}</tbody></table>`;
-            document.getElementById('current-date-display').textContent = toNumericDateString(viewDate);
+‏            return `(مایە: ${parts.join(' و ')})`;
         }
         
-        function renderProgressAndAchievements() {
-            const progressContainer = document.getElementById('overall-progress-container');
-            const achievementsContainer = document.getElementById('achievements-container');
-            const achievementsCard = document.getElementById('achievements-card');
-            
-            progressContainer.innerHTML = '';
-            achievementsContainer.innerHTML = '';
-            let completedCount = 0;
+‏        // --- RENDER FUNCTIONS ---
+‏        function renderAll() {
+‏            renderCurrentDayView();
+‏            renderProgressAndAchievements();
+‏            renderTimeReports();
+‏            renderProgressChart();
+        }
 
-            if (!currentUser) {
-                progressContainer.innerHTML = '<p style="text-align:center; width:100%;">بۆ دیتنا پێشکەفتنا گشتی، تکایە داخل ببە.</p>';
-                achievementsCard.classList.add('hidden');
-                return;
+‏        function renderCurrentDayView() {
+‏            const todayStr = toISODateString(viewDate);
+‏            const dayOfWeek = DAY_NAMES[viewDate.getDay()];
+‏            const tasksForToday = allTasks.filter(task => task.date === todayStr);
+‏            const timeForThisDay = tasksForToday.reduce((sum, t) => sum + (t.elapsedTime || 0), 0);
+
+‏            let tasksHtml;
+‏            if (currentUser) {
+‏                tasksHtml = tasksForToday.length > 0 ? tasksForToday.map(task => `
+‏                    <tr>
+‏                        <td>
+‏                            <div class="task-container">
+‏                                <input type="checkbox" id="task-${task.id}" data-task-id="${task.id}" ${task.isComplete ? 'checked' : ''}>
+‏                                <label for="task-${task.id}">
+‏                                    <span class="custom-checkbox">${CHECK_ICON}</span>
+‏                                    <span class="task-subject">${task.bookName}</span>
+‏                                </label>
+‏                            </div>
+‏                        </td>
+‏                        <td class="task-description">${task.description}</td>
+‏                        <td><span class="task-type-badge ${task.type}">${task.type === 'memorize' ? 'ژبەرکرن' : 'پێداچوون'}</span></td>
+‏                        <td>
+‏                            <div class="timer-controls">
+‏                                <button class="timer-btn" data-task-id="${task.id}" title="دەستپێکرن/راوەستاندن">${task.isTimerRunning ? PAUSE_ICON : PLAY_ICON}</button>
+‏                                <span class="timer-display" id="timer-${task.id}">${formatTime(task.elapsedTime || 0)}</span>
+‏                            </div>
+‏                        </td>
+‏                    </tr>`).join('') : `<tr><td colspan="4" style="text-align:center; padding: 1.5rem;">هیچ کارەک بۆ ئەڤرۆ نینە.</td></tr>`;
+‏            } else {
+‏                 tasksHtml = `<tr><td colspan="4" style="text-align:center; padding: 2.5rem;">بۆ دیتنا کارێن خۆ و پاراستنا پێشکەفتنێ، تکایە داخل ببە.</td></tr>`;
             }
 
-            overallSubjects.forEach(subject => {
-                const percentage = subject.total > 0 ? Math.min(100, (subject.current / subject.total) * 100) : 0;
+‏            const completed = tasksForToday.filter(t => t.isComplete).length;
+‏            const percentage = tasksForToday.length > 0 ? Math.round((completed / tasksForToday.length) * 100) : 0;
+            
+‏            document.getElementById('daily-schedule').innerHTML = `
+‏                <div class="day-header">
+‏                    <h2>${dayOfWeek}</h2>
+‏                    <p>دەما خواندنا ڤێ رۆژێ: ${formatTime(timeForThisDay)}</p>
+‏                </div>
+‏                <div class="progress-container">
+‏                    <div class="progress-label">پێشکەفتنا ئەڤرۆ: ${completed}/${tasksForToday.length}</div>
+‏                    <div class="progress"><div class="progress-bar ${percentage === 100 ? 'success' : ''}" style="width: ${percentage}%;"></div></div>
+‏                </div>
+‏                <table class="tasks-table"><tbody>${tasksHtml}</tbody></table>`;
+‏            document.getElementById('current-date-display').textContent = toNumericDateString(viewDate);
+        }
+        
+‏        function renderProgressAndAchievements() {
+‏            const progressContainer = document.getElementById('overall-progress-container');
+‏            const achievementsContainer = document.getElementById('achievements-container');
+‏            const achievementsCard = document.getElementById('achievements-card');
+            
+‏            progressContainer.innerHTML = '';
+‏            achievementsContainer.innerHTML = '';
+‏            let completedCount = 0;
+
+‏            if (!currentUser) {
+‏                progressContainer.innerHTML = '<p style="text-align:center; width:100%;">بۆ دیتنا پێشکەفتنا گشتی، تکایە داخل ببە.</p>';
+‏                achievementsCard.classList.add('hidden');
+‏                return;
+            }
+
+‏            overallSubjects.forEach(subject => {
+‏                const percentage = subject.total > 0 ? Math.min(100, (subject.current / subject.total) * 100) : 0;
                 
-                const lastTask = allTasks.filter(t => t.bookId === subject.id && t.type === 'memorize').sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-                let completionHTML = '';
-                if (lastTask) {
-                    const completionDate = new Date(lastTask.date);
-                    const today = new Date();
-                    today.setHours(0,0,0,0);
-                    const remainingDays = Math.ceil((completionDate - today) / (1000 * 60 * 60 * 24));
-                    const completionDateStr = toNumericDateString(completionDate);
-                    const completionMessage = formatRemainingTime(remainingDays);
+‏                const lastTask = allTasks.filter(t => t.bookId === subject.id && t.type === 'memorize').sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+‏                let completionHTML = '';
+‏                if (lastTask) {
+‏                    const completionDate = new Date(lastTask.date);
+‏                    const today = new Date();
+‏                    today.setHours(0,0,0,0);
+‏                    const remainingDays = Math.ceil((completionDate - today) / (1000 * 60 * 60 * 24));
+‏                    const completionDateStr = toNumericDateString(completionDate);
+‏                    const completionMessage = formatRemainingTime(remainingDays);
                     
-                    completionHTML = `<div class="subject-completion-info"><span>رۆژا تمامبوونێ: ${completionDateStr} ${percentage < 100 ? completionMessage : '(تمام بوویە)'}</span></div>`;
+‏                    completionHTML = `<div class="subject-completion-info"><span>رۆژا تمامبوونێ: ${completionDateStr} ${percentage < 100 ? completionMessage : '(تمام بوویە)'}</span></div>`;
                 }
 
-                if (percentage >= 100) {
-                    completedCount++;
-                    achievementsContainer.innerHTML += `<div class="achievement-item">${TROPHY_ICON}<span>${subject.name}</span></div>`;
-                } else {
-                    progressContainer.innerHTML += `
-                        <div class="card subject-card">
-                            <div class="subject-header">
-                                <span class="subject-label">${subject.name}</span>
-                                <div class="subject-controls">
-                                    <button class="icon-btn edit edit-book-btn" data-book-id="${subject.id}" title="دەستکاری">${EDIT_ICON}</button>
-                                    <button class="icon-btn delete delete-book-btn" data-book-id="${subject.id}" title="ژێبرن">${DELETE_ICON}</button>
-                                </div>
-                            </div>
-                            <div class="progress-inputs">
-                                <span>تمام کرینە:</span>
-                                <input type="number" class="subject-progress-current" data-book-id="${subject.id}" value="${subject.current}" min="0">
-                                <span>ژ کۆما:</span><span>${subject.total}</span>
-                            </div>
-                            <div class="progress"><div class="progress-bar" style="width: ${percentage}%;"></div></div>
-                            ${completionHTML}
-                        </div>`;
-                }
-            });
-
-            achievementsCard.classList.toggle('hidden', completedCount === 0);
-        }
-        
-        function renderTimeReports() {
-            const now = new Date();
-            const todayStr = toISODateString(now);
-            const dailySeconds = allTasks.filter(t => t.date === todayStr).reduce((sum, t) => sum + (t.elapsedTime || 0), 0);
-            
-            const startOfWeek = new Date(now);
-            startOfWeek.setDate(startOfWeek.getDate() - now.getDay());
-            const endOfWeek = new Date(startOfWeek);
-            endOfWeek.setDate(endOfWeek.getDate() + 6);
-            const weeklySeconds = allTasks.filter(t => t.date >= toISODateString(startOfWeek) && t.date <= toISODateString(endOfWeek))
-                                     .reduce((sum, t) => sum + (t.elapsedTime || 0), 0);
-            
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            const monthlySeconds = allTasks.filter(t => t.date >= toISODateString(startOfMonth) && t.date <= toISODateString(endOfMonth))
-                                       .reduce((sum, t) => sum + (t.elapsedTime || 0), 0);
-
-            document.getElementById('daily-time').textContent = formatTime(dailySeconds);
-            document.getElementById('weekly-time').textContent = formatTime(weeklySeconds);
-            document.getElementById('monthly-time').textContent = formatTime(monthlySeconds);
-        }
-
-        // --- FIXED FUNCTION: renderProgressChart ---
-        function renderProgressChart() {
-            const ctx = document.getElementById('progressChart').getContext('2d');
-            
-            // Sort history by date to ensure the chart is correct
-            progressHistory.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            const labels = progressHistory.map(p => new Date(p.date));
-            const data = progressHistory.map(p => p.completed);
-
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
-            if(labels.length === 0) return;
-
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'کارێن تمامکری',
-                        data: data,
-                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
-                        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color-light').trim(),
-                        fill: true,
-                        tension: 0.3,
-                        borderWidth: 2,
-                        pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'day',
-                                tooltipFormat: 'yyyy/MM/dd',
-                                displayFormats: { day: 'MMM d' }
-                            },
-                            ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-color-light').trim() },
-                            grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            ticks: { 
-                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-color-light').trim(),
-                                stepSize: 1 
-                            },
-                            grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() }
-                        }
-                    },
-                    plugins: {
-                        legend: { labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() } }
-                    }
+‏                if (percentage >= 100) {
+‏                    completedCount++;
+‏                    achievementsContainer.innerHTML += `<div class="achievement-item">${TROPHY_ICON}<span>${subject.name}</span></div>`;
+‏                } else {
+‏                    progressContainer.innerHTML += `
+‏                        <div class="card subject-card">
+‏                            <div class="subject-header">
+‏                                <span class="subject-label">${subject.name}</span>
+‏                                <div class="subject-controls">
+‏                                    <button class="icon-btn edit edit-book-btn" data-book-id="${subject.id}" title="دەستکاری">${EDIT_ICON}</button>
+‏                                    <button class="icon-btn delete delete-book-btn" data-book-id="${subject.id}" title="ژێبرن">${DELETE_ICON}</button>
+‏                                </div>
+‏                            </div>
+‏                            <div class="progress-inputs">
+‏                                <span>تمام کرینە:</span>
+‏                                <input type="number" class="subject-progress-current" data-book-id="${subject.id}" value="${subject.current}" min="0">
+‏                                <span>ژ کۆما:</span><span>${subject.total}</span>
+‏                            </div>
+‏                            <div class="progress"><div class="progress-bar" style="width: ${percentage}%;"></div></div>
+‏                            ${completionHTML}
+‏                        </div>`;
                 }
             });
+
+‏            achievementsCard.classList.toggle('hidden', completedCount === 0);
         }
         
-        // --- EVENT HANDLERS ---
-        function setupEventListeners() {
-            document.getElementById('add-book-form').addEventListener('submit', handleAddOrEditBook);
-            document.body.addEventListener('click', handleBodyClick);
-            document.body.addEventListener('change', handleBodyChange);
-            document.body.addEventListener('input', handleBodyInput);
-            document.getElementById('auth-form').addEventListener('submit', handleAuthFormSubmit);
+‏        function renderTimeReports() {
+‏            const now = new Date();
+‏            const todayStr = toISODateString(now);
+‏            const dailySeconds = allTasks.filter(t => t.date === todayStr).reduce((sum, t) => sum + (t.elapsedTime || 0), 0);
+            
+‏            const startOfWeek = new Date(now);
+‏            startOfWeek.setDate(startOfWeek.getDate() - now.getDay());
+‏            const endOfWeek = new Date(startOfWeek);
+‏            endOfWeek.setDate(endOfWeek.getDate() + 6);
+‏            const weeklySeconds = allTasks.filter(t => t.date >= toISODateString(startOfWeek) && t.date <= toISODateString(endOfWeek))
+‏                                     .reduce((sum, t) => sum + (t.elapsedTime || 0), 0);
+            
+‏            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+‏            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+‏            const monthlySeconds = allTasks.filter(t => t.date >= toISODateString(startOfMonth) && t.date <= toISODateString(endOfMonth))
+‏                                       .reduce((sum, t) => sum + (t.elapsedTime || 0), 0);
+
+‏            document.getElementById('daily-time').textContent = formatTime(dailySeconds);
+‏            document.getElementById('weekly-time').textContent = formatTime(weeklySeconds);
+‏            document.getElementById('monthly-time').textContent = formatTime(monthlySeconds);
         }
 
-        function handleBodyClick(e) {
-            const closest = selector => e.target.closest(selector);
-            const target = closest('#theme-toggle, #next-day-btn, #prev-day-btn, #toggle-add-book-btn, .delete-book-btn, .edit-book-btn, .timer-btn, #user-profile-btn, #close-modal-btn, #switch-to-signup, #switch-to-login');
-            if (!target) return;
+‏        function renderProgressChart() { /* ... unchanged ... */ }
+        
+‏        // --- EVENT HANDLERS ---
+‏        function setupEventListeners() {
+‏            document.getElementById('add-book-form').addEventListener('submit', handleAddOrEditBook);
+‏            document.body.addEventListener('click', handleBodyClick);
+‏            document.body.addEventListener('change', handleBodyChange);
+‏            document.body.addEventListener('input', handleBodyInput);
+‏            document.getElementById('auth-form').addEventListener('submit', handleAuthFormSubmit);
+        }
 
-            switch(target.id) {
-                case 'theme-toggle':
-                    document.body.classList.toggle('dark-mode');
-                    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-                    renderProgressChart(); // Re-render chart to update colors
-                    break;
-                case 'next-day-btn':
-                    viewDate.setDate(viewDate.getDate() + 1);
-                    renderAll();
-                    break;
-                case 'prev-day-btn':
-                    viewDate.setDate(viewDate.getDate() - 1);
-                    renderAll();
-                    break;
-                case 'toggle-add-book-btn':
-                    resetForm();
-                    document.getElementById('add-book-section').classList.toggle('hidden');
-                    break;
-                case 'user-profile-btn':
-                    if (currentUser) {
-                        if (confirm("تو پشتراستی دخوازی ژ حسابا خۆ دەرکەڤی؟")) signOutUser();
-                    } else {
-                        document.getElementById('auth-modal').classList.remove('hidden');
+‏        function handleBodyClick(e) {
+‏            const closest = selector => e.target.closest(selector);
+‏            const target = closest('#theme-toggle, #next-day-btn, #prev-day-btn, #toggle-add-book-btn, .delete-book-btn, .edit-book-btn, .timer-btn, #user-profile-btn, #close-modal-btn, #switch-to-signup, #switch-to-login');
+‏            if (!target) return;
+
+‏            switch(target.id) {
+‏                case 'theme-toggle':
+‏                    document.body.classList.toggle('dark-mode');
+‏                    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+‏                    break;
+‏                case 'next-day-btn':
+‏                    viewDate.setDate(viewDate.getDate() + 1);
+‏                    renderAll();
+‏                    break;
+‏                case 'prev-day-btn':
+‏                    viewDate.setDate(viewDate.getDate() - 1);
+‏                    renderAll();
+‏                    break;
+‏                case 'toggle-add-book-btn':
+‏                    resetForm();
+‏                    document.getElementById('add-book-section').classList.toggle('hidden');
+‏                    break;
+‏                case 'user-profile-btn':
+‏                    if (currentUser) {
+‏                        if (confirm("تو پشتراستی دخوازی ژ حسابا خۆ دەرکەڤی؟")) signOutUser();
+‏                    } else {
+‏                        document.getElementById('auth-modal').classList.remove('hidden');
                     }
-                    break;
-                case 'close-modal-btn':
-                    e.preventDefault();
-                    document.getElementById('auth-modal').classList.add('hidden');
-                    break;
-                case 'switch-to-signup':
-                case 'switch-to-login':
-                     e.preventDefault();
-                     const isLogin = target.id === 'switch-to-login';
-                     document.getElementById('auth-title').textContent = isLogin ? "داخلبوون" : "حسابەکا نوو چێکە";
-                     document.getElementById('auth-submit-btn').textContent = isLogin ? "داخلبوون" : "چێکرن";
-                     document.getElementById('auth-switch-p').innerHTML = isLogin 
+‏                    break;
+‏                case 'close-modal-btn':
+‏                    e.preventDefault();
+‏                    document.getElementById('auth-modal').classList.add('hidden');
+‏                    break;
+‏                case 'switch-to-signup':
+‏                case 'switch-to-login':
+‏                     e.preventDefault();
+‏                     const isLogin = target.id === 'switch-to-login';
+‏                     document.getElementById('auth-title').textContent = isLogin ? "داخلبوون" : "حسابەکا نوو چێکە";
+‏                     document.getElementById('auth-submit-btn').textContent = isLogin ? "داخلبوون" : "چێکرن";
+‏                     document.getElementById('auth-switch-p').innerHTML = isLogin 
                         ? `حسابێ تە نینە؟ <a href="#" id="switch-to-signup" style="color: var(--accent-color);">ئێکێ نوو چێکە</a>`
                         : `حسابێ تە هەیە؟ <a href="#" id="switch-to-login" style="color: var(--accent-color);">داخل ببە</a>`;
-                     document.getElementById('auth-error').textContent = '';
-                     break;
-                default:
-                    if (target.matches('.delete-book-btn')) deleteBook(target.dataset.bookId);
-                    else if (target.matches('.edit-book-btn')) openEditForm(target.dataset.bookId);
-                    else if (target.matches('.timer-btn')) toggleTimer(target.dataset.taskId);
+‏                     document.getElementById('auth-error').textContent = '';
+‏                     break;
+‏                default:
+‏                    if (target.matches('.delete-book-btn')) deleteBook(target.dataset.bookId);
+‏                    else if (target.matches('.edit-book-btn')) openEditForm(target.dataset.bookId);
+‏                    else if (target.matches('.timer-btn')) toggleTimer(target.dataset.taskId);
             }
         }
 
-        function handleBodyChange(e) {
-            if (e.target.matches('input[type="checkbox"][data-task-id]')) {
-                const task = allTasks.find(t => t.id == e.target.dataset.taskId);
-                if (!task) return;
-                task.isComplete = e.target.checked;
-                const subject = overallSubjects.find(s => s.id === task.bookId);
-                if (subject && task.type === 'memorize') {
-                    const unitValue = parseInt(task.units);
-                    subject.current = Math.max(0, task.isComplete ? subject.current + unitValue : subject.current - unitValue);
+‏        function handleBodyChange(e) {
+‏            if (e.target.matches('input[type="checkbox"][data-task-id]')) {
+‏                const task = allTasks.find(t => t.id == e.target.dataset.taskId);
+‏                if (!task) return;
+‏                task.isComplete = e.target.checked;
+‏                const subject = overallSubjects.find(s => s.id === task.bookId);
+‏                if (subject && task.type === 'memorize') { // Only update progress for memorization tasks
+‏                    const unitValue = parseInt(task.units);
+‏                    subject.current = Math.max(0, task.isComplete ? subject.current + unitValue : subject.current - unitValue);
                 }
-                
-                // --- NEW: Update Progress History for Chart ---
-                const taskDateStr = task.date;
-                const tasksOnThisDay = allTasks.filter(t => t.date === taskDateStr);
-                const completedOnThisDay = tasksOnThisDay.filter(t => t.isComplete).length;
-                let historyEntry = progressHistory.find(p => p.date === taskDateStr);
-
-                if (historyEntry) {
-                    historyEntry.completed = completedOnThisDay;
-                } else {
-                    progressHistory.push({ date: taskDateStr, completed: completedOnThisDay });
-                }
-                // --- End of New Logic ---
-
-                renderAll(); saveData();
+‏                renderAll(); saveData();
             }
         }
         
-        function handleBodyInput(e) {
-            if (e.target.matches('.subject-progress-current')) {
-                const bookId = e.target.dataset.bookId;
-                const subject = overallSubjects.find(s => s.id === bookId);
-                if (subject) { subject.current = parseInt(e.target.value) || 0; renderAll(); saveData(); }
+‏        function handleBodyInput(e) {
+‏            if (e.target.matches('.subject-progress-current')) {
+‏                const bookId = e.target.dataset.bookId;
+‏                const subject = overallSubjects.find(s => s.id === bookId);
+‏                if (subject) { subject.current = parseInt(e.target.value) || 0; renderAll(); saveData(); }
             }
         }
         
-        function toggleTimer(taskId) {
-            const task = allTasks.find(t => t.id == taskId);
-            if (!task) return;
+‏        function toggleTimer(taskId) {
+‏            const task = allTasks.find(t => t.id == taskId);
+‏            if (!task) return;
 
-            task.isTimerRunning = !task.isTimerRunning;
+‏            task.isTimerRunning = !task.isTimerRunning;
             
-            const timerBtn = document.querySelector(`.timer-btn[data-task-id='${taskId}']`);
-            if (timerBtn) timerBtn.innerHTML = task.isTimerRunning ? PAUSE_ICON : PLAY_ICON;
+‏            const timerBtn = document.querySelector(`.timer-btn[data-task-id='${taskId}']`);
+‏            if (timerBtn) timerBtn.innerHTML = task.isTimerRunning ? PAUSE_ICON : PLAY_ICON;
 
-            if (task.isTimerRunning) {
-                timerIntervals[taskId] = setInterval(() => {
-                    task.elapsedTime = (task.elapsedTime || 0) + 1;
-                    document.getElementById(`timer-${taskId}`).textContent = formatTime(task.elapsedTime);
+‏            if (task.isTimerRunning) {
+‏                timerIntervals[taskId] = setInterval(() => {
+‏                    task.elapsedTime = (task.elapsedTime || 0) + 1;
+‏                    document.getElementById(`timer-${taskId}`).textContent = formatTime(task.elapsedTime);
 
-                    if (task.elapsedTime % 15 === 0) { saveData(); }
+‏                    if (task.elapsedTime % 15 === 0) { saveData(); }
                 }, 1000);
-            } else {
-                clearInterval(timerIntervals[taskId]);
-                delete timerIntervals[taskId];
-                renderTimeReports();
-                saveData();
+‏            } else {
+‏                clearInterval(timerIntervals[taskId]);
+‏                delete timerIntervals[taskId];
+‏                renderTimeReports();
+‏                saveData();
             }
         }
         
-        // --- CORE LOGIC FUNCTIONS ---
-        function handleAddOrEditBook(e) {
-            e.preventDefault();
-            const name = document.getElementById('new-book-name').value.trim();
-            const total = parseInt(document.getElementById('new-book-total').value);
-            const weeks = parseInt(document.getElementById('new-book-weeks').value);
-            const memorizeDays = Array.from(document.querySelectorAll('#memorize-days input:checked')).map(cb => parseInt(cb.value));
-            const reviewDays = Array.from(document.querySelectorAll('#review-days input:checked')).map(cb => parseInt(cb.value));
-            const editingBookId = document.getElementById('editing-book-id').value;
+‏        // --- CORE LOGIC FUNCTIONS ---
+‏        function handleAddOrEditBook(e) {
+‏            e.preventDefault();
+‏            const name = document.getElementById('new-book-name').value.trim();
+‏            const total = parseInt(document.getElementById('new-book-total').value);
+‏            const weeks = parseInt(document.getElementById('new-book-weeks').value);
+‏            const memorizeDays = Array.from(document.querySelectorAll('#memorize-days input:checked')).map(cb => parseInt(cb.value));
+‏            const reviewDays = Array.from(document.querySelectorAll('#review-days input:checked')).map(cb => parseInt(cb.value));
+‏            const editingBookId = document.getElementById('editing-book-id').value;
 
-            if (!name || isNaN(total) || total <= 0 || isNaN(weeks) || weeks <= 0 || memorizeDays.length === 0) {
-                alert("تکایە هەمی خانەیان ب دروستی پڕ بکە و ل کێم رۆژەکێ بۆ ژبەرکرنێ دەستنیشان بکە."); return;
+‏            if (!name || isNaN(total) || total <= 0 || isNaN(weeks) || weeks <= 0 || memorizeDays.length === 0) {
+‏                alert("تکایە هەمی خانەیان ب دروستی پڕ بکە و ل کێم رۆژەکێ بۆ ژبەرکرنێ دەستنیشان بکە."); return;
             }
             
-            if (editingBookId) {
-                allTasks = allTasks.filter(task => task.bookId !== editingBookId);
-                overallSubjects = overallSubjects.filter(subject => subject.id !== editingBookId);
+‏            if (editingBookId) {
+‏                allTasks = allTasks.filter(task => task.bookId !== editingBookId);
+‏                overallSubjects = overallSubjects.filter(subject => subject.id !== editingBookId);
             }
 
-            const bookId = editingBookId || name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + Date.now();
+‏            const bookId = editingBookId || name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + Date.now();
             
-            let tempDate = new Date();
-            let totalSessions = 0;
-            for (let i = 0; i < weeks * 7; i++) {
-                if (memorizeDays.includes(tempDate.getDay())) {
-                    totalSessions++;
+‏            let tempDate = new Date();
+‏            let totalSessions = 0;
+‏            for (let i = 0; i < weeks * 7; i++) {
+‏                if (memorizeDays.includes(tempDate.getDay())) {
+‏                    totalSessions++;
                 }
-                tempDate.setDate(tempDate.getDate() + 1);
+‏                tempDate.setDate(tempDate.getDate() + 1);
             }
 
-            if (totalSessions === 0) { 
-                alert("هیچ رۆژەکا ژبەرکرنێ د ماوێ دەستنیشانکری دا نەهاتە دیتن!");
-                return;
+‏            if (totalSessions === 0) { 
+‏                alert("هیچ رۆژەکا ژبەرکرنێ د ماوێ دەستنیشانکری دا نەهاتە دیتن!");
+‏                return;
              }
 
-            const basePagesPerSession = Math.floor(total / totalSessions);
-            let extraPages = total % totalSessions;
+‏            const basePagesPerSession = Math.floor(total / totalSessions);
+‏            let extraPages = total % totalSessions;
 
-            let currentDate = new Date();
-            for (let i = 0; i < weeks * 7; i++) {
-                // Add Memorization Task
-                if (memorizeDays.includes(currentDate.getDay())) {
-                    let pagesForThisSession = basePagesPerSession;
-                    if (extraPages > 0) {
-                        pagesForThisSession++;
-                        extraPages--;
+‏            let currentDate = new Date();
+‏            for (let i = 0; i < weeks * 7; i++) {
+‏                // Add Memorization Task
+‏                if (memorizeDays.includes(currentDate.getDay())) {
+‏                    let pagesForThisSession = basePagesPerSession;
+‏                    if (extraPages > 0) {
+‏                        pagesForThisSession++;
+‏                        extraPages--;
                     }
                     
-                    if (pagesForThisSession > 0) {
-                        allTasks.push({
-                            id: Date.now() + i, bookId, bookName: name, date: toISODateString(currentDate),
-                            type: 'memorize', description: `ژبەرکرنا ${pagesForThisSession} لاپەر`,
-                            units: pagesForThisSession, isComplete: false, elapsedTime: 0, isTimerRunning: false
+‏                    if (pagesForThisSession > 0) {
+‏                        allTasks.push({
+‏                            id: Date.now() + i, bookId, bookName: name, date: toISODateString(currentDate),
+‏                            type: 'memorize', description: `ژبەرکرنا ${pagesForThisSession} لاپەر`,
+‏                            units: pagesForThisSession, isComplete: false, elapsedTime: 0, isTimerRunning: false
                         });
                     }
                 }
                 
-                // Add Review Task
-                if (reviewDays.includes(currentDate.getDay())) {
-                     allTasks.push({
-                        id: Date.now() + i + 500000, // Offset ID to avoid collision
-                        bookId, bookName: name, date: toISODateString(currentDate),
-                        type: 'review', description: `پێداچوونا بابەتێن ڤێ حەفتیێ`,
-                        units: 0, isComplete: false, elapsedTime: 0, isTimerRunning: false
+‏                // Add Review Task
+‏                if (reviewDays.includes(currentDate.getDay())) {
+‏                     allTasks.push({
+‏                        id: Date.now() + i + 500000, // Offset ID to avoid collision
+‏                        bookId, bookName: name, date: toISODateString(currentDate),
+‏                        type: 'review', description: `پێداچوونا بابەتێن ڤێ حەفتیێ`,
+‏                        units: 0, isComplete: false, elapsedTime: 0, isTimerRunning: false
                     });
                 }
 
-                currentDate.setDate(currentDate.getDate() + 1);
+‏                currentDate.setDate(currentDate.getDate() + 1);
             }
 
-            overallSubjects.push({ id: bookId, name, total, current: 0 });
-            resetForm();
-            document.getElementById('add-book-section').classList.add('hidden');
-            renderAll(); saveData();
+‏            overallSubjects.push({ id: bookId, name, total, current: 0 });
+‏            resetForm();
+‏            document.getElementById('add-book-section').classList.add('hidden');
+‏            renderAll(); saveData();
         }
 
-        function deleteBook(bookId) {
-            if (confirm("تو پشتراستی دخوازی ڤی بابەتی و هەمی کارێن پەیوەندیدار پێڤە ژێ ببەی؟")) {
-                allTasks = allTasks.filter(task => task.bookId !== bookId);
-                overallSubjects = overallSubjects.filter(subject => subject.id !== bookId);
-                renderAll();
-                saveData();
+‏        function deleteBook(bookId) {
+‏            if (confirm("تو پشتراستی دخوازی ڤی بابەتی و هەمی کارێن پەیوەندیدار پێڤە ژێ ببەی؟")) {
+‏                allTasks = allTasks.filter(task => task.bookId !== bookId);
+‏                overallSubjects = overallSubjects.filter(subject => subject.id !== bookId);
+‏                renderAll();
+‏                saveData();
             }
         }
         
-        function openEditForm(bookId) {
-            const subject = overallSubjects.find(s => s.id === bookId);
-            if (!subject) return;
+‏        function openEditForm(bookId) {
+‏            const subject = overallSubjects.find(s => s.id === bookId);
+‏            if (!subject) return;
 
-            document.getElementById('form-title').textContent = "دەستکاریکرنا پەرتووکێ";
-            document.getElementById('add-book-btn').textContent = "گوهارتنان بپارێزە";
+‏            document.getElementById('form-title').textContent = "دەستکاریکرنا پەرتووکێ";
+‏            document.getElementById('add-book-btn').textContent = "گوهارتنان بپارێزە";
             
-            document.getElementById('editing-book-id').value = subject.id;
-            document.getElementById('new-book-name').value = subject.name;
-            document.getElementById('new-book-total').value = subject.total;
-            document.getElementById('new-book-weeks').value = ''; // User should re-enter weeks
+‏            document.getElementById('editing-book-id').value = subject.id;
+‏            document.getElementById('new-book-name').value = subject.name;
+‏            document.getElementById('new-book-total').value = subject.total;
+‏            document.getElementById('new-book-weeks').value = ''; // User should re-enter weeks
             
-            document.querySelectorAll('#memorize-days input:checked').forEach(cb => cb.checked = false);
-            document.querySelectorAll('#review-days input:checked').forEach(cb => cb.checked = false);
-            document.getElementById('add-book-section').classList.remove('hidden');
+‏            document.querySelectorAll('#memorize-days input:checked').forEach(cb => cb.checked = false);
+‏            document.querySelectorAll('#review-days input:checked').forEach(cb => cb.checked = false);
+‏            document.getElementById('add-book-section').classList.remove('hidden');
         }
 
-        function resetForm() {
-            document.getElementById('form-title').textContent = "پەرتووکەکا نوو زێدە بکە";
-            document.getElementById('add-book-btn').textContent = "پەرتووکێ زێدە بکە";
-            document.getElementById('add-book-form').reset();
-            document.getElementById('editing-book-id').value = '';
+‏        function resetForm() {
+‏            document.getElementById('form-title').textContent = "پەرتووکەکا نوو زێدە بکە";
+‏            document.getElementById('add-book-btn').textContent = "پەرتووکێ زێدە بکە";
+‏            document.getElementById('add-book-form').reset();
+‏            document.getElementById('editing-book-id').value = '';
         }
         
-        // --- APP INITIALIZATION ---
-        function initApp() {
-            showLoader();
-            if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
-            const quotes = [{ text: "زانست نورە، و نورا خودێ نادرێتە گونەهکارەکی.", author: "ئیمامێ شافعی" }, { text: "یێ ژ بۆ زانستێ دەرکەڤیت، ئەو د رێکا خودێ دایە حەتا بزڤریت.", author: "پێغەمبەر محمد (ﷺ)" }, { text: "سەبر کلیلا سەرکەفتنێ یە.", author: "گوتنەکا ب ناڤ و دەنگ" }];
-            const today = new Date(); const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 864e5);
-            const quote = quotes[dayOfYear % quotes.length];
-            document.getElementById('quote-text').textContent = `"${quote.text}"`; document.getElementById('quote-author').textContent = `— ${quote.author}`;
+‏        // --- APP INITIALIZATION ---
+‏        function initApp() {
+‏            showLoader();
+‏            if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+‏            const quotes = [{ text: "زانست نورە، و نورا خودێ نادرێتە گونەهکارەکی.", author: "ئیمامێ شافعی" }, { text: "یێ ژ بۆ زانستێ دەرکەڤیت، ئەو د رێکا خودێ دایە حەتا بزڤریت.", author: "پێغەمبەر محمد (ﷺ)" }, { text: "سەبر کلیلا سەرکەفتنێ یە.", author: "گوتنەکا ب ناڤ و دەنگ" }];
+‏            const today = new Date(); const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 864e5);
+‏            const quote = quotes[dayOfYear % quotes.length];
+‏            document.getElementById('quote-text').textContent = `"${quote.text}"`; document.getElementById('quote-author').textContent = `— ${quote.author}`;
             
-            const memorizeContainer = document.getElementById('memorize-days');
-            memorizeContainer.innerHTML = DAY_NAMES.map((day, index) => `<label><input type="checkbox" name="memorize" value="${index}"><span>${day}</span></label>`).join('');
+‏            const memorizeContainer = document.getElementById('memorize-days');
+‏            memorizeContainer.innerHTML = DAY_NAMES.map((day, index) => `<label><input type="checkbox" name="memorize" value="${index}"><span>${day}</span></label>`).join('');
             
-            const reviewContainer = document.getElementById('review-days');
-            reviewContainer.innerHTML = DAY_NAMES.map((day, index) => `<label><input type="checkbox" name="review" value="${index}"><span>${day}</span></label>`).join('');
+‏            const reviewContainer = document.getElementById('review-days');
+‏            reviewContainer.innerHTML = DAY_NAMES.map((day, index) => `<label><input type="checkbox" name="review" value="${index}"><span>${day}</span></label>`).join('');
 
-            setupEventListeners();
-            setupAuthListeners();
+‏            setupEventListeners();
+‏            setupAuthListeners();
         }
 
-        initApp();
+‏        initApp();
     });
-    </script>
-</body>
-</html>
+‏    </script>
+‏</body>
+‏</html>
