@@ -1,822 +1,406 @@
+
 <!DOCTYPE html>
 <html lang="ku" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بەرنامێ خواندنا من (پێشکەفتی)</title>
-    
-    <!-- Firebase Libraries -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سبل السلام | گەشتەکا نوو</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;700&display=swap');
+:root {
+    --bg-main: #0d1117; --bg-secondary: #161b22; --bg-glass: rgba(22, 27, 34, 0.7);
+    --text-primary: #e6edf3; --text-secondary: #8b949e; --accent-primary: #D4AF37;
+    --accent-secondary: #58a6ff; --accent-hover: #f0c674; --border-color: #30363d;
+    --success-color: #238636; --danger-color: #da3633; --warning-color: #e3b341;
+    --font-body: 'Noto Naskh Arabic', sans-serif; --font-heading: 'Noto Naskh Arabic', serif;
+    --border-radius-md: 12px; --border-radius-sm: 8px;
+    --shadow-main: 0 8px 32px rgba(0, 0, 0, 0.6); --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+body { font-family: var(--font-body); background-color: var(--bg-main); color: var(--text-primary); line-height: 1.8; overflow-x: hidden; }
+a { color: var(--accent-secondary); text-decoration: none; transition: color 0.3s; }
+a:hover { color: var(--accent-hover); }
+.container { width: 90%; max-width: 1200px; margin: auto; }
 
-    <!-- Charting Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Rudaw&display=swap');
+#loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-main); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 1.5s ease-out, visibility 1.5s; }
+#loading-screen.fade-out { opacity: 0; visibility: hidden; }
+.loading-content { text-align: center; }
+.loading-logo svg { width: 120px; height: 120px; margin-bottom: 20px; }
+.loading-logo .logo-path { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: draw-logo 2.5s ease-in-out forwards; }
+@keyframes draw-logo { to { stroke-dashoffset: 0; } }
+.loading-title, .loading-text { animation: slide-up 1s ease-out 0.5s both; }
+.loading-title { font-size: 2rem; } .loading-text { font-size: 1.1rem; color: var(--text-secondary); margin-top: 10px; animation-delay: 0.7s; }
 
-        :root {
-            --bg-color: #f8fafc;
-            --card-bg-color: #ffffff;
-            --text-color: #0f172a;
-            --text-color-light: #64748b;
-            --header-bg-color: #ffffff;
-            --border-color: #e2e8f0;
-            --accent-color: #3b82f6;
-            --accent-color-dark: #2563eb;
-            --accent-color-light: #eff6ff;
-            --progress-bar-success-color: #10b981;
-            --button-danger-bg: #ef4444;
-            --button-edit-bg: #f59e0b;
-            --font-main: 'Rudaw', sans-serif;
-            --shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 8px -4px rgba(0, 0, 0, 0.05);
-        }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slide-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-        body.dark-mode {
-            --bg-color: #020617;
-            --card-bg-color: #0f172a;
-            --text-color: #e2e8f0;
-            --text-color-light: #94a3b8;
-            --header-bg-color: #0f172a;
-            --border-color: #1e293b;
-            --accent-color: #60a5fa;
-            --accent-color-dark: #3b82f6;
-            --accent-color-light: #1e293b;
-            --progress-bar-success-color: #34d399;
-            --button-danger-bg: #f87171;
-            --button-edit-bg: #fbbf24;
-        }
+header { position: sticky; top: 0; width: 100%; padding: 15px 0; z-index: 1000; background: var(--bg-glass); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); }
+.header-container { display: flex; justify-content: space-between; align-items: center; }
+.logo { display: flex; align-items: center; gap: 15px; }
+.logo-icon { font-size: 2.5rem; color: var(--accent-primary); }
+.logo-text { font-family: var(--font-heading); font-weight: 700; font-size: 2rem; }
+.header-actions { display: flex; align-items: center; gap: 20px; }
+.points-display-header { font-size: 1.1rem; color: var(--accent-primary); font-weight: bold; background: var(--bg-secondary); padding: 10px 20px; border-radius: 50px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px; }
+.user-icon { font-size: 1.8rem; color: var(--text-secondary); cursor: pointer; transition: color 0.3s; }
+.user-icon:hover { color: var(--accent-primary); }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: var(--font-main); background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; padding: 1rem; }
-        .container { 
-            width: 100%; 
-            max-width: 800px;
-            margin: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 1.5rem;
-        }
-        .card { background-color: var(--card-bg-color); border-radius: 1rem; box-shadow: var(--shadow); border: 1px solid var(--border-color); padding: 1.5rem; transition: background-color 0.3s, border-color 0.3s; }
-        .header-card { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; }
-        .header-title h1 { font-size: 1.75rem; } .header-title p { font-size: 0.9rem; color: var(--text-color-light); }
-        .header-controls { display: flex; align-items: center; gap: 0.75rem; }
-        .icon-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-color-light); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s, color 0.2s, transform 0.2s; }
-        .icon-btn svg { width: 20px; height: 20px; stroke-width: 2; }
-        .icon-btn:hover { background-color: var(--accent-color); color: white; transform: scale(1.1) rotate(5deg); }
-        #theme-toggle-icon::after { content: '☀️'; } body.dark-mode #theme-toggle-icon::after { content: '🌙'; }
-        .controls-card { display: flex; justify-content: space-between; align-items: center; }
-        .day-navigation { display: flex; gap: 0.5rem; }
-        .nav-btn { background-color: var(--accent-color); color: white; border: none; font-family: var(--font-main); height: 40px; padding: 0 1.25rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.9rem; transition: background-color 0.2s, transform 0.2s; }
-        .nav-btn:hover { background-color: var(--accent-color-dark); transform: translateY(-2px); }
-        .nav-btn.arrow { width: 45px; font-size: 1.1rem; }
-        #add-book-section { background-color: var(--accent-color-light); border-left: 5px solid var(--accent-color); transition: all 0.5s ease; overflow: hidden; }
-        #add-book-section.hidden { max-height: 0; padding: 0 1.5rem; opacity: 0; border: none; }
-        #add-book-section:not(.hidden) { max-height: 800px; padding: 1.5rem; opacity: 1; }
-        #add-book-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        #add-book-form input { padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--card-bg-color); color: var(--text-color); font-family: var(--font-main); font-size: 0.9rem; transition: border-color 0.2s, box-shadow 0.2s; }
-        #add-book-form input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px var(--accent-color-light); }
-        .form-full-width { grid-column: 1 / -1; } .day-selection { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.5rem;}
-        .day-selection label { display: flex; align-items: center; gap: 0.3rem; background-color: var(--card-bg-color); padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border-color); cursor: pointer; transition: background-color 0.2s, border-color 0.2s; font-size: 0.9rem; }
-        .day-selection input:checked + span { color: var(--accent-color-dark); font-weight: bold; }
-        .day-header { margin-bottom: 1.25rem; } .day-header h2 { font-size: 1.5rem; color: var(--accent-color); margin-bottom: 0.25rem; } .day-header p { font-size: 0.9rem; color: var(--text-color-light); }
-        .progress-container { margin-bottom: 1rem; } .progress-label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-color-light); }
-        .progress { height: 10px; background-color: var(--border-color); border-radius: 5px; overflow: hidden; }
-        .progress-bar { height: 100%; background-color: var(--accent-color); width: 0%; transition: width 0.5s ease; border-radius: 5px; }
-        .progress-bar.success { background-color: var(--progress-bar-success-color) !important; }
-        .tasks-table { width: 100%; border-collapse: collapse; } .tasks-table tr { border-bottom: 1px solid var(--border-color); } .tasks-table tr:last-child { border-bottom: none; }
-        .tasks-table td { padding: 1rem 0.5rem; vertical-align: middle; }
-        .task-container { display: flex; align-items: center; gap: 1rem; } .task-container input[type="checkbox"] { display: none; }
-        .task-container label { cursor: pointer; display: flex; align-items: center; gap: 0.75rem; }
-        .task-container .custom-checkbox { width: 20px; height: 20px; border: 2px solid var(--border-color); border-radius: 5px; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s, border-color 0.2s; }
-        .task-container .custom-checkbox svg { width: 14px; height: 14px; color: white; transform: scale(0); transition: transform 0.2s; }
-        .task-container input[type="checkbox"]:checked + label .custom-checkbox { background-color: var(--accent-color); border-color: var(--accent-color); }
-        .task-container input[type="checkbox"]:checked + label .custom-checkbox svg { transform: scale(1); }
-        .task-subject { font-weight: bold; font-size: 0.95rem;} .task-description { color: var(--text-color-light); font-size: 0.9rem; }
-        .task-type-badge { font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 0.5rem; font-weight: bold; }
-        .task-type-badge.memorize { background-color: var(--accent-color-light); color: var(--accent-color-dark); }
-        .task-type-badge.review { background-color: #e0f2fe; color: #075985; }
-        #overall-progress-container, #achievements-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
-        .subject-card { padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
-        .subject-header { display: flex; justify-content: space-between; align-items: center; }
-        .subject-label { font-weight: bold; font-size: 1rem; } .subject-controls { display: flex; gap: 0.5rem; }
-        .subject-controls .icon-btn { width: 32px; height: 32px; background-color: var(--bg-color); }
-        .subject-controls .icon-btn svg { width: 16px; height: 16px; }
-        .subject-controls .icon-btn.delete:hover { background-color: var(--button-danger-bg); }
-        .subject-controls .icon-btn.edit:hover { background-color: var(--button-edit-bg); }
-        .progress-inputs { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; }
-        .subject-card input[type="number"] { width: 55px; padding: 0.4rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); text-align: center; }
-        .subject-completion-info { font-size: 0.75rem; color: var(--text-color-light); margin-top: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem; }
-        .timer-controls { display: flex; align-items: center; gap: 0.5rem; }
-        .timer-btn { background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-        .timer-btn svg { width: 16px; height: 16px; } .timer-btn:hover { background-color: var(--accent-color-light); }
-        .timer-display { font-size: 0.85rem; color: var(--text-color-light); min-width: 55px; text-align: left; }
-        #time-reports { display: flex; justify-content: space-around; text-align: center; }
-        #time-reports div p { font-weight: bold; font-size: 1.25rem; color: var(--accent-color); }
-        #time-reports div span { font-size: 0.85rem; color: var(--text-color-light); }
-        .achievement-item { display: flex; align-items: center; gap: 1rem; background-color: var(--bg-color); padding: 0.75rem; border-radius: 0.5rem; }
-        .achievement-item svg { color: var(--progress-bar-success-color); }
-        .hidden { display: none !important; }
-        #quote-of-the-day { text-align: center; } #quote-of-the-day blockquote { font-size: 1rem; font-style: italic; }
-        #quote-of-the-day footer { margin-top: 0.5rem; font-size: 0.9rem; color: var(--accent-color); }
-        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 1000; display: flex; justify-content: center; align-items: center; transition: opacity 0.3s; }
-        .spinner { width: 50px; height: 50px; border-radius: 50%; border: 8px solid var(--border-color); border-right-color: var(--accent-color); animation: spinner-d3gkfh 1s infinite linear; }
-        @keyframes spinner-d3gkfh { to { transform: rotate(1turn); } }
-        
-        #contact-us-card { text-align: center; }
-        .contact-links-container { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 1rem; }
-        .contact-link { display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem; text-decoration: none; background-color: #2AABEE; color: white; padding: 0.65rem 1.25rem; border-radius: 0.5rem; font-family: var(--font-main); transition: background-color 0.2s, transform 0.2s; width: 250px; }
-        .contact-link:hover { transform: translateY(-2px); }
-        .contact-link.telegram:hover { background-color: #1798D5; }
-        .contact-link.instagram { background: #d6249f; background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%); }
-        .contact-link.instagram:hover { opacity: 0.9; }
-        .contact-link svg { width: 22px; height: 22px; fill: white; }
-    </style>
+.journey-hero { text-align: center; padding: 100px 20px; margin-bottom: 80px; }
+.journey-hero h1 { font-size: 4.5rem; margin-bottom: 20px; background: linear-gradient(90deg, var(--accent-hover), var(--accent-primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
+.journey-hero p { font-size: 1.4rem; color: var(--text-secondary); max-width: 750px; margin: 0 auto 40px; }
+.start-journey-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--accent-primary); color: var(--bg-main); padding: 15px 35px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; transition: all 0.3s ease; box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3); }
+.start-journey-btn:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 10px 25px rgba(212, 175, 55, 0.5); background: var(--accent-hover); }
+
+#levels-journey { padding: 40px 0; }
+.levels-timeline { display: flex; flex-direction: column; gap: 20px; }
+.level-step { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); transition: all 0.4s ease; position: relative; padding-right: 50px; }
+.level-step-header { display: flex; align-items: center; gap: 20px; padding: 25px; cursor: pointer; }
+.level-step.is-locked .level-step-header { cursor: not-allowed; opacity: 0.6; }
+.level-icon-wrapper { position: absolute; right: -25px; top: 30px; z-index: 2; width: 50px; height: 50px; border-radius: 50%; background: var(--bg-main); display: flex; align-items: center; justify-content: center; border: 3px solid var(--border-color); }
+.level-icon-wrapper .level-icon { font-size: 1.8rem; color: var(--accent-secondary); }
+.level-step.is-completed .level-icon-wrapper { border-color: var(--success-color); }
+.level-step.is-completed .level-icon { color: var(--success-color); }
+.level-step::after { content: ''; position: absolute; top: 80px; right: -2px; width: 4px; height: calc(100% - 60px); background: var(--border-color); }
+.levels-timeline .level-step:last-child::after { display: none; }
+.level-title h2 { font-size: 1.8rem; margin: 0; color: var(--text-primary); }
+.level-title p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+.level-status { margin-right: auto; display: flex; align-items: center; gap: 10px; }
+.level-step-content { max-height: 0; overflow: hidden; transition: max-height 0.6s ease-out, padding 0.6s ease-out; }
+.level-step-content-inner { padding: 0 25px; }
+.level-step.active:not(.is-locked) .level-step-content { max-height: 1500px; }
+.level-step.active:not(.is-locked) .level-step-content-inner { padding: 25px; border-top: 1px solid var(--border-color); }
+.level-step.is-locked .level-step-content-inner, .level-step.is-locked .level-title p, .level-step.is-locked .level-status { display: none; }
+.locked-content-placeholder { display: none; padding: 40px 20px; text-align: center; color: var(--text-secondary); }
+.level-step.is-locked .locked-content-placeholder { display: block; }
+.locked-content-placeholder .fas { font-size: 4rem; margin-bottom: 20px; }
+.category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+.category-card { background: var(--bg-main); padding: 20px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); text-align: center; transition: all 0.3s ease; cursor: pointer; position: relative; overflow: hidden; }
+.category-card:hover { transform: translateY(-5px); border-color: var(--accent-secondary); }
+.category-icon { font-size: 2rem; margin-bottom: 10px; color: var(--accent-secondary); }
+.category-card h4 { font-size: 1.2rem; }
+.category-card p { font-size: 0.8rem; color: var(--text-secondary); }
+.category-progress-bar { position: absolute; bottom: 0; right: 0; left: 0; height: 4px; background-color: var(--border-color); }
+.category-progress-bar-inner { height: 100%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); width: 0; }
+
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(13, 17, 23, 0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 2000; animation: fade-in 0.3s; }
+.modal-overlay.is-visible { display: flex; }
+.modal-content { position: relative; width: 90%; max-width: 800px; background: var(--bg-secondary); border-radius: var(--border-radius-md); max-height: 85vh; overflow-y: auto; padding: 40px; border: 1px solid var(--border-color); box-shadow: var(--shadow-main); animation: slide-up 0.4s ease-out; }
+.close-modal-btn { position: absolute; top: 20px; left: 25px; color: var(--text-secondary); font-size: 2.2rem; cursor: pointer; z-index: 10; }
+.modal-title { text-align: center; margin-bottom: 30px; font-size: 1.8rem; }
+.course-group { background: var(--bg-main); padding: 20px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); margin-top: 30px; }
+.course-group-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+.course-group-info h4 { font-size: 1.6rem; color: var(--accent-secondary); margin: 0; }
+.course-group-info p { font-size: 0.9rem; color: var(--text-secondary); margin: 5px 0 0 0; }
+.course-header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.goal-setter { display: flex; gap: 8px; flex-direction: column; align-items: flex-start; }
+.goal-setter p { font-size: 0.9rem; margin: 0 0 5px 0; color: var(--text-secondary); }
+.goal-buttons { display: flex; gap: 8px; }
+.goal-btn { font-size: 0.8rem; padding: 6px 12px; border-color: var(--text-secondary); color: var(--text-secondary); }
+.time-remaining { font-size: 0.9rem; color: var(--warning-color); background: rgba(227, 179, 65, 0.1); padding: 8px 15px; border-radius: 50px; }
+.pdf-btn { border-color: var(--accent-secondary); color: var(--accent-secondary); }
+.pdf-btn:hover { background: var(--accent-secondary); color: var(--bg-main); }
+.lesson-item { display: flex; flex-direction: column; padding: 15px; margin-bottom: 10px; border-radius: var(--border-radius-sm); background: var(--bg-secondary); border: 1px solid var(--border-color); transition: all .3s; }
+.lesson-item.is-watched { border-color: var(--success-color); background: rgba(35, 134, 54, 0.1); }
+.lesson-item.locked { opacity: 0.5; pointer-events: none; cursor: not-allowed; }
+.lesson-item.locked .lesson-label { cursor: not-allowed; }
+.lesson-label-container { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+.lesson-label { flex-grow: 1; display: flex; align-items: center; gap: 15px; cursor: pointer; }
+.item-checkbox { width: 22px; height: 22px; accent-color: var(--success-color); }
+.lesson-actions { display: flex; gap: 10px; }
+.action-btn { background: none; border: 1px solid var(--accent-primary); color: var(--accent-primary); padding: 8px 15px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: all 0.3s; }
+.action-btn:hover:not(:disabled) { background: var(--accent-primary); color: var(--bg-main); }
+.action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.benefits-section { width: 100%; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); animation: fade-in 0.5s; }
+.benefits-textarea { width: 100%; height: 100px; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px; border-radius: var(--border-radius-sm); resize: vertical; margin-bottom: 10px; }
+#media-player-container { position: relative; padding-top: 56.25%; }
+#media-player-container iframe, #media-player-container audio { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+#media-player-container audio { height: 60px; }
+.goal-required-placeholder { text-align: center; padding: 40px 20px; background-color: var(--bg-main); border-radius: var(--border-radius-sm); margin-top: 20px; }
+.goal-required-placeholder .fas { font-size: 3rem; color: var(--accent-secondary); margin-bottom: 15px; }
+
+/* Styles for Hadith/Adhkar Items */
+.memorization-item-details { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-out; }
+.memorization-item-details.visible { max-height: 500px; /* Adjust as needed */ }
+.full-text-container { background: var(--bg-main); padding: 20px; margin-top: 15px; border-radius: var(--border-radius-sm); border-right: 3px solid var(--accent-secondary); }
+.audio-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 15px; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+.repetition-controls { display: flex; align-items: center; gap: 8px; }
+.repetition-controls p { margin: 0; font-size: 0.9rem; color: var(--text-secondary); }
+.rep-btn { padding: 5px 12px; font-size: 0.8rem; border: 1px solid var(--text-secondary); color: var(--text-secondary); }
+.rep-btn.active { background: var(--accent-secondary); color: var(--bg-main); border-color: var(--accent-secondary); }
+
+#profile-modal .modal-content { max-width: 550px; padding: 0; }
+.profile-view { padding: 30px; }
+.auth-view { padding: 20px; }
+.form-title { text-align: center; font-size: 2rem; margin-bottom: 30px; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); }
+.form-input { width: 100%; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px 15px; border-radius: var(--border-radius-sm); font-size: 1rem; }
+.form-button { width: 100%; padding: 15px; background: var(--accent-primary); color: var(--bg-main); border: none; border-radius: var(--border-radius-sm); font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+.form-switch-link { text-align: center; margin-top: 20px; color: var(--text-secondary); }
+.form-switch-link a { font-weight: bold; }
+.profile-tabs { display: flex; background: var(--bg-main); padding: 5px; border-radius: var(--border-radius-md); margin-bottom: 30px; }
+.profile-tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-secondary); font-size: 1rem; font-family: var(--font-body); cursor: pointer; border-radius: var(--border-radius-sm); }
+.profile-tab-btn.active { background: var(--accent-secondary); color: var(--bg-main); font-weight: bold; }
+.profile-tab-content { display: none; animation: fade-in 0.5s; }
+.profile-tab-content.active { display: block; }
+.user-info { text-align: center; }
+.user-info .avatar { font-size: 4rem; color: var(--bg-secondary); background: linear-gradient(45deg, var(--accent-primary), var(--accent-hover)); width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 25px rgba(212, 175, 55, 0.5); }
+.user-info h2 { font-size: 2rem; }
+.stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.stat-item { background: var(--bg-main); padding: 20px; border-radius: var(--border-radius-sm); text-align: center; }
+.stat-item .stat-value { font-size: 2rem; font-weight: bold; color: var(--accent-secondary); }
+.badges-container { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+.badge { font-size: 3rem; color: var(--text-secondary); filter: grayscale(1); opacity: 0.6; }
+.badge.earned { color: var(--accent-primary); filter: none; opacity: 1; }
+.service-button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.service-button { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 15px; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-primary); text-align: center; border-radius: var(--border-radius-sm); font-size: 1rem; }
+.service-button.logout { background-color: rgba(218, 54, 51, 0.1); border-color: var(--danger-color); color: var(--danger-color); grid-column: 1 / -1; margin-top: 15px; }
+#my-notes-modal .saved-note { background: var(--bg-main); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 10px; border-right: 4px solid var(--accent-secondary); }
+#my-notes-modal .saved-note h5 { margin-bottom: 8px; }
+</style>
 </head>
 <body>
-    <!-- Loading Spinner -->
-    <div id="loader"><div class="spinner"></div></div>
+<div id="loading-screen"><div class="loading-content"><div class="loading-logo"><svg viewBox="0 0 100 100"><path class="logo-path" d="M20,80 Q50,20 80,80" stroke="var(--accent-primary)" stroke-width="5" fill="none" stroke-linecap="round"/><path class="logo-path" d="M30,80 Q50,50 70,80" stroke="var(--accent-secondary)" stroke-width="5" fill="none" stroke-linecap="round" style="animation-delay: 0.5s;"/></svg></div><h2 class="loading-title">بخێر بهێی بۆ سبل السلام</h2><p class="loading-text">گەشتا تە بەرەڤ زانستێ دەست پێدکەت...</p></div></div>
+<header><div class="header-container container"><a href="#" class="logo"><i class="fas fa-road-bridge logo-icon"></i><span class="logo-text">سبل السلام</span></a><div class="header-actions"><div class="points-display-header"><i class="fas fa-star"></i> <span id="points-display">0</span></div><i class="fas fa-user-circle user-icon" onclick="openModal('profile-modal')"></i></div></div></header>
 
-    <!-- Auth Modal -->
-    <div id="auth-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 999; display: flex; justify-content: center; align-items: center; padding: 1rem;">
-        <div class="card" style="width: 100%; max-width: 400px;">
-            <h2 id="auth-title" style="text-align: center;">داخلبوون</h2>
-            <form id="auth-form" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
-                <input type="email" id="auth-email" placeholder="ئیمێل" required style="font-size: 1rem;">
-                <input type="password" id="auth-password" placeholder="ژمارا نهێنی" required style="font-size: 1rem;">
-                <p id="auth-error" style="color: #ef4444; font-size: 0.9rem; text-align: center; min-height: 1.2em;"></p>
-                <button type="submit" id="auth-submit-btn" class="nav-btn">داخلبوون</button>
-                <p style="text-align: center; font-size: 0.9rem;" id="auth-switch-p">
-                    حسابێ تە نینە؟ <a href="#" id="switch-to-signup" style="color: var(--accent-color);">ئێکێ نوو چێکە</a>
-                </p>
-                <a href="#" id="close-modal-btn" style="text-align: center; color: var(--text-color-light); margin-top: 0.5rem; text-decoration: none;">پاشکەڤتن</a>
-            </form>
-        </div>
+<main class="container">
+    <div class="journey-hero">
+        <h1>ڕێڕەوا فێربوونێ</h1>
+        <p>گەشتەکا ڕێکخستی بۆ فێربوونا زانستێن شەرعی، ژ خالێن دەستپێکێ حەتا ئاستێن پێشکەفتی. ئەرێ تو ئامادەی دەست ب گەشتا خۆ بکەی؟</p>
+        <a href="#levels-journey" class="start-journey-btn">دەستپێکە <i class="fas fa-arrow-down"></i></a>
     </div>
+    <section id="levels-journey"><div class="levels-timeline"></div></section>
+</main>
 
-    <div class="container" id="app-container">
-        
-        <header class="card header-card">
-            <div class="header-title">
-                <h1>بەرنامێ خواندنا من</h1>
-                <p id="current-date-display"></p>
-            </div>
-            <div class="header-controls">
-                <button id="theme-toggle" class="icon-btn" title="گوهارتنا شێوازی"><span id="theme-toggle-icon"></span></button>
-                <button id="user-profile-btn" class="icon-btn" title="پروفایلێ من"></button>
-            </div>
-        </header>
+<div class="modal-overlay" id="activity-list-modal"><div class="modal-content"><span class="close-modal-btn" onclick="closeModal('activity-list-modal')">&times;</span><h3 id="activity-list-title" class="modal-title"></h3><div id="activity-list-container"></div></div></div>
+<div class="modal-overlay" id="media-player-modal"><div class="modal-content"><span class="close-modal-btn" onclick="closeModal('media-player-modal')">&times;</span><div id="media-player-container"></div></div></div>
+<div class="modal-overlay" id="my-notes-modal"><div class="modal-content"><span class="close-modal-btn" onclick="closeModal('my-notes-modal')">&times;</span><h3 class="modal-title">تێبینیێن من</h3><div id="my-notes-container"><p>چ تێبینی نەهاتینە تۆمارکرن.</p></div></div></div>
+<div class="modal-overlay" id="profile-modal"><div class="modal-content"><span class="close-modal-btn" onclick="closeModal('profile-modal')">&times;</span><div id="auth-choice-view" class="auth-view"><h2 class="form-title">بخێر بهێی</h2><p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">بچە ژوور یان هەژمارەکا نوو دروست بکە</p><div class="service-button-grid" style="grid-template-columns: 1fr;"><button class="service-button" onclick="switchAuthView('login-view')"><i class="fas fa-sign-in-alt fa-fw"></i> چوونەژوور</button><button class="service-button" onclick="switchAuthView('register-view')"><i class="fas fa-user-plus fa-fw"></i> خۆتۆمارکرن</button></div></div><div id="login-view" class="auth-view" style="display: none;"><h2 class="form-title">چوونەژوور</h2><form id="login-form"><div class="form-group"><label for="login-email">ئیمێل</label><input type="email" id="login-email" class="form-input" required></div><div class="form-group"><label for="login-password">پەیڤا نهێنی</label><input type="password" id="login-password" class="form-input" required></div><button type="submit" class="form-button">بچە ژوور</button><p class="form-switch-link">هەژمارا تە نینە؟ <a href="#" onclick="switchAuthView('register-view')">ئێکێ نوو دروست بکە</a></p></form></div><div id="register-view" class="auth-view" style="display: none;"><h2 class="form-title">خۆتۆمارکرن</h2><form id="register-form"><div class="form-group"><label for="register-name">ناڤ</label><input type="text" id="register-name" class="form-input" required></div><div class="form-group"><label for="register-email">ئیمێل</label><input type="email" id="register-email" class="form-input" required></div><div class="form-group"><label for="register-password">پەیڤا نهێنی</label><input type="password" id="register-password" class="form-input" required></div><button type="submit" class="form-button">هەژمارێ دروست بکە</button><p class="form-switch-link">هەژمارا تە هەیە؟ <a href="#" onclick="switchAuthView('login-view')">بچە ژوور</a></p></form></div><div id="profile-view" class="profile-card" style="display: none;"><div class="profile-view"><div class="user-info"><div class="avatar"><i class="fas fa-user-graduate"></i></div><div><h2>قوتابیێ نموونە</h2><p>ئەندام ژ: چریا دووێ ٢٠٢٥</p></div></div><nav class="profile-tabs"><button class="profile-tab-btn active" data-tab="info">پێزانین</button><button class="profile-tab-btn" data-tab="achievements">دەستکەفت</button><button class="profile-tab-btn" data-tab="services">خزمەتگوزاری</button></nav><div id="tab-info" class="profile-tab-content active"><div class="stats-container"><div class="stat-item"><div class="stat-value" id="profile-points">0</div><div class="stat-label">کۆما خالان</div></div><div class="stat-item"><div class="stat-value" id="profile-completed-courses">0</div><div class="stat-label">خولێن ب دوماهیک هاتی</div></div><div class="stat-item" style="grid-column: 1 / -1;"><div class="stat-value" id="profile-streak">0 <i class="fas fa-fire" style="color: #ff9800;"></i></div><div class="stat-label">چالاکیا بەردەوام (ڕۆژ)</div></div></div></div><div id="tab-achievements" class="profile-tab-content"><div class="achievements"><h3>نیشانێن ڕێڕەوێ</h3><div class="badges-container" id="profile-badges"></div></div></div><div id="tab-services" class="profile-tab-content"><div class="service-button-grid"><button class="service-button" onclick="showMyNotes()"><i class="fas fa-edit fa-fw"></i> تێبینیێن من</button><button class="service-button" onclick="alert('سوپاس بۆ پێشنیارا تە!')"><i class="fas fa-lightbulb fa-fw"></i> پێشنیار بکە</button><button class="service-button" onclick="alert('ئەڤ بەشە دێ ل پاشەڕۆژێ هێتە بەردەستکرن.')"><i class="fas fa-cog fa-fw"></i> ڕێکخستن</button><button class="service-button" onclick="alert('بۆ هەر پرسیارەکێ، پەیوەندیێ ب مە بکە.')"><i class="fas fa-question-circle fa-fw"></i> هاریکاری</button></div><a href="#" class="service-button logout" onclick="logoutUser()"><i class="fas fa-sign-out-alt fa-fw"></i> چوونەدەر</a></div></div></div></div></div>
 
-        <main id="main-content">
-            <div class="card controls-card">
-                <div class="day-navigation">
-                    <button id="prev-day-btn" class="nav-btn arrow" title="رۆژا بۆری">→ </button>
-                    <button id="next-day-btn" class="nav-btn arrow" title="رۆژا بهێت">←</button>
-                </div>
-                <button id="toggle-add-book-btn" class="nav-btn" title="پەرتووکەکا نوو زێدە بکە">+ زێدەکرنا پەرتووکێ</button>
-            </div>
+<footer><p>&copy; 2025 - سبل السلام. هەمی ماف پاراستینە.</p></footer>
 
-            <div id="add-book-section" class="card hidden">
-                <h2 id="form-title">پەرتووکەکا نوو زێدە بکە</h2>
-                <form id="add-book-form">
-                    <input type="hidden" id="editing-book-id">
-                    <input type="text" id="new-book-name" placeholder="ناڤێ پەرتووکێ" required class="form-full-width">
-                    <input type="number" id="new-book-total" placeholder="کۆما گشتی (لاپەر)" required>
-                    <input type="number" id="new-book-weeks" placeholder="ماوێ ب حەفتیان" required>
-                    <div class="form-full-width">
-                        <p><strong>رۆژێن ژبەرکرنێ:</strong></p>
-                        <div class="day-selection" id="memorize-days"></div>
+<script>
+(function() {
+'use strict';
+const demoData = {
+  levels: [
+    { "level": 1, "levelName": "ئاستێ ئێکێ: بناغە", "levelIcon": "fa-seedling", "courses": [
+        { "id": "usul_thalatha", "title": "شەرحا الأصول الثلاثة", "type": "standard", "pdfUrl": "#", "suggestedDurations": [7, 15, 30], "videos": [
+            { "id": "usul_v1", "title": "وانا ١: پێشەکی", "url": "https://www.youtube.com/embed/dQw4w9WgXcQ", "points": 2 },
+            { "id": "usul_v2", "title": "وانا ٢: بناغێ ئێکێ", "url": "https://www.youtube.com/embed/dQw4w9WgXcQ", "points": 2 }
+        ]},
+        { "id": "qawaid_arbaa", "title": "شەرحا القواعد الأربعة", "type": "standard", "pdfUrl": "#", "suggestedDurations": [5, 10, 20], "videos": [
+            { "id": "qawaid_v1", "title": "وانا ١: پێشەکی", "url": "#", "points": 3 },
+            { "id": "qawaid_v2", "title": "وانا ٢: قاعدا دووێ", "url": "#", "points": 3 }
+        ]},
+        { "id": "seerah_part1", "title": "پوختەیا سیرەتا پێغەمبەری ﷺ", "type": "seerahListening", "suggestedDurations": [10, 20], "lessons": [
+            { "id": "seerah_l1", "title": "وانا ١: ژ دایکبوون و گەنجاتی", "audioUrl": "#", "points": 5 },
+            { "id": "seerah_l2", "title": "وانا ٢: پێغەمبەرایەتی", "audioUrl": "#", "points": 5 }
+        ]},
+        { "id": "arbaeen_nawawi", "title": "٥ فەرموودێن ئێکێ", "type": "hadithMemorization", "pdfUrl": "#", "suggestedDurations": [7, 14], "hadiths": [
+            { "id": "hadith_n1", "title": "فەرموودا ١: النية", "fullText": "عَنْ أَمِيرِ الْمُؤْمِنِينَ أَبِي حَفْصٍ عُمَرَ بْنِ الْخَطَّابِ رَضِيَ اللهُ عَنْهُ قَالَ: سَمِعْتُ رَسُولَ اللهِ صلى الله عليه وسلم يَقُولُ: (إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى، فَمَنْ كَانَتْ هِجْرَتُهُ إِلَى دُنْيَا يُصِيبُهَا أَوْ إِلَى امْرَأَةٍ يَنْكِحُهَا، فَهِجْرَتُهُ إِلَى مَا هَاجَرَ إِلَيْهِ).", "audioUrl": "#", "points": 10 },
+            { "id": "hadith_n2", "title": "فەرموودا ٢: مراتب الدين", "fullText": "عَنْ عُمَرَ رَضِيَ اللهُ عَنْهُ أَيْضًا قَالَ: بَيْنَمَا نَحْنُ جُلُوسٌ عِنْدَ رَسُولِ اللهِ صلى الله عليه وسلم ذَاتَ يَوْمٍ إِذْ طَلَعَ عَلَيْنَا رَجُلٌ شَدِيدُ بَيَاضِ الثِّيَابِ، شَدِيدُ سَوَادِ الشَّعَرِ، لَا يُرَى عَلَيْهِ أَثَرُ السَّفَرِ، وَلَا يَعْرِفُهُ مِنَّا أَحَدٌ...", "audioUrl": "#", "points": 10 }
+        ]},
+        { "id": "morning_adhkar", "title": "زیکرێن سپێدێ", "type": "adhkarMemorization", "pdfUrl": "#", "suggestedDurations": [7, 14], "adhkars": [
+            { "id": "adhkar_m1", "title": "سيد الاستغفار", "fullText": "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ لَكَ بِذَنْبِي فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ.", "audioUrl": "#", "points": 5 }, 
+            { "id": "adhkar_m2", "title": "رضيت بالله ربا", "fullText": "رَضِيتُ بِاللهِ رَبًّا، وِبِالإسْلامِ دِينًا، وِبِمُحَمَّدٍ صلى الله عليه وسلم نَبِيًّا.", "audioUrl": "#", "points": 2 }
+        ]},
+        { "id": "quran_juz30_part1", "title": "ژ الناس حەتا الضحى", "type": "quranMemorization", "suggestedDurations": [7, 14], "pages": [
+            { "id": "quran_p604", "pageNumber": 604, "link": "#", "points": 5 }, 
+            { "id": "quran_p603", "pageNumber": 603, "link": "#", "points": 5 }
+        ]}
+      ]
+    },
+    { "level": 2, "levelName": "ئاستێ دووێ: قوولبوون", "levelIcon": "fa-book-open-reader", "courses": [] },
+    { "level": 3, "levelName": "ئاستێ سێیێ: پسپۆری", "levelIcon": "fa-graduation-cap", "courses": [] }
+  ]
+};
+let allData = { levels: [] };
+const _get = (key, def) => JSON.parse(localStorage.getItem(key)) || def;
+const _set = (key, val) => localStorage.setItem(key, JSON.stringify(val));
+
+const pointsManager = { key: 'sabilSalam_Points_V11', get: () => parseInt(localStorage.getItem(pointsManager.key) || '0'), update: (amount) => { const newPoints = Math.max(0, pointsManager.get() + amount); localStorage.setItem(pointsManager.key, newPoints); pointsManager.updateDisplay(); }, updateDisplay: () => { document.getElementById('points-display').textContent = pointsManager.get(); updateProfileStats(); } };
+const progressManager = { key: 'sabilSalam_CompletedItems_V11', isItemCompleted: (itemId) => _get(progressManager.key, []).includes(itemId), toggleItemCompleted: (itemId, points, courseId, courseType) => { let items = _get(progressManager.key, []); const isCompleting = !items.includes(itemId); if (isCompleting) { items.push(itemId); pointsManager.update(points); if(courseType === 'seerahListening') document.getElementById(`benefits-${itemId}`).style.display = 'block'; } else { items = items.filter(id => id !== itemId); pointsManager.update(-points); if(courseType === 'seerahListening') document.getElementById(`benefits-${itemId}`).style.display = 'none';} _set(progressManager.key, items); progressManager.updateViews(courseId); }, updateViews: (courseId) => { buildLevelsView(); updateProfileStats(); if (document.getElementById('activity-list-modal').classList.contains('is-visible')) { const course = findCourseById(courseId); if(course) showActivityModal(course.type, findSiblingCourseIds(course.id).join(',')); } }, getCompletedCoursesCount: () => { let count = 0; allData.levels.forEach(level => level.courses.forEach(course => { if (isCourseCompleted(course)) count++; })); return count; }};
+const goalManager = { key: 'sabilSalam_Goals_V11', getGoal: (courseId) => _get(goalManager.key, {})[courseId], setGoal: (courseId, days) => { const goals = _get(goalManager.key, {}); const now = new Date().getTime(); goals[courseId] = { setDate: now, deadline: now + (days * 24 * 60 * 60 * 1000) }; _set(goalManager.key, goals); }, refreshCurrentModal: () => { const modal = document.getElementById('activity-list-modal'); if (modal.classList.contains('is-visible')) { const courseIdsStr = modal.dataset.courseIds; if(courseIdsStr) { const course = findCourseById(courseIdsStr.split(',')[0]); if (course) showActivityModal(course.type, courseIdsStr); } } } };
+const benefitsManager = { key: 'sabilSalam_Benefits_V11', getBenefits: () => _get(benefitsManager.key, {}), isBenefitSaved: (itemId) => _get(benefitsManager.key, {})[itemId] !== undefined, saveBenefit: (itemId, text, lessonTitle) => { const benefits = benefitsManager.getBenefits(); benefits[itemId] = {text, lessonTitle, date: new Date().toISOString()}; _set(benefitsManager.key, benefits); }};
+const streakManager = { key: 'sabilSalam_Streak_V11', getStreakData: () => _get(streakManager.key, { count: 0, lastLogin: null }), updateStreak: () => { const today = new Date().toISOString().split('T')[0]; let data = streakManager.getStreakData(); if (data.lastLogin === today) return; const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]; if (data.lastLogin === yesterday) { data.count++; } else { data.count = 1; } data.lastLogin = today; _set(streakManager.key, data); updateProfileStats(); }};
+const categoryTitles = { standard: 'وانە', seerahListening: 'سیرەت', quranMemorization: 'قورئان', hadithMemorization: 'فەرموودە', adhkarMemorization: 'زیکر' };
+
+document.addEventListener('DOMContentLoaded', () => {
+    allData.levels = demoData.levels;
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+        streakManager.updateStreak();
+        switchAuthView('profile-view');
+    }
+    buildLevelsView();
+    setupEventListeners();
+    pointsManager.updateDisplay();
+    updateProfileStats();
+    setInterval(updateAllTimers, 60000);
+    setTimeout(() => document.getElementById('loading-screen').classList.add('fade-out'), 3500);
+});
+
+function setupEventListeners() {
+    document.querySelector('.levels-timeline').addEventListener('click', function(event) { const header = event.target.closest('.level-step-header'); if (!header) return; const step = header.closest('.level-step'); if (step.classList.contains('is-locked')) return; const wasActive = step.classList.contains('active'); document.querySelectorAll('.level-step').forEach(s => s.classList.remove('active')); if(!wasActive) step.classList.add('active'); });
+    document.querySelector('.profile-tabs')?.addEventListener('click', (e) => { if (e.target.tagName === 'BUTTON') { const tabName = e.target.dataset.tab; e.target.parentElement.querySelectorAll('.profile-tab-btn').forEach(btn => btn.classList.remove('active')); document.querySelectorAll('.profile-tab-content').forEach(content => content.classList.remove('active')); e.target.classList.add('active'); document.getElementById(`tab-${tabName}`).classList.add('active'); } });
+    document.getElementById('login-form').addEventListener('submit', (e) => { e.preventDefault(); localStorage.setItem('isLoggedIn', 'true'); streakManager.updateStreak(); switchAuthView('profile-view'); });
+    document.getElementById('register-form').addEventListener('submit', (e) => { e.preventDefault(); localStorage.setItem('isLoggedIn', 'true'); streakManager.updateStreak(); switchAuthView('profile-view'); });
+    
+    // Event delegation for dynamic content
+    document.getElementById('activity-list-container').addEventListener('click', (e) => {
+        if (e.target.matches('.toggle-text-btn, .toggle-text-btn *')) {
+            const btn = e.target.closest('.toggle-text-btn');
+            const details = btn.closest('.lesson-item').querySelector('.memorization-item-details');
+            details.classList.toggle('visible');
+            btn.querySelector('i').classList.toggle('fa-eye-slash');
+        }
+        if (e.target.matches('.rep-btn')) {
+            const parent = e.target.parentElement;
+            parent.querySelectorAll('.rep-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+        }
+        if (e.target.matches('.play-audio-btn, .play-audio-btn *')) {
+            const btn = e.target.closest('.play-audio-btn');
+            playAudioWithRepetition(btn);
+        }
+    });
+}
+
+function buildLevelsView() { const container = document.querySelector('.levels-timeline'); container.innerHTML = ''; let previousLevelCompleted = true; allData.levels.forEach(level => { const isLevelCompleted = level.courses.length > 0 && level.courses.every(isCourseCompleted); const isUnlocked = previousLevelCompleted; const completedCourses = level.courses.filter(isCourseCompleted).length; const totalCourses = level.courses.length; const step = document.createElement('div'); step.className = `level-step ${isUnlocked ? (isLevelCompleted ? 'is-completed' : 'is-active') : 'is-locked'}`; let contentHTML = isUnlocked ? `<div class="category-grid">${renderLevelCategories(level, isUnlocked)}</div>` : `<div class="locked-content-placeholder"><i class="fas fa-lock"></i><p>پێتڤیە ئاستێ بەری ڤی تەمام بکەی</p></div>`; step.innerHTML = `<div class="level-icon-wrapper"><i class="fas ${level.levelIcon || 'fa-flag-checkered'} level-icon"></i></div><div class="level-step-header"><div class="level-title"><h2>${level.levelName}</h2><p>پێشکەفتن: ${completedCourses} ژ ${totalCourses} خولان</p></div><div class="level-status">${createCircularProgress(completedCourses, totalCourses)}</div></div><div class="level-step-content"><div class="step-content-inner">${contentHTML}</div></div>`; container.appendChild(step); previousLevelCompleted = isUnlocked && isLevelCompleted; }); }
+function renderLevelCategories(level, isUnlocked) { let content = ''; Object.entries(categoryTitles).forEach(([type, title]) => { const coursesOfType = level.courses.filter(c => c.type === type); if (coursesOfType.length > 0) { const completedCount = coursesOfType.filter(isCourseCompleted).length; const progress = coursesOfType.length > 0 ? (completedCount / coursesOfType.length) * 100 : 0; const clickHandler = isUnlocked ? `showActivityModal('${type}', '${coursesOfType.map(c => c.id).join(',')}')` : ''; content += `<div class="category-card" onclick="${clickHandler}"><i class="fas ${getCategoryIcon(type)} category-icon"></i><h4>${title}</h4><p>${completedCount} / ${coursesOfType.length} خول</p><div class="category-progress-bar"><div class="category-progress-bar-inner" style="width: ${progress}%;"></div></div></div>`; } }); return content; }
+
+function showActivityModal(categoryType, courseIdsStr) {
+    const courses = courseIdsStr.split(',').map(findCourseById).filter(Boolean);
+    if (courses.length === 0) return;
+    const modal = document.getElementById('activity-list-modal');
+    modal.dataset.courseIds = courseIdsStr;
+    document.getElementById('activity-list-title').textContent = categoryTitles[categoryType] || 'چالاکی';
+    const container = document.getElementById('activity-list-container');
+    container.innerHTML = '';
+    courses.forEach(course => {
+        const items = course.videos || course.lessons || course.hadiths || course.adhkars || course.pages;
+        const completedItemsCount = items.filter(item => progressManager.isItemCompleted(item.id)).length;
+        let lessonsHTML = '';
+        const goal = goalManager.getGoal(course.id);
+        if (course.suggestedDurations && !goal) { lessonsHTML = `<div class="goal-required-placeholder"><i class="fas fa-bullseye"></i><p>بەریا دەستپێکرنێ، پێتڤیە ئارمانجەکێ بۆ تەمامکرنا ڤێ خولێ بۆ خۆ بدانێی.</p></div>`; } 
+        else { lessonsHTML = `<div class="lessons-container" id="lessons-for-${course.id}">${items.map((item, index) => renderLessonItem(item, index, course, items)).join('')}</div>`; }
+        container.innerHTML += `<div class="course-group">${renderCourseHeader(course, completedItemsCount, items.length)}${lessonsHTML}</div>`;
+    });
+    openModal('activity-list-modal');
+    updateAllTimers();
+}
+function renderCourseHeader(course, completedCount, totalCount) { const goal = goalManager.getGoal(course.id); let goalHTML = ''; if (!isCourseCompleted(course)) { if (goal) { goalHTML = `<div id="timer-${course.id}" class="time-remaining">${formatTimeRemaining(goal.deadline)}</div>`; } else if (course.suggestedDurations) { goalHTML = `<div class="goal-setter"><p>ئارمانجا خۆ دەستنیشان بکە:</p><div class="goal-buttons">${course.suggestedDurations.map(days => `<button class="action-btn goal-btn" onclick="setGoalUI('${course.id}', ${days})">${days} ڕۆژ</button>`).join('')}</div></div>`; } } const pdfButton = course.pdfUrl ? `<a href="${course.pdfUrl}" target="_blank" class="action-btn pdf-btn"><i class="fas fa-file-pdf"></i> پەرتووک</a>` : ''; return `<div class="course-group-header"><div class="course-group-info"><h4>${course.title}</h4><p>پێشکەفتن: ${completedCount} / ${totalCount}</p></div><div class="course-header-actions">${goalHTML}${pdfButton}</div></div>`; }
+
+function renderLessonItem(item, index, course, allItems) {
+    const isCompleted = progressManager.isItemCompleted(item.id);
+    let isUnlocked = index === 0 || progressManager.isItemCompleted(allItems[index - 1].id);
+    if (course.type === 'seerahListening' && index > 0) { isUnlocked = isUnlocked && benefitsManager.isBenefitSaved(allItems[index - 1].id); }
+    const isMemorizationType = course.type === 'hadithMemorization' || course.type === 'adhkarMemorization';
+    
+    let baseHTML = `
+        <div class="lesson-label-container">
+            <label for="check-${item.id}" class="lesson-label">
+                <input type="checkbox" id="check-${item.id}" class="item-checkbox" ${isCompleted ? 'checked' : ''} onchange="toggleItemUI('${item.id}', ${item.points || 1}, '${course.id}', '${course.type}')" ${!isUnlocked ? 'disabled' : ''}>
+                <span>${item.title || item.text || `لاپەر ${item.pageNumber}`}</span>
+            </label>
+            <div class="lesson-actions">`;
+    
+    if (item.url) baseHTML += `<button onclick="playMediaInModal('${item.url}', 'video')" class="action-btn" ${!isUnlocked ? 'disabled' : ''}><i class="fas fa-play"></i> بینین</button>`;
+    if (course.type === 'seerahListening' && item.audioUrl) baseHTML += `<button onclick="playMediaInModal('${item.audioUrl}', 'audio')" class="action-btn" ${!isUnlocked ? 'disabled' : ''}><i class="fas fa-volume-up"></i> گوهداری بکە</button>`;
+    if (isMemorizationType) baseHTML += `<button class="action-btn toggle-text-btn" ${!isUnlocked ? 'disabled' : ''}><i class="fas fa-eye"></i> نڤیسێ ببینە</button>`;
+    
+    baseHTML += `</div></div>`;
+
+    if (course.type === 'seerahListening') {
+        const isSaved = benefitsManager.isBenefitSaved(item.id); const savedBenefit = benefitsManager.getBenefits()[item.id]?.text || ""; const displayStyle = isCompleted ? 'block' : 'none';
+        baseHTML += `<div class="benefits-section" id="benefits-${item.id}" style="display: ${displayStyle};"><label for="textarea-${item.id}">فائدێن تە ژ ڤێ وانێ بنڤیسە (ئیجباریە):</label><textarea id="textarea-${item.id}" class="benefits-textarea" ${isSaved ? 'disabled' : ''}>${savedBenefit}</textarea><button id="btn-save-${item.id}" class="action-btn" onclick="saveBenefitsUI('${item.id}', '${course.id}', '${item.title}')" ${isSaved ? 'disabled' : ''}>${isSaved ? ' هاتە تۆمارکرن <i class=\\"fas fa-check\\"></i>' : 'تۆمارکرنا فائدان'}</button></div>`;
+    }
+
+    if (isMemorizationType) {
+        baseHTML += `
+            <div class="memorization-item-details">
+                <div class="full-text-container">${item.fullText}</div>
+                <div class="audio-controls">
+                    <audio src="${item.audioUrl}" id="audio-${item.id}" preload="none"></audio>
+                    <button class="action-btn play-audio-btn" data-audio-id="audio-${item.id}" ${!isUnlocked ? 'disabled' : ''}>
+                        <i class="fas fa-play"></i> <span>لێدە</span>
+                    </button>
+                    <div class="repetition-controls">
+                        <p>دوبارەکرن:</p>
+                        <button class="rep-btn active" data-count="1">1x</button>
+                        <button class="rep-btn" data-count="3">3x</button>
+                        <button class="rep-btn" data-count="5">5x</button>
+                        <button class="rep-btn" data-count="10">10x</button>
                     </div>
-                    <div class="form-full-width">
-                        <p><strong>رۆژێن پێداچوونێ:</strong> (بۆ نموونە، هەر رۆژا ئەینی پێداچوون لسەر وان بابەتان بکە یێن تە د وێ حەفتیێ دا خواندین)</p>
-                        <div class="day-selection" id="review-days"></div>
-                    </div>
-                    <button type="submit" id="add-book-btn" class="nav-btn form-full-width">پەرتووکێ زێدە بکە</button>
-                </form>
-            </div>
-            
-            <div id="daily-schedule" class="card"></div>
-            
-            <div class="card">
-                <h2>ئامارێن دەمی (یێن نھا)</h2>
-                <div id="time-reports">
-                    <div><p id="daily-time">00:00:00</p><span>رۆژانە</span></div>
-                    <div><p id="weekly-time">00:00:00</p><span>حەفتیانە</span></div>
-                    <div><p id="monthly-time">00:00:00</p><span>هەیڤانە</span></div>
                 </div>
-            </div>
+            </div>`;
+    }
 
-            <div class="card">
-                <h2>پێشکەفتنا گشتی</h2>
-                <div id="overall-progress-container"></div>
-            </div>
-            
-            <div id="achievements-card" class="card hidden">
-                <h2>پەرتووکێن تمامکرین</h2>
-                <div id="achievements-container"></div>
-            </div>
+    return `<div class="lesson-item ${isCompleted ? 'is-watched' : ''} ${!isUnlocked ? 'locked' : ''}">${baseHTML}</div>`;
+}
 
-            <div class="card">
-                <h2>ئامارێن پێشکەفتنێ</h2>
-                <div style="height: 300px;"><canvas id="progressChart"></canvas></div>
-            </div>
-            
-            <div id="quote-of-the-day" class="card">
-                <blockquote id="quote-text"></blockquote>
-                <footer id="quote-author"></footer>
-            </div>
-            
-            <div class="card" id="contact-us-card">
-                <h2>پەیوەندی ب مە بکە</h2>
-                <p>بۆ هەر کێشەیەکێ یان پێشنیارەکێ, دگەل مە باخڤە.</p>
-                <div class="contact-links-container">
-                    <a href="https://t.me/IslamProject" target="_blank" class="contact-link telegram">
-                        <svg viewBox="0 0 24 24"><path d="M22 2L11 13L2 9L4 20L22 2Z M22 2L15 22L11 13L22 2Z"></path></svg>
-                        <span>پەیوەندی کرن ب رێیا تیلیگرامی</span>
-                    </a>
-                    <a href="https://instagram.com/IslamProject" target="_blank" class="contact-link instagram">
-                        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.011 3.584-.069 4.85c-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.148-4.771-1.691-4.919-4.919-.058-1.265-.069-1.645-.069-4.85s.011-3.584.069-4.85c.149-3.225 1.664-4.771 4.919-4.919 1.266-.058 1.644-.07 4.85-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.281.059 1.689.073 4.948.073s3.667-.014 4.947-.072c4.358-.2 6.78-2.618 6.98-6.98.059-1.281.073-1.689.073-4.948s-.014-3.667-.072-4.947c-.2-4.358-2.618-6.78-6.98-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z"></path></svg>
-                        <span>پەیوەندی کرن ب رێیا ئینستگرامی</span>
-                    </a>
-                </div>
-                <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-color-light);">بەرهەمێ پڕۆژەی ئیسلام</p>
-            </div>
-        </main>
-    </div>
+function playAudioWithRepetition(button) {
+    if (button.dataset.audioUrl === '#') { alert('فایلا دەنگی هێشتا نەهاتیە دانان.'); return; }
+    const audioId = button.dataset.audioId;
+    const audio = document.getElementById(audioId);
+    if (!audio) return;
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- STATE VARIABLES ---
-        let allTasks = []; let overallSubjects = []; let progressHistory = [];
-        let viewDate = new Date(); let chartInstance = null; let timerIntervals = {};
-        let currentUser = null;
-        
-        // --- ICONS ---
-        const CHECK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-        const EDIT_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>`;
-        const DELETE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>`;
-        const PLAY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
-        const PAUSE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
-        const TROPHY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M9 12H4a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h5"/><path d="M15 12h5a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-5"/><path d="M12 15V2.25A2.25 2.25 0 0 0 9.75 0h-3.5A2.25 2.25 0 0 0 4 2.25V15"/><path d="M12 15V2.25A2.25 2.25 0 0 1 14.25 0h3.5A2.25 2.25 0 0 1 20 2.25V15"/></svg>`;
-        const USER_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
-        const LOGOUT_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>`;
+    if (audio.paused) {
+        const repControls = button.closest('.audio-controls').querySelector('.repetition-controls');
+        const activeRepBtn = repControls.querySelector('.rep-btn.active');
+        let playCount = parseInt(activeRepBtn.dataset.count);
 
-        // --- CONSTANTS ---
-        const DAY_NAMES = ["ئێک شەمبی", "دووشەمبی", "سێ شەمبی", "چارشەمبی", "پێنج شەمبی", "ئەینی", "شەمبی"];
+        const icon = button.querySelector('i');
+        const text = button.querySelector('span');
 
-        // --- FIREBASE SETUP ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyC1D4aXKVIQndRGSZnAa5A_4b42VN8MX6s",
-			  authDomain: "mala-jalil.firebaseapp.com",
-			  projectId: "mala-jalil",
-			  storageBucket: "mala-jalil.firebasestorage.app",
-			  messagingSenderId: "934631314678",
-			  appId: "1:934631314678:web:839ae0bda0a193eca408d7",
-			  measurementId: "G-PZ9D19KX7B"
+        const playCycle = () => {
+            if (playCount > 0) {
+                playCount--;
+                audio.currentTime = 0;
+                audio.play();
+            } else {
+                icon.className = 'fas fa-play';
+                text.textContent = 'لێدە';
+            }
         };
         
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        audio.onended = playCycle;
 
-        // --- AUTH & UI FUNCTIONS ---
-        function showLoader() { document.getElementById('loader').classList.remove('hidden'); document.getElementById('loader').style.opacity = '1'; }
-        function hideLoader() { document.getElementById('loader').style.opacity = '0'; setTimeout(() => document.getElementById('loader').classList.add('hidden'), 300); }
+        icon.className = 'fas fa-pause';
+        text.textContent = 'راوەستە';
+        playCycle();
+    } else {
+        audio.pause();
+        audio.onended = null;
+        button.querySelector('i').className = 'fas fa-play';
+        button.querySelector('span').textContent = 'لێدە';
+    }
+}
 
-        function setupAuthListeners() {
-            auth.onAuthStateChanged(user => {
-                Object.values(timerIntervals).forEach(clearInterval);
-                timerIntervals = {};
+function updateProfileStats() { const pointsEl = document.getElementById('profile-points'); if(pointsEl) pointsEl.textContent = pointsManager.get(); const completedCountEl = document.getElementById('profile-completed-courses'); if (completedCountEl) completedCountEl.textContent = progressManager.getCompletedCoursesCount(); const streakEl = document.getElementById('profile-streak'); if(streakEl) streakEl.innerHTML = `${streakManager.getStreakData().count} <i class="fas fa-fire" style="color: #ff9800;"></i>`; const badges = document.getElementById('profile-badges'); if (badges) { badges.innerHTML = ''; allData.levels.forEach(level => { const completed = level.courses.length > 0 && level.courses.every(isCourseCompleted); const badge = document.createElement('i'); badge.className = `fas ${level.levelIcon} badge ${completed ? 'earned' : ''}`; badge.title = `${level.levelName} - ${completed ? 'هاتە تەمامکرن' : 'نەهاتیە تەمامکرن'}`; badges.appendChild(badge); }); }}
+function createCircularProgress(value, max) { if (max === 0) return ''; const r = 20; const c = 2 * Math.PI * r; const o = c - (value / max) * c; return `<div style="width:46px;height:46px;position:relative;"><svg viewBox="0 0 46 46"><circle cx="23" cy="23" r="${r}" fill="none" stroke="${'var(--border-color)'}" stroke-width="4"></circle><circle cx="23" cy="23" r="${r}" fill="none" stroke="${'var(--success-color)'}" stroke-width="4" stroke-dasharray="${c}" stroke-dashoffset="${o}" style="transform:rotate(-90deg);transform-origin:50% 50%;transition:all .5s;"></circle></svg><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:0.8rem;">${value}/${max}</div></div>`; }
+function isCourseCompleted(course) { const items = course.videos || course.lessons || course.hadiths || course.adhkars || course.pages; if (!items || items.length === 0) return true; return items.every(item => progressManager.isItemCompleted(item.id)); }
+function findCourseById(courseId) { for (const level of allData.levels) { const course = (level.courses || []).find(c => c.id === courseId); if (course) return course; } return null; }
+function findSiblingCourseIds(courseId) { const course = findCourseById(courseId); if (!course) return []; for (const level of allData.levels) { const coursesOfType = level.courses.filter(c => c.type === course.type); if (coursesOfType.some(c => c.id === courseId)) return coursesOfType.map(c => c.id); } return [courseId]; }
+function getCategoryIcon(type) { const icons = { standard: 'fa-chalkboard-teacher', seerahListening: 'fa-moon', quranMemorization: 'fa-quran', hadithMemorization: 'fa-book-open', adhkarMemorization: 'fa-pray' }; return icons[type] || 'fa-question-circle'; }
+function formatTimeRemaining(deadline) { const t = deadline - Date.now(); if (t <= 0) return "ب دوماهیک هات"; const d = Math.floor(t / 86400000); const h = Math.floor((t % 86400000) / 3600000); return `${d} ڕۆژ و ${h} دەمژمێر`; }
+function updateAllTimers() { const goals = _get(goalManager.key, {}); Object.keys(goals).forEach(courseId => { const el = document.getElementById(`timer-${courseId}`); if (el) el.textContent = formatTimeRemaining(goals[courseId].deadline); }); }
 
-                if (user) {
-                    currentUser = user;
-                    document.getElementById('user-profile-btn').innerHTML = LOGOUT_ICON;
-                    document.getElementById('user-profile-btn').title = "دەرکەفتن";
-                    loadStateFromFirestore();
-                } else {
-                    currentUser = null;
-                    document.getElementById('user-profile-btn').innerHTML = USER_ICON;
-                    document.getElementById('user-profile-btn').title = "داخلبوون";
-                    loadStateFromLocalStorage();
-                }
-            });
-        }
-        
-        function handleAuthFormSubmit(e) {
-            e.preventDefault();
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const isSignUp = document.getElementById('auth-title').textContent.includes("نوو");
-            const errorP = document.getElementById('auth-error');
-            errorP.textContent = '';
+window.openModal = id => document.getElementById(id)?.classList.add('is-visible');
+window.closeModal = id => { const m = document.getElementById(id); if (m) { m.classList.remove('is-visible'); if (id === 'media-player-modal') document.getElementById('media-player-container').innerHTML = ''; } };
+window.playMediaInModal = (url, type) => { if(url === '#') { alert('دێ دەنگ لڤێرێ هێتە کارپێکرن'); return; } const container = document.getElementById('media-player-container'); if (type === 'video') { container.innerHTML = `<iframe src="${url}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`; } else if (type === 'audio') { container.innerHTML = `<audio controls autoplay><source src="${url}" type="audio/mpeg">Your browser does not support the audio element.</audio>`; } openModal('media-player-modal'); };
+window.toggleItemUI = (itemId, points, courseId, courseType) => { progressManager.toggleItemCompleted(itemId, points, courseId, courseType); };
+window.showActivityModal = showActivityModal;
+window.setGoalUI = (courseId, days) => { goalManager.setGoal(courseId, days); goalManager.refreshCurrentModal(); };
+window.saveBenefitsUI = (itemId, courseId, lessonTitle) => { const textarea = document.getElementById(`textarea-${itemId}`); const text = textarea.value.trim(); if (text === '') { alert('تکایە فائدێن خۆ ژ وانێ بنڤیسە پێش تۆمارکرنێ.'); return; } benefitsManager.saveBenefit(itemId, text, lessonTitle); const btn = document.getElementById(`btn-save-${itemId}`); btn.disabled = true; textarea.disabled = true; btn.innerHTML = 'هاتە تۆمارکرن <i class="fas fa-check"></i>'; progressManager.updateViews(courseId); alert('فائدێن تە هاتنە تۆمارکرن.'); };
+window.switchAuthView = (viewId) => { document.querySelectorAll('#profile-modal .auth-view, #profile-modal .profile-card').forEach(v => v.style.display = 'none'); document.getElementById(viewId).style.display = 'block'; };
+window.logoutUser = () => { localStorage.removeItem('isLoggedIn'); switchAuthView('auth-choice-view'); }
+window.showMyNotes = () => { const notesContainer = document.getElementById('my-notes-container'); const allBenefits = benefitsManager.getBenefits(); const savedNotes = Object.values(allBenefits); if (savedNotes.length > 0) { notesContainer.innerHTML = savedNotes.map(note => `<div class="saved-note"><h5>${note.lessonTitle}</h5><p>${note.text}</p></div>`).join(''); } else { notesContainer.innerHTML = '<p>چ تێبینی نەهاتینە تۆمارکرن.</p>'; } openModal('my-notes-modal'); };
 
-            const action = isSignUp 
-                ? auth.createUserWithEmailAndPassword(email, password)
-                : auth.signInWithEmailAndPassword(email, password);
-            
-            action
-                .then(() => {
-                    document.getElementById('auth-modal').classList.add('hidden');
-                    document.getElementById('auth-form').reset();
-                })
-                .catch(() => { 
-                    errorP.textContent = "ئیمێل یان ژمارا نهێنی یا دروست نینە.";
-                });
-        }
+})();
+</script>
 
-        function signOutUser() {
-            auth.signOut().catch(error => console.error("Sign out error", error));
-        }
-
-        // --- STORAGE FUNCTIONS ---
-        function saveData() {
-            if (currentUser) {
-                saveStateToFirestore();
-            } else {
-                saveStateToLocalStorage();
-            }
-        }
-
-        let saveTimeout;
-        function saveStateToFirestore() {
-            if (!currentUser) return;
-            
-            const tasksToSave = allTasks.map(t => ({ ...t, isTimerRunning: false }));
-
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(async () => {
-                const dataToSave = {
-                    allTasks: tasksToSave,
-                    overallSubjects,
-                    progressHistory,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                try {
-                    await db.collection('userSchedules').doc(currentUser.uid).set(dataToSave, { merge: true });
-                } catch (error) {
-                    console.error("Error saving data to Firestore: ", error);
-                }
-            }, 1500);
-        }
-
-        async function loadStateFromFirestore() {
-            if (!currentUser) return;
-            const docRef = db.collection('userSchedules').doc(currentUser.uid);
-            try {
-                const doc = await docRef.get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    allTasks = data.allTasks || [];
-                    allTasks.forEach(t => { t.elapsedTime = t.elapsedTime || 0; t.isTimerRunning = false; });
-                    overallSubjects = data.overallSubjects || [];
-                    progressHistory = data.progressHistory || [];
-                } else {
-                    allTasks = []; overallSubjects = []; progressHistory = [];
-                }
-            } catch (error) {
-                console.error("Error loading data from Firestore: ", error);
-                allTasks = []; overallSubjects = []; progressHistory = [];
-            }
-            renderAll();
-            hideLoader();
-        }
-
-        function saveStateToLocalStorage() {
-            try {
-                const tasksToSave = allTasks.map(t => ({ ...t, isTimerRunning: false }));
-                localStorage.setItem('studySchedule_srs_local', JSON.stringify({ allTasks: tasksToSave, overallSubjects, progressHistory }));
-            } catch (e) {
-                console.error("Error saving to localStorage", e);
-            }
-        }
-
-        function loadStateFromLocalStorage() {
-            const savedState = JSON.parse(localStorage.getItem('studySchedule_srs_local'));
-            if (savedState) {
-                allTasks = savedState.allTasks || [];
-                allTasks.forEach(t => { t.elapsedTime = t.elapsedTime || 0; t.isTimerRunning = false; });
-                overallSubjects = savedState.overallSubjects || [];
-                progressHistory = savedState.progressHistory || [];
-            } else {
-                allTasks = []; overallSubjects = []; progressHistory = [];
-            }
-            renderAll();
-            hideLoader(); //  <-- گوهارتنا گرنگ 1: چارەسەرکرنا کێشەیا بارکرنێ
-        }
-
-        // --- HELPER FUNCTIONS ---
-        function toISODateString(date) { return new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().split('T')[0]; }
-        
-        function toNumericDateString(date) {
-            const year = date.getFullYear();
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            return `${year}/${month}/${day}`;
-        }
-
-        function formatTime(seconds) {
-            const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
-            const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-            const s = Math.floor(seconds % 60).toString().padStart(2, '0');
-            return `${h}:${m}:${s}`;
-        }
-
-        function formatRemainingTime(days) {
-            if (days < 0) return "(دەم بۆریە)";
-            if (days === 0) return "(دەمێ وێ ئەڤرۆیە)";
-            
-            const months = Math.floor(days / 30);
-            const weeks = Math.floor((days % 30) / 7);
-            const remainingDays = days % 7;
-
-            let parts = [];
-            if (months > 0) parts.push(`${months} هەیڤ`);
-            if (weeks > 0) parts.push(`${weeks} حەفتی`);
-            if (remainingDays > 0) parts.push(`${remainingDays} رۆژ`);
-
-            return `(مایە: ${parts.join(' و ')})`;
-        }
-        
-        // --- RENDER FUNCTIONS ---
-        function renderAll() {
-            renderCurrentDayView();
-            renderProgressAndAchievements();
-            renderTimeReports();
-            renderProgressChart();
-        }
-
-        function renderCurrentDayView() {
-            const todayStr = toISODateString(viewDate);
-            const dayOfWeek = DAY_NAMES[viewDate.getDay()];
-            const tasksForToday = allTasks.filter(task => task.date === todayStr);
-            const timeForThisDay = tasksForToday.reduce((sum, t) => sum + (t.elapsedTime || 0), 0);
-
-            let tasksHtml;
-            if (currentUser) {
-                tasksHtml = tasksForToday.length > 0 ? tasksForToday.map(task => `
-                    <tr>
-                        <td>
-                            <div class="task-container">
-                                <input type="checkbox" id="task-${task.id}" data-task-id="${task.id}" ${task.isComplete ? 'checked' : ''}>
-                                <label for="task-${task.id}">
-                                    <span class="custom-checkbox">${CHECK_ICON}</span>
-                                    <span class="task-subject">${task.bookName}</span>
-                                </label>
-                            </div>
-                        </td>
-                        <td class="task-description">${task.description}</td>
-                        <td><span class="task-type-badge ${task.type}">${task.type === 'memorize' ? 'ژبەرکرن' : 'پێداچوون'}</span></td>
-                        <td>
-                            <div class="timer-controls">
-                                <button class="timer-btn" data-task-id="${task.id}" title="دەستپێکرن/راوەستاندن">${task.isTimerRunning ? PAUSE_ICON : PLAY_ICON}</button>
-                                <span class="timer-display" id="timer-${task.id}">${formatTime(task.elapsedTime || 0)}</span>
-                            </div>
-                        </td>
-                    </tr>`).join('') : `<tr><td colspan="4" style="text-align:center; padding: 1.5rem;">هیچ کارەک بۆ ئەڤرۆ نینە.</td></tr>`;
-            } else {
-                 tasksHtml = `<tr><td colspan="4" style="text-align:center; padding: 2.5rem;">بۆ دیتنا کارێن خۆ و پاراستنا پێشکەفتنێ, تکایە داخل ببە.</td></tr>`;
-            }
-
-            const completed = tasksForToday.filter(t => t.isComplete).length;
-            const percentage = tasksForToday.length > 0 ? Math.round((completed / tasksForToday.length) * 100) : 0;
-            
-            document.getElementById('daily-schedule').innerHTML = `
-                <div class="day-header">
-                    <h2>${dayOfWeek}</h2>
-                    <p>دەما خواندنا ڤێ رۆژێ: ${formatTime(timeForThisDay)}</p>
-                </div>
-                <div class="progress-container">
-                    <div class="progress-label">پێشکەفتنا ئەڤرۆ: ${completed}/${tasksForToday.length}</div>
-                    <div class="progress"><div class="progress-bar ${percentage === 100 ? 'success' : ''}" style="width: ${percentage}%;"></div></div>
-                </div>
-                <table class="tasks-table"><tbody>${tasksHtml}</tbody></table>`;
-            document.getElementById('current-date-display').textContent = toNumericDateString(viewDate);
-        }
-        
-        function renderProgressAndAchievements() {
-            const progressContainer = document.getElementById('overall-progress-container');
-            const achievementsContainer = document.getElementById('achievements-container');
-            const achievementsCard = document.getElementById('achievements-card');
-            
-            progressContainer.innerHTML = '';
-            achievementsContainer.innerHTML = '';
-            let completedCount = 0;
-
-            if (!currentUser) {
-                progressContainer.innerHTML = '<p style="text-align:center; width:100%;">بۆ دیتنا پێشکەفتنا گشتی, تکایە داخل ببە.</p>';
-                achievementsCard.classList.add('hidden');
-                return;
-            }
-
-            overallSubjects.forEach(subject => {
-                const percentage = subject.total > 0 ? Math.min(100, (subject.current / subject.total) * 100) : 0;
-                
-                const lastTask = allTasks.filter(t => t.bookId === subject.id && t.type === 'memorize').sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-                let completionHTML = '';
-                if (lastTask) {
-                    const completionDate = new Date(lastTask.date);
-                    const today = new Date();
-                    today.setHours(0,0,0,0);
-                    const remainingDays = Math.ceil((completionDate - today) / (1000 * 60 * 60 * 24));
-                    const completionDateStr = toNumericDateString(completionDate);
-                    const completionMessage = formatRemainingTime(remainingDays);
-                    
-                    completionHTML = `<div class="subject-completion-info"><span>رۆژا تمامبوونێ: ${completionDateStr} ${percentage < 100 ? completionMessage : '(تمام بوویە)'}</span></div>`;
-                }
-
-                if (percentage >= 100) {
-                    completedCount++;
-                    achievementsContainer.innerHTML += `<div class="achievement-item">${TROPHY_ICON}<span>${subject.name}</span></div>`;
-                } else {
-                    progressContainer.innerHTML += `
-                        <div class="card subject-card">
-                            <div class="subject-header">
-                                <span class="subject-label">${subject.name}</span>
-                                <div class="subject-controls">
-                                    <button class="icon-btn edit edit-book-btn" data-book-id="${subject.id}" title="دەستکاری">${EDIT_ICON}</button>
-                                    <button class="icon-btn delete delete-book-btn" data-book-id="${subject.id}" title="ژێبرن">${DELETE_ICON}</button>
-                                </div>
-                            </div>
-                            <div class="progress-inputs">
-                                <span>تمام کرینە:</span>
-                                <input type="number" class="subject-progress-current" data-book-id="${subject.id}" value="${subject.current}" min="0">
-                                <span>ژ کۆما:</span><span>${subject.total}</span>
-                            </div>
-                            <div class="progress"><div class="progress-bar" style="width: ${percentage}%;"></div></div>
-                            ${completionHTML}
-                        </div>`;
-                }
-            });
-
-            achievementsCard.classList.toggle('hidden', completedCount === 0);
-        }
-        
-        function renderTimeReports() {
-            const now = new Date();
-            const todayStr = toISODateString(now);
-            const dailySeconds = allTasks.filter(t => t.date === todayStr).reduce((sum, t) => sum + (t.elapsedTime || 0), 0);
-            
-            const startOfWeek = new Date(now);
-            startOfWeek.setDate(startOfWeek.getDate() - now.getDay());
-            const endOfWeek = new Date(startOfWeek);
-            endOfWeek.setDate(endOfWeek.getDate() + 6);
-            const weeklySeconds = allTasks.filter(t => t.date >= toISODateString(startOfWeek) && t.date <= toISODateString(endOfWeek))
-                                     .reduce((sum, t) => sum + (t.elapsedTime || 0), 0);
-            
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            const monthlySeconds = allTasks.filter(t => t.date >= toISODateString(startOfMonth) && t.date <= toISODateString(endOfMonth))
-                                       .reduce((sum, t) => sum + (t.elapsedTime || 0), 0);
-
-            document.getElementById('daily-time').textContent = formatTime(dailySeconds);
-            document.getElementById('weekly-time').textContent = formatTime(weeklySeconds);
-            document.getElementById('monthly-time').textContent = formatTime(monthlySeconds);
-        }
-
-        function renderProgressChart() { /* ... unchanged ... */ }
-        
-        // --- EVENT HANDLERS ---
-        function setupEventListeners() {
-            document.getElementById('add-book-form').addEventListener('submit', handleAddOrEditBook);
-            document.body.addEventListener('click', handleBodyClick);
-            document.body.addEventListener('change', handleBodyChange);
-            document.body.addEventListener('input', handleBodyInput);
-            document.getElementById('auth-form').addEventListener('submit', handleAuthFormSubmit);
-        }
-
-        function handleBodyClick(e) {
-            const closest = selector => e.target.closest(selector);
-            const target = closest('#theme-toggle, #next-day-btn, #prev-day-btn, #toggle-add-book-btn, .delete-book-btn, .edit-book-btn, .timer-btn, #user-profile-btn, #close-modal-btn, #switch-to-signup, #switch-to-login');
-            if (!target) return;
-
-            switch(target.id) {
-                case 'theme-toggle':
-                    document.body.classList.toggle('dark-mode');
-                    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-                    break;
-                case 'next-day-btn':
-                    viewDate.setDate(viewDate.getDate() + 1);
-                    renderAll();
-                    break;
-                case 'prev-day-btn':
-                    viewDate.setDate(viewDate.getDate() - 1);
-                    renderAll();
-                    break;
-                case 'toggle-add-book-btn':
-                    resetForm();
-                    document.getElementById('add-book-section').classList.toggle('hidden');
-                    break;
-                case 'user-profile-btn':
-                    if (currentUser) {
-                        if (confirm("تو پشتراستی دخوازی ژ حسابا خۆ دەرکەڤی؟")) signOutUser();
-                    } else {
-                        document.getElementById('auth-modal').classList.remove('hidden');
-                    }
-                    break;
-                case 'close-modal-btn':
-                    e.preventDefault();
-                    document.getElementById('auth-modal').classList.add('hidden');
-                    break;
-                case 'switch-to-signup':
-                case 'switch-to-login':
-                     e.preventDefault();
-                     const isLogin = target.id === 'switch-to-login';
-                     document.getElementById('auth-title').textContent = isLogin ? "داخلبوون" : "حسابەکا نوو چێکە";
-                     document.getElementById('auth-submit-btn').textContent = isLogin ? "داخلبوون" : "چێکرن";
-                     document.getElementById('auth-switch-p').innerHTML = isLogin 
-                        ? `حسابێ تە نینە؟ <a href="#" id="switch-to-signup" style="color: var(--accent-color);">ئێکێ نوو چێکە</a>`
-                        : `حسابێ تە هەیە؟ <a href="#" id="switch-to-login" style="color: var(--accent-color);">داخل ببە</a>`;
-                     document.getElementById('auth-error').textContent = '';
-                     break;
-                default:
-                    if (target.matches('.delete-book-btn')) deleteBook(target.dataset.bookId);
-                    else if (target.matches('.edit-book-btn')) openEditForm(target.dataset.bookId);
-                    else if (target.matches('.timer-btn')) toggleTimer(target.dataset.taskId);
-            }
-        }
-
-        function handleBodyChange(e) {
-            if (e.target.matches('input[type="checkbox"][data-task-id]')) {
-                const task = allTasks.find(t => t.id == e.target.dataset.taskId);
-                if (!task) return;
-                task.isComplete = e.target.checked;
-                const subject = overallSubjects.find(s => s.id === task.bookId);
-                if (subject && task.type === 'memorize') { // Only update progress for memorization tasks
-                    const unitValue = parseInt(task.units);
-                    subject.current = Math.max(0, task.isComplete ? subject.current + unitValue : subject.current - unitValue);
-                }
-                renderAll(); saveData();
-            }
-        }
-        
-        function handleBodyInput(e) {
-            if (e.target.matches('.subject-progress-current')) {
-                const bookId = e.target.dataset.bookId;
-                const subject = overallSubjects.find(s => s.id === bookId);
-                if (subject) { subject.current = parseInt(e.target.value) || 0; renderAll(); saveData(); }
-            }
-        }
-        
-        function toggleTimer(taskId) {
-            const task = allTasks.find(t => t.id == taskId);
-            if (!task) return;
-
-            task.isTimerRunning = !task.isTimerRunning;
-            
-            const timerBtn = document.querySelector(`.timer-btn[data-task-id='${taskId}']`);
-            if (timerBtn) timerBtn.innerHTML = task.isTimerRunning ? PAUSE_ICON : PLAY_ICON;
-
-            if (task.isTimerRunning) {
-                timerIntervals[taskId] = setInterval(() => {
-                    task.elapsedTime = (task.elapsedTime || 0) + 1;
-                    document.getElementById(`timer-${taskId}`).textContent = formatTime(task.elapsedTime);
-
-                    if (task.elapsedTime % 15 === 0) { saveData(); }
-                }, 1000);
-            } else {
-                clearInterval(timerIntervals[taskId]);
-                delete timerIntervals[taskId];
-                renderTimeReports();
-                saveData();
-            }
-        }
-        
-        // --- CORE LOGIC FUNCTIONS ---
-        function handleAddOrEditBook(e) {
-            e.preventDefault();
-            const name = document.getElementById('new-book-name').value.trim();
-            const total = parseInt(document.getElementById('new-book-total').value);
-            const weeks = parseInt(document.getElementById('new-book-weeks').value);
-            const memorizeDays = Array.from(document.querySelectorAll('#memorize-days input:checked')).map(cb => parseInt(cb.value));
-            const reviewDays = Array.from(document.querySelectorAll('#review-days input:checked')).map(cb => parseInt(cb.value));
-            const editingBookId = document.getElementById('editing-book-id').value;
-
-            if (!name || isNaN(total) || total <= 0 || isNaN(weeks) || weeks <= 0 || memorizeDays.length === 0) {
-                alert("تکایە هەمی خانەیان ب دروستی پڕ بکە و ل کێم رۆژەکێ بۆ ژبەرکرنێ دەستنیشان بکە."); return;
-            }
-            
-            if (editingBookId) {
-                allTasks = allTasks.filter(task => task.bookId !== editingBookId);
-                overallSubjects = overallSubjects.filter(subject => subject.id !== editingBookId);
-            }
-
-            const bookId = editingBookId || name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + Date.now();
-            
-            let tempDate = new Date();
-            let totalSessions = 0;
-            for (let i = 0; i < weeks * 7; i++) {
-                if (memorizeDays.includes(tempDate.getDay())) {
-                    totalSessions++;
-                }
-                tempDate.setDate(tempDate.getDate() + 1);
-            }
-
-            if (totalSessions === 0) { 
-                alert("هیچ رۆژەکا ژبەرکرنێ د ماوێ دەستنیشانکری دا نەهاتە دیتن!");
-                return;
-             }
-
-            const basePagesPerSession = Math.floor(total / totalSessions);
-            let extraPages = total % totalSessions;
-
-            let currentDate = new Date();
-            for (let i = 0; i < weeks * 7; i++) {
-                // Add Memorization Task
-                if (memorizeDays.includes(currentDate.getDay())) {
-                    let pagesForThisSession = basePagesPerSession;
-                    if (extraPages > 0) {
-                        pagesForThisSession++;
-                        extraPages--;
-                    }
-                    
-                    if (pagesForThisSession > 0) {
-                        allTasks.push({
-                            id: Date.now() + i, bookId, bookName: name, date: toISODateString(currentDate),
-                            type: 'memorize', description: `ژبەرکرنا ${pagesForThisSession} لاپەر`,
-                            units: pagesForThisSession, isComplete: false, elapsedTime: 0, isTimerRunning: false
-                        });
-                    }
-                }
-                
-                // Add Review Task
-                if (reviewDays.includes(currentDate.getDay())) {
-                     allTasks.push({
-                        id: Date.now() + i + 500000, // Offset ID to avoid collision
-                        bookId, bookName: name, date: toISODateString(currentDate),
-                        type: 'review', description: `پێداچوونا بابەتێن ڤێ حەفتیێ`,
-                        units: 0, isComplete: false, elapsedTime: 0, isTimerRunning: false
-                    });
-                }
-
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-
-            overallSubjects.push({ id: bookId, name, total, current: 0 });
-            resetForm();
-            document.getElementById('add-book-section').classList.add('hidden');
-            renderAll(); saveData();
-        }
-
-        function deleteBook(bookId) {
-            if (confirm("تو پشتراستی دخوازی ڤی بابەتی و هەمی کارێن پەیوەندیدار پێڤە ژێ ببەی؟")) {
-                allTasks = allTasks.filter(task => task.bookId !== bookId);
-                overallSubjects = overallSubjects.filter(subject => subject.id !== bookId);
-                renderAll();
-                saveData();
-            }
-        }
-        
-        function openEditForm(bookId) {
-            const subject = overallSubjects.find(s => s.id === bookId);
-            if (!subject) return;
-
-            document.getElementById('form-title').textContent = "دەستکاریکرنا پەرتووکێ";
-            document.getElementById('add-book-btn').textContent = "گوهارتنان بپارێزە";
-            
-            document.getElementById('editing-book-id').value = subject.id;
-            document.getElementById('new-book-name').value = subject.name;
-            document.getElementById('new-book-total').value = subject.total;
-            document.getElementById('new-book-weeks').value = ''; // User should re-enter weeks
-            
-            document.querySelectorAll('#memorize-days input:checked').forEach(cb => cb.checked = false);
-            document.querySelectorAll('#review-days input:checked').forEach(cb => cb.checked = false);
-            document.getElementById('add-book-section').classList.remove('hidden');
-        }
-
-        function resetForm() {
-            document.getElementById('form-title').textContent = "پەرتووکەکا نوو زێدە بکە";
-            document.getElementById('add-book-btn').textContent = "پەرتووکێ زێدە بکە";
-            document.getElementById('add-book-form').reset();
-            document.getElementById('editing-book-id').value = '';
-        }
-        
-        // --- APP INITIALIZATION ---
-        function initApp() {
-            showLoader();
-            // گوهارتنا گرنگ 2: دانانا شێوازێ تاری وەک بنەرەت
-            if (localStorage.getItem('theme') !== 'light') {
-                document.body.classList.add('dark-mode');
-            }
-
-            const quotes = [{ text: "زانست نورە، و نورا خودێ نادرێتە گونەهکارەکی.", author: "ئیمامێ شافعی" }, { text: "یێ ژ بۆ زانستێ دەرکەڤیت، ئەو د رێکا خودێ دایە حەتا بزڤریت.", author: "پێغەمبەر محمد (ﷺ)" }, { text: "سەبر کلیلا سەرکەفتنێ یە.", author: "گوتنەکا ب ناڤ و دەنگ" }];
-            const today = new Date(); const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 864e5);
-            const quote = quotes[dayOfYear % quotes.length];
-            document.getElementById('quote-text').textContent = `"${quote.text}"`; document.getElementById('quote-author').textContent = `— ${quote.author}`;
-            
-            const memorizeContainer = document.getElementById('memorize-days');
-            memorizeContainer.innerHTML = DAY_NAMES.map((day, index) => `<label><input type="checkbox" name="memorize" value="${index}"><span>${day}</span></label>`).join('');
-            
-            const reviewContainer = document.getElementById('review-days');
-            reviewContainer.innerHTML = DAY_NAMES.map((day, index) => `<label><input type="checkbox" name="review" value="${index}"><span>${day}</span></label>`).join('');
-
-            setupEventListeners();
-            setupAuthListeners();
-        }
-
-        initApp();
-    });
-    </script>
 </body>
 </html>
+
