@@ -27,7 +27,7 @@
     --radius-md: 16px;
     --radius-sm: 8px;
     --shadow-main: 0 10px 30px -10px rgba(0,0,0,0.5);
-    --nav-height: 70px; /* NEW: Height for bottom nav */
+    --nav-height: 70px;
     --gradient-bg: radial-gradient(circle at 10% 10%, rgba(14, 165, 233, 0.05) 0%, transparent 40%),
                    radial-gradient(circle at 90% 90%, rgba(251, 191, 36, 0.05) 0%, transparent 40%);
 }
@@ -58,7 +58,7 @@ body {
     min-height: 100vh;
     background-image: var(--gradient-bg);
     transition: background-color 0.3s, color 0.3s;
-    padding-bottom: calc(var(--nav-height) + 20px); /* SPACE FOR BOTTOM NAV */
+    padding-bottom: calc(var(--nav-height) + 20px);
 }
 
 /* Scrollbar */
@@ -99,7 +99,7 @@ header { position: sticky; top: 0; width: 100%; padding: 15px 0; z-index: 1000; 
 .notification-dot { position: absolute; top: 0; right: 0; width: 12px; height: 12px; background: var(--danger-color); border-radius: 50%; border: 2px solid var(--bg-main); display: none; }
 .notification-dot.active { display: block; }
 
-/* --- NEW BOTTOM NAVIGATION --- */
+/* --- BOTTOM NAVIGATION --- */
 .bottom-nav {
     position: fixed;
     bottom: 0;
@@ -138,11 +138,10 @@ header { position: sticky; top: 0; width: 100%; padding: 15px 0; z-index: 1000; 
     width: 40px; height: 4px; background: var(--accent-secondary); border-radius: 0 0 10px 10px;
 }
 
-/* VIEWS (For Tab Switching) */
+/* VIEWS */
 .view-section { display: none; animation: fadeIn 0.4s ease-out; }
 .view-section.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
 
 /* Hero Section */
 .hero { text-align: center; padding: 60px 20px 40px; position: relative; overflow: hidden; margin-bottom: 20px; }
@@ -213,6 +212,25 @@ header { position: sticky; top: 0; width: 100%; padding: 15px 0; z-index: 1000; 
 .modal-body { padding: 30px; }
 .modal-close { font-size: 1.6rem; color: var(--text-secondary); cursor: pointer; transition: 0.3s; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
 .modal-close:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+
+/* QUIZ STYLES (NEW) */
+.quiz-container { margin-top: 20px; }
+.quiz-question { font-size: 1.3rem; font-weight: bold; margin-bottom: 25px; color: var(--text-primary); text-align: center; }
+.quiz-options { display: flex; flex-direction: column; gap: 12px; }
+.quiz-option {
+    background: var(--bg-main);
+    border: 2px solid var(--border-color);
+    padding: 18px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.quiz-option:hover { border-color: var(--accent-secondary); background: rgba(14, 165, 233, 0.05); transform: translateX(-5px); }
+.quiz-num { background: var(--bg-secondary); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid var(--border-color); color: var(--text-secondary); }
 
 /* Unified Lesson Viewer */
 .lesson-viewer-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
@@ -405,6 +423,19 @@ header { position: sticky; top: 0; width: 100%; padding: 15px 0; z-index: 1000; 
     </div>
 </div>
 
+<!-- Quiz Modal (NEW) -->
+<div id="quiz-modal" class="modal-overlay" style="z-index: 7000;">
+    <div class="modal-box" style="max-width: 500px;">
+        <div class="modal-header">
+             <h3><i class="fas fa-question-circle"></i> تاقیکردنەوەی خێرا</h3>
+             <i class="fas fa-times modal-close" onclick="document.getElementById('quiz-modal').classList.remove('open')"></i>
+        </div>
+        <div class="modal-body" id="quiz-content">
+             <!-- Quiz questions injected here -->
+        </div>
+    </div>
+</div>
+
 <!-- Edit Profile Modal -->
 <div id="edit-profile-modal" class="modal-overlay" style="z-index: 7000;">
     <div class="modal-box">
@@ -433,7 +464,7 @@ header { position: sticky; top: 0; width: 100%; padding: 15px 0; z-index: 1000; 
 </div>
 
 <script>
-/* --- 1. DATA STRUCTURE (Full) --- */
+/* --- 1. DATA STRUCTURE (Updated with QUIZZES) --- */
 const PDF_URL_DEMO = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
 
 const appData = {
@@ -448,17 +479,47 @@ const appData = {
                     id: "aqidah_1", title: "عەقیدە", subtitle: "الأصول الثلاثة", icon: "fa-cubes", type: "standard", 
                     duration: "٤ کاتژمێر", lessonCount: 3, pdf: PDF_URL_DEMO,
                     lessons: [
-                        { id: "aq1_1", title: "١. گرنگیا عەقیدێ", text: "ئەو زانستە یە یێ بەحسێ باوەریێ دکەت ب خودێ و پێغەمبەران.", video: "", points: 10 },
-                        { id: "aq1_2", title: "٢. بنەمایێ ئێکێ: ناسینا خودێ", text: "فَإِذَا قِيلَ لَكَ: مَنْ رَبُّكَ؟ فَقُلْ: رَبِّيَ اللَّهُ...", video: "", points: 10 },
-                        { id: "aq1_3", title: "٣. بنەمایێ دووێ: ناسینا ئیسلامێ", text: "الْمَرْتَبَةُ الثَّانِيَةُ: مَعْرِفَةُ دِينِ الْإِسْلَامِ بِالْأَدِلَّةِ...", video: "", points: 10 }
+                        { 
+                            id: "aq1_1", title: "١. گرنگیا عەقیدێ", text: "ئەو زانستە یە یێ بەحسێ باوەریێ دکەت ب خودێ و پێغەمبەران.", video: "", points: 10,
+                            quiz: [
+                                { q: "عەقیدە بەحسێ چی دکەت؟", options: ["باوەری بوون ب خودێ و پێغەمبەران", "مێژوویا ئیسلامێ", "کڕین و فرۆتن"], correct: 0 },
+                                { q: "بۆچی عەقیدە گرنگە؟", options: ["تەنها بۆ دونیا یە", "بناغەیا کارکردەوەکانە", "گرنگ نینە"], correct: 1 }
+                            ]
+                        },
+                        { 
+                            id: "aq1_2", title: "٢. بنەمایێ ئێکێ: ناسینا خودێ", text: "فَإِذَا قِيلَ لَكَ: مَنْ رَبُّكَ؟ فَقُلْ: رَبِّيَ اللَّهُ...", video: "", points: 10,
+                            quiz: [
+                                { q: "ئەگەر پرسیار کرا: مَنْ رَبُّكَ؟", options: ["محمد", "الله", "جبرائیل"], correct: 1 },
+                                { q: "پەروەردگار چۆن دەناسرێت؟", options: ["بە نیشانەکانی", "بە پارە", "بە خەون"], correct: 0 }
+                            ]
+                        },
+                        { 
+                            id: "aq1_3", title: "٣. بنەمایێ دووێ: ناسینا ئیسلامێ", text: "الْمَرْتَبَةُ الثَّانِيَةُ: مَعْرِفَةُ دِينِ الْإِسْلَامِ بِالْأَدِلَّةِ...", video: "", points: 10,
+                            quiz: [
+                                { q: "واتای ئیسلام چییە؟", options: ["تەنها نوێژکردن", "تەسلیم بوون بە خودا", "ڕۆژوو گرتن"], correct: 1 },
+                                { q: "ئیسلام چەند پلەیە؟", options: ["٣ پلە", "٥ پلە", "١ پلە"], correct: 0 }
+                            ]
+                        }
                     ] 
                 },
                 { 
                     id: "seerah_1", title: "سیرەت", subtitle: "پوختەیا ژیانا پێغەمبەری ﷺ", icon: "fa-moon", type: "seerah",
                     duration: "٣ کاتژمێر", lessonCount: 2, pdf: PDF_URL_DEMO,
                     lessons: [
-                        { id: "sr_1", title: "١. ڕەچەڵەک و ژ دایکبوون", text: "ژ دایک بوویە ل ساڵا فیلێ، ڕۆژا دووشەمبێ...", video: "", points: 15 },
-                        { id: "sr_2", title: "٢. ژیانا زارۆکینی", text: "ل دەف حەلیما سەعدیە مەزن بوو...", video: "", points: 15 }
+                        { 
+                            id: "sr_1", title: "١. ڕەچەڵەک و ژ دایکبوون", text: "ژ دایک بوویە ل ساڵا فیلێ، ڕۆژا دووشەمبێ...", video: "", points: 15,
+                            quiz: [ 
+                                { q: "پێغەمبەر (ﷺ) لە چ ساڵێک لەدایک بوو؟", options: ["ساڵی فیل", "ساڵی حوزن", "ساڵی هیجرەت"], correct: 0 }, 
+                                { q: "ڕۆژی لەدایک بوونی؟", options: ["یەکشەممە", "دووشەممە", "هەینی"], correct: 1 } 
+                            ]
+                        },
+                        { 
+                            id: "sr_2", title: "٢. ژیانا زارۆکینی", text: "ل دەف حەلیما سەعدیە مەزن بوو...", video: "", points: 15,
+                            quiz: [ 
+                                { q: "کێ پێغەمبەری (ﷺ) شیر دا؟", options: ["حەلیمەی سەعدیە", "خەدیجە", "عائیشە"], correct: 0 }, 
+                                { q: "لە کوێ گەورە بوو؟", options: ["بەسرە", "شام", "بادینەی بەنی سەعد"], correct: 2 } 
+                            ]
+                        }
                     ] 
                 },
                 {
@@ -481,7 +542,9 @@ const appData = {
                     id: "aqidah_2", title: "عەقیدە ٢", subtitle: "القواعد الأربعة", icon: "fa-book-quran", type: "standard", 
                     duration: "٦ کاتژمێر", lessonCount: 2, pdf: PDF_URL_DEMO,
                     lessons: [
-                        { id: "aq2_1", title: "١. قاعیدەیا ئێکێ", text: "کافرێن قورەیش دان ب تەوحیدا روبوبیەتێ ددنان...", video: "", points: 15 },
+                        { id: "aq2_1", title: "١. قاعیدەیا ئێکێ", text: "کافرێن قورەیش دان ب تەوحیدا روبوبیەتێ ددنان...", video: "", points: 15,
+                          quiz: [ { q: "کافرانی قورەیش بڕوایان بە چی هەبوو؟", options: ["تەوحیدی ئولوهییەت", "تەوحیدی روبوبیەت", "هیچیان"], correct: 1 } ] 
+                        },
                         { id: "aq2_2", title: "٢. قاعیدەیا دووێ", text: "ئەوان دگۆت ئەم پەرستنێ دکەین دا ببنە واستە...", video: "", points: 15 }
                     ]
                 },
@@ -525,7 +588,7 @@ const appData = {
 
 /* --- 2. STATE MANAGEMENT --- */
 const State = {
-    usersDB: JSON.parse(localStorage.getItem('sabilUsersDB_v12')) || [],
+    usersDB: JSON.parse(localStorage.getItem('sabilUsersDB_v14')) || [],
     currentUser: null, 
     pendingUnlockId: null
 };
@@ -537,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('sabilTheme');
     if(savedTheme === 'light') document.body.setAttribute('data-theme', 'light');
 
-    const lastUserContact = localStorage.getItem('sabilLastUser_v12');
+    const lastUserContact = localStorage.getItem('sabilLastUser_v14');
     if (lastUserContact) {
         const user = State.usersDB.find(u => u.contact === lastUserContact);
         if (user) {
@@ -635,8 +698,8 @@ function saveState() {
         State.usersDB.push(State.currentUser);
     }
     
-    localStorage.setItem('sabilUsersDB_v12', JSON.stringify(State.usersDB));
-    localStorage.setItem('sabilLastUser_v12', State.currentUser.contact);
+    localStorage.setItem('sabilUsersDB_v14', JSON.stringify(State.usersDB));
+    localStorage.setItem('sabilLastUser_v14', State.currentUser.contact);
     updatePointsUI();
 }
 
@@ -809,7 +872,6 @@ function toggleLevel(id, index, isUnlocked) {
     if (!isUnlocked) {
         if (!State.currentUser) { 
             showToast("پێدڤیە دەسپێکێ تۆماربکەی یان بچیە ژوور.", "warning");
-            // Switch to profile view for login
             switchView('profile', document.querySelectorAll('.nav-item')[2]);
             return; 
         }
@@ -988,7 +1050,7 @@ function renderLessonList(course, hasPlan) {
             const isCompleted = State.currentUser && State.currentUser.progress[lesson.id];
             
             let isLocked = false;
-            // Lock logic: Sequential for normal, but maybe loose for Hifz? Let's keep sequential for structure.
+            // Lock logic: Sequential
             if(hasPlan && idx > 0) {
                 if(!State.currentUser.progress[course.lessons[idx-1].id]) isLocked = true;
             }
@@ -998,10 +1060,12 @@ function renderLessonList(course, hasPlan) {
                 checkboxAction = `showToast('پێدڤیە دەسپێکێ پلانێ دابنێی!', 'warning');`;
             } else if (isLocked) {
                 checkboxAction = "";
-            } else if (isSeerah) {
-                checkboxAction = `showToast('بۆ ڤی بابەتی، فەرە تێبینیان ل خوارێ بنڤیسی.', 'info')`;
-            } else {
+            } else if (isCompleted) {
+                // If already completed, undo it (no quiz needed for undo)
                 checkboxAction = `toggleLesson('${lesson.id}', ${lesson.points}, '${course.id}', ${idx})`;
+            } else {
+                // If NOT completed, Trigger QUIZ Logic first
+                checkboxAction = `initiateQuiz('${lesson.id}', ${lesson.points}, '${course.id}', ${idx})`;
             }
 
             let openAction = `openLessonContent('${course.id}', ${idx})`;
@@ -1017,7 +1081,7 @@ function renderLessonList(course, hasPlan) {
                         <div style="cursor:pointer;" onclick="${openAction}">
                             <h4 style="font-weight:700; font-size:1.05rem;">${lesson.title}</h4>
                             <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:3px;">
-                                <i class="fas fa-book-open"></i> وانە &nbsp; <i class="fas fa-video"></i> ${isHifz ? 'ژبەرکرن' : 'ڤیدیۆ'}
+                                <i class="fas fa-book-open"></i> وانە &nbsp; <i class="fas fa-question-circle"></i> تاقیکردنەوە
                             </p>
                         </div>
                     </div>
@@ -1025,29 +1089,72 @@ function renderLessonList(course, hasPlan) {
                         <i class="fas fa-play"></i>
                     </button>
                 </div>
-                ${(isSeerah && hasPlan && !isLocked) ? `
-                <div style="margin-top:10px;">
-                     <textarea id="input-${lesson.id}" style="width:100%; min-height:60px; background:var(--bg-main); border:1px solid var(--border-color); color:var(--text-primary); padding:10px; border-radius:8px;" placeholder="تێبینی..." ${isCompleted ? 'disabled' : ''}>${State.currentUser.notes[lesson.id] || ''}</textarea>
-                     ${!isCompleted ? `<button class="btn-primary" style="margin-top:5px; width:100%; justify-content:center; padding:5px;" onclick="saveNoteAndComplete('${lesson.id}', ${lesson.points}, '${course.id}', ${idx})">تۆمارکرن</button>` : ''}
-                </div>` : ''}
             </div>`;
         }).join('')}
         </div>
     </div>`;
 }
 
+/* --- 7. NEW: QUIZ LOGIC (Prevent Cheating) --- */
+function initiateQuiz(lessonId, points, courseId, index) {
+    // 1. Find Lesson Data
+    let course = null, lesson = null;
+    appData.levels.forEach(l => { 
+        let c = l.courses.find(x => x.id === courseId); 
+        if(c) { 
+            course = c; 
+            lesson = c.lessons.find(l => l.id === lessonId); 
+        } 
+    });
+
+    // 2. Check if Quiz exists
+    if (!lesson.quiz || lesson.quiz.length === 0) {
+        // No quiz defined, just complete it
+        toggleLesson(lessonId, points, courseId, index);
+        return;
+    }
+
+    // 3. Pick 1 Random Question
+    const randIndex = Math.floor(Math.random() * lesson.quiz.length);
+    const question = lesson.quiz[randIndex];
+
+    // 4. Render Quiz Modal
+    const quizContent = document.getElementById('quiz-content');
+    quizContent.innerHTML = `
+        <div class="quiz-container">
+            <div class="quiz-question">${question.q}</div>
+            <div class="quiz-options">
+                ${question.options.map((opt, idx) => `
+                    <div class="quiz-option" onclick="handleQuizResult(${idx === question.correct}, '${lessonId}', ${points}, '${courseId}', ${index})">
+                        <div class="quiz-num">${idx + 1}</div>
+                        <div>${opt}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    document.getElementById('quiz-modal').classList.add('open');
+}
+
+function handleQuizResult(isCorrect, lessonId, points, courseId, index) {
+    if (isCorrect) {
+        document.getElementById('quiz-modal').classList.remove('open');
+        showToast("وەڵام ڕاستە! ئافەرم.", "success");
+        // Proceed to complete the lesson
+        toggleLesson(lessonId, points, courseId, index);
+    } else {
+        document.getElementById('quiz-modal').classList.remove('open');
+        showToast("وەڵام هەڵەیە! دووبارە هەوڵ بدە (وانە تەواو نەبوو).", "danger");
+        // Do nothing to the state, they must try again
+    }
+}
+
 function toggleLesson(id, points, courseId, index) {
     let course = null;
     appData.levels.forEach(l => { let c = l.courses.find(x => x.id === courseId); if(c) course = c; });
 
-    if (index > 0) {
-        if (!State.currentUser.progress[course.lessons[index-1].id]) {
-            showToast("نابت بچیە ڤێ وانەیێ هەتا یا بەری وێ تەمام نەکەی!", "warning");
-            return;
-        }
-    }
-    
-    // Toggle Logic
+    // Toggle Logic (Do/Undo)
     if (State.currentUser.progress[id]) {
         // Undo
         if (index + 1 < course.lessons.length) {
@@ -1087,7 +1194,6 @@ function toggleLesson(id, points, courseId, index) {
 function saveNoteAndComplete(lessonId, points, courseId, index) {
     const text = document.getElementById(`input-${lessonId}`).value.trim();
     if(text.length < 5) { showToast("تکایە تێبینیەکێ بنڤیسە.", "warning"); return; }
-    
     State.currentUser.notes[lessonId] = text;
     State.currentUser.progress[lessonId] = true;
     State.currentUser.points += points;
@@ -1096,7 +1202,7 @@ function saveNoteAndComplete(lessonId, points, courseId, index) {
     renderLevels();
 }
 
-/* --- 7. CONTENT VIEWER (UNIFIED PDF) --- */
+/* --- 8. CONTENT VIEWER (UNIFIED PDF) --- */
 function openLessonContent(courseId, lessonIdx) {
     let course = null;
     appData.levels.forEach(l => { let c = l.courses.find(x => x.id === courseId); if(c) course = c; });
@@ -1139,7 +1245,7 @@ function openLessonContent(courseId, lessonIdx) {
     document.getElementById('main-modal').classList.add('open');
 }
 
-/* --- 8. LIBRARY RENDER --- */
+/* --- 9. LIBRARY RENDER --- */
 function renderLibrary() {
     const container = document.getElementById('library-grid');
     if(!State.currentUser) {
@@ -1152,7 +1258,6 @@ function renderLibrary() {
         return;
     }
     
-    // Determine highest level completed (simple logic)
     let userMaxLevel = 0;
     if(State.currentUser.unlockedLevels.includes(2)) userMaxLevel = 1;
     if(State.currentUser.unlockedLevels.includes(3)) userMaxLevel = 2;
@@ -1175,14 +1280,13 @@ function renderLibrary() {
     }).join('');
 }
 
-/* --- 9. PROFILE & TREE & HIFZ & AUTH VIEW --- */
+/* --- 10. PROFILE & TREE & HIFZ & AUTH VIEW --- */
 function getTreeStage(percent) {
-    // UPDATED LOGIC: Seed under soil for < 10%
-    if (percent < 10) return { icon: "fa-seedling", color: "#8d6e63", scale: 0.8, isSeed: true }; // Seed   
-    if (percent < 30) return { icon: "fa-seedling", color: "#a3e635", scale: 1.1, isSeed: false }; // Sprout 
-    if (percent < 60) return { icon: "fa-tree", color: "#4ade80", scale: 1.0, isSeed: false }; // Small tree
-    if (percent < 90) return { icon: "fa-tree", color: "#16a34a", scale: 1.3, isSeed: false }; // Big tree
-    return { icon: "fa-apple-whole", color: "#fbbf24", scale: 1.2, isSeed: false }; // Fruit            
+    if (percent < 10) return { icon: "fa-seedling", color: "#8d6e63", scale: 0.8, isSeed: true };
+    if (percent < 30) return { icon: "fa-seedling", color: "#a3e635", scale: 1.1, isSeed: false };
+    if (percent < 60) return { icon: "fa-tree", color: "#4ade80", scale: 1.0, isSeed: false };
+    if (percent < 90) return { icon: "fa-tree", color: "#16a34a", scale: 1.3, isSeed: false };
+    return { icon: "fa-apple-whole", color: "#fbbf24", scale: 1.2, isSeed: false };         
 }
 
 function renderProfileView() {
@@ -1461,33 +1565,6 @@ function renderAuthForms(container) {
                     <input type="text" id="reg-city" class="form-input" required placeholder="نموونە: ئاکرێ">
                 </div>
             </div>
-            <h4 class="form-section-title">٣. زانیاریێن زانستی</h4>
-             <div class="row-2">
-                <div class="form-group">
-                    <label class="form-label">ئاستێ خواندنێ</label>
-                    <select id="reg-edu-level" class="form-input" required>
-                        <option value="" disabled selected>هەڵبژێرە...</option>
-                        <option value="sereke">سەرەتایی</option>
-                        <option value="navendi">ناوەندی</option>
-                        <option value="amadeyi_w">ئامادەیی (وێژەیی)</option>
-                        <option value="amadeyi_z">ئامادەیی (زانستی)</option>
-                        <option value="peymangeh">پەیمانگەهـ</option>
-                        <option value="zanko">زانکۆ (بەکالۆریۆس)</option>
-                        <option value="master">ماستەر</option>
-                        <option value="doctora">دکتۆرا</option>
-                        <option value="islamic">خوێندنا ئیسلامی / حوجرە</option>
-                    </select>
-                </div>
-                 <div class="form-group">
-                    <label class="form-label">پیشە</label>
-                    <select id="reg-role" class="form-input" required>
-                        <option value="student">قوتابی</option>
-                        <option value="employee">فەرمانبەر</option>
-                        <option value="other">کاسب</option>
-                        <option value="none">بێ ئیش</option>
-                    </select>
-                </div>
-            </div>
             <div class="form-group" style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:15px;">
                 <label class="form-label">پاسوورد (وشەیا نهێنی)</label>
                 <input type="password" id="reg-pass" class="form-input" required minlength="4" placeholder="******">
@@ -1520,10 +1597,6 @@ function registerUser(e) {
     const telegram = document.getElementById('reg-telegram').value;
     const province = document.getElementById('reg-province').value;
     const city = document.getElementById('reg-city').value;
-    const eduSelect = document.getElementById('reg-edu-level');
-    const eduLevel = eduSelect.options[eduSelect.selectedIndex].text;
-    const roleSelect = document.getElementById('reg-role');
-    const roleText = roleSelect.options[roleSelect.selectedIndex].text;
     const pass = document.getElementById('reg-pass').value;
 
     if(State.usersDB.some(u => u.contact === contact)) {
@@ -1533,7 +1606,7 @@ function registerUser(e) {
 
     const newUser = { 
         name, contact, pass, 
-        details: { birthYear, gender, telegram, province, city, eduLevel, roleText },
+        details: { birthYear, gender, telegram, province, city },
         joined: Date.now(),
         lastLoginDate: new Date().toDateString(),
         streak: 1, points: 0, progress: {}, plans: {}, unlockedLevels: [1], notes: {}, hifz: { quran: [] },
@@ -1542,7 +1615,6 @@ function registerUser(e) {
     State.usersDB.push(newUser);
     State.currentUser = newUser;
     saveState();
-    // Instead of closeModal, we re-render profile view
     renderProfileView();
     initApp();
     showToast("پیرۆزە! هەژمارا تە هاتە دروستکرن.", "success");
@@ -1559,7 +1631,7 @@ function loginUser(e) {
         if(!State.currentUser.details) State.currentUser.details = {}; 
         if(!State.currentUser.hifz) State.currentUser.hifz = { quran: [] }; 
         saveState();
-        renderProfileView(); // Re-render profile view
+        renderProfileView(); 
         initApp();
         showToast("بەخێرهاتی!", "success");
     } else {
@@ -1570,7 +1642,7 @@ function loginUser(e) {
 function logout() {
     if(confirm('دەرکەفتن ژ بەرنامەی؟')) {
         State.currentUser = null;
-        localStorage.removeItem('sabilLastUser_v12');
+        localStorage.removeItem('sabilLastUser_v14');
         location.reload();
     }
 }
