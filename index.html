@@ -1,406 +1,1328 @@
-
 <!DOCTYPE html>
 <html lang="ku" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سبل السلام | گەشتەکا نوو</title>
+<title>سبل السلام | ڕێڕەوا زانستێ شەرعی</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;700;800&display=swap');
+
+/* --- THEME VARIABLES --- */
 :root {
-    --bg-main: #0d1117; --bg-secondary: #161b22; --bg-glass: rgba(22, 27, 34, 0.7);
-    --text-primary: #e6edf3; --text-secondary: #8b949e; --accent-primary: #D4AF37;
-    --accent-secondary: #58a6ff; --accent-hover: #f0c674; --border-color: #30363d;
-    --success-color: #238636; --danger-color: #da3633; --warning-color: #e3b341;
-    --font-body: 'Noto Naskh Arabic', sans-serif; --font-heading: 'Noto Naskh Arabic', serif;
-    --border-radius-md: 12px; --border-radius-sm: 8px;
-    --shadow-main: 0 8px 32px rgba(0, 0, 0, 0.6); --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.4);
+    --bg-main: #0f172a; 
+    --bg-secondary: #1e293b; 
+    --bg-glass: rgba(30, 41, 59, 0.95);
+    --text-primary: #f8fafc; 
+    --text-secondary: #94a3b8; 
+    --accent-primary: #fbbf24; 
+    --accent-glow: rgba(251, 191, 36, 0.4);
+    --accent-secondary: #0ea5e9; 
+    --border-color: #334155;
+    --success-color: #10b981; 
+    --danger-color: #ef4444; 
+    --warning-color: #f59e0b;
+    --font-body: 'Noto Naskh Arabic', sans-serif;
+    --radius-xl: 24px;
+    --radius-md: 16px;
+    --radius-sm: 8px;
+    --shadow-main: 0 10px 30px -10px rgba(0,0,0,0.5);
+    --gradient-bg: radial-gradient(circle at 10% 10%, rgba(14, 165, 233, 0.05) 0%, transparent 40%),
+                   radial-gradient(circle at 90% 90%, rgba(251, 191, 36, 0.05) 0%, transparent 40%);
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 100px; }
-body { font-family: var(--font-body); background-color: var(--bg-main); color: var(--text-primary); line-height: 1.8; overflow-x: hidden; }
-a { color: var(--accent-secondary); text-decoration: none; transition: color 0.3s; }
-a:hover { color: var(--accent-hover); }
-.container { width: 90%; max-width: 1200px; margin: auto; }
 
-#loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-main); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 1.5s ease-out, visibility 1.5s; }
+[data-theme="light"] {
+    --bg-main: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-glass: rgba(255, 255, 255, 0.95);
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --accent-primary: #d97706; 
+    --accent-glow: rgba(217, 119, 6, 0.3);
+    --accent-secondary: #0284c7; 
+    --border-color: #e2e8f0;
+    --shadow-main: 0 10px 30px -10px rgba(0,0,0,0.1);
+    --gradient-bg: radial-gradient(circle at 10% 10%, rgba(2, 132, 199, 0.05) 0%, transparent 40%),
+                   radial-gradient(circle at 90% 90%, rgba(217, 119, 6, 0.05) 0%, transparent 40%);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+body { 
+    font-family: var(--font-body); 
+    background-color: var(--bg-main); 
+    color: var(--text-primary); 
+    line-height: 1.8; 
+    overflow-x: hidden; 
+    min-height: 100vh;
+    background-image: var(--gradient-bg);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-secondary); }
+
+.container { width: 92%; max-width: 1200px; margin: auto; }
+
+/* Loading Screen */
+#loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-main); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.8s ease-out, visibility 0.8s; }
 #loading-screen.fade-out { opacity: 0; visibility: hidden; }
-.loading-content { text-align: center; }
-.loading-logo svg { width: 120px; height: 120px; margin-bottom: 20px; }
-.loading-logo .logo-path { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: draw-logo 2.5s ease-in-out forwards; }
-@keyframes draw-logo { to { stroke-dashoffset: 0; } }
-.loading-title, .loading-text { animation: slide-up 1s ease-out 0.5s both; }
-.loading-title { font-size: 2rem; } .loading-text { font-size: 1.1rem; color: var(--text-secondary); margin-top: 10px; animation-delay: 0.7s; }
+.spinner { width: 60px; height: 60px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; box-shadow: 0 0 20px var(--accent-glow); }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slide-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+/* Toast Notifications */
+#toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.toast { background: var(--bg-secondary); border-left: 5px solid var(--accent-primary); padding: 15px; border-radius: var(--radius-sm); box-shadow: 0 10px 30px rgba(0,0,0,0.3); color: var(--text-primary); opacity: 0; transform: translateY(-20px); transition: 0.4s; pointer-events: auto; display: flex; align-items: center; gap: 15px; }
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.warning { border-color: var(--warning-color); }
+.toast.danger { border-color: var(--danger-color); }
+.toast.success { border-color: var(--success-color); }
+.toast-icon { font-size: 1.5rem; }
 
-header { position: sticky; top: 0; width: 100%; padding: 15px 0; z-index: 1000; background: var(--bg-glass); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); }
+/* Header */
+header { position: sticky; top: 0; width: 100%; padding: 15px 0; z-index: 1000; background: var(--bg-secondary); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); transition: 0.3s; }
 .header-container { display: flex; justify-content: space-between; align-items: center; }
-.logo { display: flex; align-items: center; gap: 15px; }
-.logo-icon { font-size: 2.5rem; color: var(--accent-primary); }
-.logo-text { font-family: var(--font-heading); font-weight: 700; font-size: 2rem; }
-.header-actions { display: flex; align-items: center; gap: 20px; }
-.points-display-header { font-size: 1.1rem; color: var(--accent-primary); font-weight: bold; background: var(--bg-secondary); padding: 10px 20px; border-radius: 50px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px; }
-.user-icon { font-size: 1.8rem; color: var(--text-secondary); cursor: pointer; transition: color 0.3s; }
-.user-icon:hover { color: var(--accent-primary); }
+.logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.logo-icon { font-size: 2.2rem; color: var(--accent-primary); filter: drop-shadow(0 0 8px var(--accent-glow)); transition: 0.3s; }
+.logo:hover .logo-icon { transform: rotate(10deg); }
+.logo-text { font-weight: 800; font-size: 1.6rem; color: var(--text-primary); letter-spacing: -0.5px; }
+.header-actions { display: flex; align-items: center; gap: 15px; }
+.points-display { font-size: 0.95rem; color: var(--accent-primary); background: rgba(251, 191, 36, 0.08); padding: 6px 14px; border-radius: 50px; border: 1px solid rgba(251, 191, 36, 0.2); display: flex; align-items: center; gap: 8px; font-weight: bold; transition: 0.3s; }
 
-.journey-hero { text-align: center; padding: 100px 20px; margin-bottom: 80px; }
-.journey-hero h1 { font-size: 4.5rem; margin-bottom: 20px; background: linear-gradient(90deg, var(--accent-hover), var(--accent-primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
-.journey-hero p { font-size: 1.4rem; color: var(--text-secondary); max-width: 750px; margin: 0 auto 40px; }
-.start-journey-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--accent-primary); color: var(--bg-main); padding: 15px 35px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; transition: all 0.3s ease; box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3); }
-.start-journey-btn:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 10px 25px rgba(212, 175, 55, 0.5); background: var(--accent-hover); }
+.icon-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--bg-main); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; color: var(--text-secondary); position: relative; }
+.icon-btn:hover { background: var(--accent-secondary); color: white; border-color: var(--accent-secondary); transform: scale(1.1); }
+.notification-dot { position: absolute; top: 0; right: 0; width: 12px; height: 12px; background: var(--danger-color); border-radius: 50%; border: 2px solid var(--bg-main); display: none; }
+.notification-dot.active { display: block; }
 
-#levels-journey { padding: 40px 0; }
-.levels-timeline { display: flex; flex-direction: column; gap: 20px; }
-.level-step { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); transition: all 0.4s ease; position: relative; padding-right: 50px; }
-.level-step-header { display: flex; align-items: center; gap: 20px; padding: 25px; cursor: pointer; }
-.level-step.is-locked .level-step-header { cursor: not-allowed; opacity: 0.6; }
-.level-icon-wrapper { position: absolute; right: -25px; top: 30px; z-index: 2; width: 50px; height: 50px; border-radius: 50%; background: var(--bg-main); display: flex; align-items: center; justify-content: center; border: 3px solid var(--border-color); }
-.level-icon-wrapper .level-icon { font-size: 1.8rem; color: var(--accent-secondary); }
-.level-step.is-completed .level-icon-wrapper { border-color: var(--success-color); }
-.level-step.is-completed .level-icon { color: var(--success-color); }
-.level-step::after { content: ''; position: absolute; top: 80px; right: -2px; width: 4px; height: calc(100% - 60px); background: var(--border-color); }
-.levels-timeline .level-step:last-child::after { display: none; }
-.level-title h2 { font-size: 1.8rem; margin: 0; color: var(--text-primary); }
-.level-title p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
-.level-status { margin-right: auto; display: flex; align-items: center; gap: 10px; }
-.level-step-content { max-height: 0; overflow: hidden; transition: max-height 0.6s ease-out, padding 0.6s ease-out; }
-.level-step-content-inner { padding: 0 25px; }
-.level-step.active:not(.is-locked) .level-step-content { max-height: 1500px; }
-.level-step.active:not(.is-locked) .level-step-content-inner { padding: 25px; border-top: 1px solid var(--border-color); }
-.level-step.is-locked .level-step-content-inner, .level-step.is-locked .level-title p, .level-step.is-locked .level-status { display: none; }
-.locked-content-placeholder { display: none; padding: 40px 20px; text-align: center; color: var(--text-secondary); }
-.level-step.is-locked .locked-content-placeholder { display: block; }
-.locked-content-placeholder .fas { font-size: 4rem; margin-bottom: 20px; }
-.category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-.category-card { background: var(--bg-main); padding: 20px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); text-align: center; transition: all 0.3s ease; cursor: pointer; position: relative; overflow: hidden; }
-.category-card:hover { transform: translateY(-5px); border-color: var(--accent-secondary); }
-.category-icon { font-size: 2rem; margin-bottom: 10px; color: var(--accent-secondary); }
-.category-card h4 { font-size: 1.2rem; }
-.category-card p { font-size: 0.8rem; color: var(--text-secondary); }
-.category-progress-bar { position: absolute; bottom: 0; right: 0; left: 0; height: 4px; background-color: var(--border-color); }
-.category-progress-bar-inner { height: 100%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); width: 0; }
+/* Hero Section */
+.hero { text-align: center; padding: 100px 20px 60px; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: var(--accent-secondary); opacity: 0.05; filter: blur(100px); border-radius: 50%; z-index: -1; }
+.hero h1 { font-size: 3.5rem; margin-bottom: 25px; background: linear-gradient(135deg, var(--text-primary) 20%, var(--accent-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; letter-spacing: -1px; line-height: 1.2; }
+.hero p { font-size: 1.2rem; color: var(--text-secondary); max-width: 700px; margin: 0 auto 30px; }
 
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(13, 17, 23, 0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 2000; animation: fade-in 0.3s; }
-.modal-overlay.is-visible { display: flex; }
-.modal-content { position: relative; width: 90%; max-width: 800px; background: var(--bg-secondary); border-radius: var(--border-radius-md); max-height: 85vh; overflow-y: auto; padding: 40px; border: 1px solid var(--border-color); box-shadow: var(--shadow-main); animation: slide-up 0.4s ease-out; }
-.close-modal-btn { position: absolute; top: 20px; left: 25px; color: var(--text-secondary); font-size: 2.2rem; cursor: pointer; z-index: 10; }
-.modal-title { text-align: center; margin-bottom: 30px; font-size: 1.8rem; }
-.course-group { background: var(--bg-main); padding: 20px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); margin-top: 30px; }
-.course-group-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); }
-.course-group-info h4 { font-size: 1.6rem; color: var(--accent-secondary); margin: 0; }
-.course-group-info p { font-size: 0.9rem; color: var(--text-secondary); margin: 5px 0 0 0; }
-.course-header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.goal-setter { display: flex; gap: 8px; flex-direction: column; align-items: flex-start; }
-.goal-setter p { font-size: 0.9rem; margin: 0 0 5px 0; color: var(--text-secondary); }
-.goal-buttons { display: flex; gap: 8px; }
-.goal-btn { font-size: 0.8rem; padding: 6px 12px; border-color: var(--text-secondary); color: var(--text-secondary); }
-.time-remaining { font-size: 0.9rem; color: var(--warning-color); background: rgba(227, 179, 65, 0.1); padding: 8px 15px; border-radius: 50px; }
-.pdf-btn { border-color: var(--accent-secondary); color: var(--accent-secondary); }
-.pdf-btn:hover { background: var(--accent-secondary); color: var(--bg-main); }
-.lesson-item { display: flex; flex-direction: column; padding: 15px; margin-bottom: 10px; border-radius: var(--border-radius-sm); background: var(--bg-secondary); border: 1px solid var(--border-color); transition: all .3s; }
-.lesson-item.is-watched { border-color: var(--success-color); background: rgba(35, 134, 54, 0.1); }
-.lesson-item.locked { opacity: 0.5; pointer-events: none; cursor: not-allowed; }
-.lesson-item.locked .lesson-label { cursor: not-allowed; }
-.lesson-label-container { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-.lesson-label { flex-grow: 1; display: flex; align-items: center; gap: 15px; cursor: pointer; }
-.item-checkbox { width: 22px; height: 22px; accent-color: var(--success-color); }
-.lesson-actions { display: flex; gap: 10px; }
-.action-btn { background: none; border: 1px solid var(--accent-primary); color: var(--accent-primary); padding: 8px 15px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: all 0.3s; }
-.action-btn:hover:not(:disabled) { background: var(--accent-primary); color: var(--bg-main); }
-.action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.benefits-section { width: 100%; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); animation: fade-in 0.5s; }
-.benefits-textarea { width: 100%; height: 100px; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px; border-radius: var(--border-radius-sm); resize: vertical; margin-bottom: 10px; }
-#media-player-container { position: relative; padding-top: 56.25%; }
-#media-player-container iframe, #media-player-container audio { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-#media-player-container audio { height: 60px; }
-.goal-required-placeholder { text-align: center; padding: 40px 20px; background-color: var(--bg-main); border-radius: var(--border-radius-sm); margin-top: 20px; }
-.goal-required-placeholder .fas { font-size: 3rem; color: var(--accent-secondary); margin-bottom: 15px; }
+.btn-group { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+.btn-primary { background: linear-gradient(90deg, var(--accent-primary), #f59e0b); color: #0f172a; padding: 14px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s ease; border: none; cursor: pointer; box-shadow: 0 10px 25px rgba(251, 191, 36, 0.3); }
+.btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 35px rgba(251, 191, 36, 0.5); }
+.btn-outline { background: transparent; border: 2px solid var(--border-color); color: var(--text-primary); padding: 12px 30px; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+.btn-outline:hover { border-color: var(--accent-secondary); color: var(--accent-secondary); background: rgba(14, 165, 233, 0.05); }
 
-/* Styles for Hadith/Adhkar Items */
-.memorization-item-details { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-out; }
-.memorization-item-details.visible { max-height: 500px; /* Adjust as needed */ }
-.full-text-container { background: var(--bg-main); padding: 20px; margin-top: 15px; border-radius: var(--border-radius-sm); border-right: 3px solid var(--accent-secondary); }
-.audio-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 15px; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
-.repetition-controls { display: flex; align-items: center; gap: 8px; }
-.repetition-controls p { margin: 0; font-size: 0.9rem; color: var(--text-secondary); }
-.rep-btn { padding: 5px 12px; font-size: 0.8rem; border: 1px solid var(--text-secondary); color: var(--text-secondary); }
-.rep-btn.active { background: var(--accent-secondary); color: var(--bg-main); border-color: var(--accent-secondary); }
+/* Levels & Timeline */
+.timeline-container { padding: 40px 0 120px; position: relative; }
+.level-card { background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-xl); margin-bottom: 40px; overflow: hidden; position: relative; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+.level-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.1); box-shadow: var(--shadow-main); }
+.level-card.active { border-color: var(--accent-secondary); box-shadow: 0 0 20px rgba(14, 165, 233, 0.15); }
+.level-card.locked { opacity: 0.7; filter: grayscale(1); border-style: dashed; }
+.level-card.locked .level-header { cursor: not-allowed; }
 
-#profile-modal .modal-content { max-width: 550px; padding: 0; }
-.profile-view { padding: 30px; }
-.auth-view { padding: 20px; }
-.form-title { text-align: center; font-size: 2rem; margin-bottom: 30px; }
-.form-group { margin-bottom: 20px; }
-.form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); }
-.form-input { width: 100%; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px 15px; border-radius: var(--border-radius-sm); font-size: 1rem; }
-.form-button { width: 100%; padding: 15px; background: var(--accent-primary); color: var(--bg-main); border: none; border-radius: var(--border-radius-sm); font-size: 1.1rem; font-weight: bold; cursor: pointer; }
-.form-switch-link { text-align: center; margin-top: 20px; color: var(--text-secondary); }
-.form-switch-link a { font-weight: bold; }
-.profile-tabs { display: flex; background: var(--bg-main); padding: 5px; border-radius: var(--border-radius-md); margin-bottom: 30px; }
-.profile-tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-secondary); font-size: 1rem; font-family: var(--font-body); cursor: pointer; border-radius: var(--border-radius-sm); }
-.profile-tab-btn.active { background: var(--accent-secondary); color: var(--bg-main); font-weight: bold; }
-.profile-tab-content { display: none; animation: fade-in 0.5s; }
-.profile-tab-content.active { display: block; }
-.user-info { text-align: center; }
-.user-info .avatar { font-size: 4rem; color: var(--bg-secondary); background: linear-gradient(45deg, var(--accent-primary), var(--accent-hover)); width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 25px rgba(212, 175, 55, 0.5); }
-.user-info h2 { font-size: 2rem; }
-.stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 20px; margin-bottom: 30px; }
-.stat-item { background: var(--bg-main); padding: 20px; border-radius: var(--border-radius-sm); text-align: center; }
-.stat-item .stat-value { font-size: 2rem; font-weight: bold; color: var(--accent-secondary); }
-.badges-container { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
-.badge { font-size: 3rem; color: var(--text-secondary); filter: grayscale(1); opacity: 0.6; }
-.badge.earned { color: var(--accent-primary); filter: none; opacity: 1; }
-.service-button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.service-button { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 15px; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-primary); text-align: center; border-radius: var(--border-radius-sm); font-size: 1rem; }
-.service-button.logout { background-color: rgba(218, 54, 51, 0.1); border-color: var(--danger-color); color: var(--danger-color); grid-column: 1 / -1; margin-top: 15px; }
-#my-notes-modal .saved-note { background: var(--bg-main); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 10px; border-right: 4px solid var(--accent-secondary); }
-#my-notes-modal .saved-note h5 { margin-bottom: 8px; }
+.level-header { padding: 35px; display: flex; align-items: center; gap: 25px; cursor: pointer; background: linear-gradient(to left, rgba(255,255,255,0.02), transparent); }
+.level-icon-box { width: 70px; height: 70px; background: var(--bg-secondary); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent-secondary); border: 1px solid var(--border-color); flex-shrink: 0; transition: 0.3s; position: relative; overflow: hidden; }
+.level-card.active .level-icon-box { background: var(--accent-secondary); color: white; border-color: var(--accent-secondary); box-shadow: 0 0 20px rgba(14, 165, 233, 0.4); }
+
+.level-content { max-height: 0; overflow: hidden; transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1); background: rgba(0,0,0,0.1); }
+.level-card.active .level-content { max-height: 6000px; }
+
+/* Course Grid */
+.courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 35px; border-top: 1px solid var(--border-color); }
+.course-item { background: var(--bg-secondary); padding: 30px 25px; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center; transition: 0.3s; cursor: pointer; position: relative; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+.course-item::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--border-color); transition: 0.3s; }
+.course-item:hover { transform: translateY(-7px); border-color: rgba(255,255,255,0.1); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
+.course-item:hover::before { background: var(--accent-secondary); }
+.course-icon { font-size: 2.8rem; color: var(--accent-secondary); margin-bottom: 20px; display: block; transition: 0.3s; }
+.course-item:hover .course-icon { transform: scale(1.1); color: var(--text-primary); text-shadow: 0 0 10px var(--accent-secondary); }
+
+.progress-bar { height: 8px; background: var(--bg-main); margin-top: 20px; border-radius: 4px; overflow: hidden; width: 100%; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-secondary), #3b82f6); width: 0%; transition: width 0.8s ease-out; border-radius: 4px; }
+
+/* Lesson List Styles */
+.lesson-row { background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius-sm); margin-bottom: 15px; transition: 0.3s; }
+.lesson-row:hover { border-color: var(--accent-secondary); }
+.lesson-row.completed { border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); }
+.lesson-row.locked { opacity: 0.5; pointer-events: none; border-style: dashed; }
+
+.checkbox-custom { width: 32px; height: 32px; border: 2px solid var(--border-color); border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; flex-shrink: 0; background: var(--bg-main); color: transparent; }
+.checkbox-custom.checked { background: var(--success-color); border-color: var(--success-color); color: white; transform: scale(1.1); box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+.checkbox-custom.disabled { cursor: not-allowed; opacity: 0.7; border-color: var(--border-color); background: var(--bg-main); }
+
+/* Modals */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+.modal-overlay.open { display: flex; opacity: 1; }
+.modal-box { background: var(--bg-secondary); width: 95%; max-width: 900px; max-height: 95vh; overflow-y: auto; border-radius: var(--radius-xl); border: 1px solid var(--border-color); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); position: relative; animation: slideUp 0.4s ease-out; color: var(--text-primary); }
+@keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); position: sticky; top: 0; z-index: 10; }
+.modal-body { padding: 30px; }
+.modal-close { font-size: 1.6rem; color: var(--text-secondary); cursor: pointer; transition: 0.3s; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+.modal-close:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+
+/* Unified Lesson Viewer */
+.lesson-viewer-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media(min-width: 768px) {
+    .lesson-viewer-grid { grid-template-columns: 2fr 1fr; }
+}
+.video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border-color); }
+.video-wrapper iframe, .video-wrapper video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.pdf-wrapper { height: 400px; background: #f1f5f9; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border-color); margin-bottom: 20px; }
+.matn-box { background: var(--bg-main); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); max-height: 400px; overflow-y: auto; line-height: 2; font-size: 1.1rem; text-align: justify; }
+
+/* Auth Forms Extended */
+.auth-tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); }
+.auth-tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; color: var(--text-secondary); font-weight: bold; transition: 0.3s; position: relative; }
+.auth-tab.active { color: var(--accent-primary); }
+.auth-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background: var(--accent-primary); border-radius: 3px 3px 0 0; }
+.form-group { margin-bottom: 15px; text-align: right; }
+.form-label { display: block; margin-bottom: 6px; color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; }
+.form-section-title { grid-column: 1 / -1; margin-top: 15px; margin-bottom: 10px; font-size: 1.1rem; color: var(--accent-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+.form-input { width: 100%; background: var(--bg-main); border: 2px solid var(--border-color); padding: 12px 15px; border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.95rem; transition: 0.3s; }
+.form-input:focus { border-color: var(--accent-secondary); box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+
+/* Tree Profile & Tasks */
+.tree-container { text-align: center; padding: 40px; background: linear-gradient(180deg, rgba(14, 165, 233, 0.05) 0%, transparent 100%); border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 25px; }
+.tree-circle { width: 140px; height: 140px; background: var(--bg-secondary); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; border: 4px solid var(--accent-secondary); box-shadow: 0 0 30px rgba(14, 165, 233, 0.3); position: relative; transition: 0.5s; }
+.tree-icon { font-size: 4.5rem; transition: 0.5s; }
+
+.streak-card { background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), transparent); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: var(--radius-md); padding: 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+.streak-icon-box { width: 50px; height: 50px; background: rgba(249, 115, 22, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #f97316; }
+
+.task-card { background: var(--bg-main); border: 1px solid var(--border-color); padding: 15px; border-radius: var(--radius-sm); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; transition: 0.3s; cursor: pointer; }
+.task-card:hover { border-color: var(--accent-secondary); }
+
+/* Certificate */
+.cert-btn { margin-top: 20px; width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 15px; border-radius: var(--radius-sm); font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+.cert-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(16, 185, 129, 0.5); }
+
+#certificate-view { text-align: center; padding: 40px; border: 15px double var(--accent-primary); background: #fff; color: #000; display: none; margin-top: 20px; position: relative; }
+#certificate-view h1 { font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 10px; font-family: 'Noto Naskh Arabic'; }
+#certificate-view .cert-subtitle { font-size: 1.2rem; margin: 10px 0; color: #555; }
+#certificate-view .cert-name { font-size: 2.2rem; font-weight: bold; border-bottom: 2px solid #000; display: inline-block; padding: 5px 40px; margin: 20px 0; color: #000; }
+#certificate-view .cert-level { font-size: 1.8rem; color: var(--accent-secondary); margin: 20px 0; font-weight:bold; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero h1 { font-size: 2.2rem; }
+    .level-header { flex-direction: column; text-align: center; }
+    .header-container { padding: 0 15px; }
+    .logo-text { display: none; }
+    .btn-group { flex-direction: column; width: 100%; }
+    .btn-primary, .btn-outline { width: 100%; justify-content: center; }
+    .row-2, .row-3 { grid-template-columns: 1fr; }
+}
+
+/* Print Styles */
+@media print {
+    body * { visibility: hidden; }
+    #print-area, #print-area * { visibility: visible; }
+    #print-area { position: absolute; left: 0; top: 0; width: 100%; height:100%; display:flex; align-items:center; justify-content:center; }
+    .modal-box { box-shadow: none; border: none; background:white; }
+    #certificate-view { width:100%; border-width:5px; display:block !important; }
+}
 </style>
 </head>
 <body>
-<div id="loading-screen"><div class="loading-content"><div class="loading-logo"><svg viewBox="0 0 100 100"><path class="logo-path" d="M20,80 Q50,20 80,80" stroke="var(--accent-primary)" stroke-width="5" fill="none" stroke-linecap="round"/><path class="logo-path" d="M30,80 Q50,50 70,80" stroke="var(--accent-secondary)" stroke-width="5" fill="none" stroke-linecap="round" style="animation-delay: 0.5s;"/></svg></div><h2 class="loading-title">بخێر بهێی بۆ سبل السلام</h2><p class="loading-text">گەشتا تە بەرەڤ زانستێ دەست پێدکەت...</p></div></div>
-<header><div class="header-container container"><a href="#" class="logo"><i class="fas fa-road-bridge logo-icon"></i><span class="logo-text">سبل السلام</span></a><div class="header-actions"><div class="points-display-header"><i class="fas fa-star"></i> <span id="points-display">0</span></div><i class="fas fa-user-circle user-icon" onclick="openModal('profile-modal')"></i></div></div></header>
 
-<main class="container">
-    <div class="journey-hero">
-        <h1>ڕێڕەوا فێربوونێ</h1>
-        <p>گەشتەکا ڕێکخستی بۆ فێربوونا زانستێن شەرعی، ژ خالێن دەستپێکێ حەتا ئاستێن پێشکەفتی. ئەرێ تو ئامادەی دەست ب گەشتا خۆ بکەی؟</p>
-        <a href="#levels-journey" class="start-journey-btn">دەستپێکە <i class="fas fa-arrow-down"></i></a>
+<!-- Loader -->
+<div id="loading-screen">
+    <div class="spinner"></div>
+    <h3 style="font-weight: 800; letter-spacing: 1px;">سبل السلام</h3>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">باردکەت...</p>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- Navbar -->
+<header>
+    <div class="container header-container">
+        <a href="#" class="logo">
+            <i class="fas fa-kaaba logo-icon"></i>
+            <span class="logo-text">سبل السلام</span>
+        </a>
+        <div class="header-actions">
+            <div class="points-display"><i class="fas fa-star"></i> <span id="user-points">0</span></div>
+            
+            <div class="icon-btn" onclick="toggleTheme()" title="گۆڕینا دۆخی (شەڤ/ڕۆژ)">
+                <i class="fas fa-adjust"></i>
+            </div>
+            
+            <div class="icon-btn" onclick="openNotifications()">
+                <i class="fas fa-bell"></i>
+                <div id="notif-dot" class="notification-dot"></div>
+            </div>
+            <div class="icon-btn" onclick="openProfileModal()">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
     </div>
-    <section id="levels-journey"><div class="levels-timeline"></div></section>
+</header>
+
+<!-- Main Content -->
+<main class="container">
+    <div class="hero">
+        <h1>گەشتا زانستێ شەرعی</h1>
+        <p>پلاتفۆرمەکا ڕێکخستی و مودێرن بۆ فێربوونا بنەمایێن ئیسلامێ. سیستەمەکێ زیرەک بۆ فێربوون، پلان دانان، و چاڤدێرییا پێشکەفتنێ.</p>
+        <div class="btn-group">
+            <button class="btn-primary" onclick="document.getElementById('levels-container').scrollIntoView()">
+‎                دەستپێکە <i class="fas fa-arrow-down"></i>
+            </button>
+            <button class="btn-outline" onclick="openTutorial()">
+                <i class="fas fa-info-circle"></i> چەوا دێ بکار ئینی؟
+            </button>
+        </div>
+    </div>
+
+    <div id="levels-container" class="timeline-container">
+        <!-- Levels injected via JS -->
+    </div>
 </main>
 
-<div class="modal-overlay" id="activity-list-modal"><div class="modal-content"><span class="close-modal-btn" onclick="closeModal('activity-list-modal')">&times;</span><h3 id="activity-list-title" class="modal-title"></h3><div id="activity-list-container"></div></div></div>
-<div class="modal-overlay" id="media-player-modal"><div class="modal-content"><span class="close-modal-btn" onclick="closeModal('media-player-modal')">&times;</span><div id="media-player-container"></div></div></div>
-<div class="modal-overlay" id="my-notes-modal"><div class="modal-content"><span class="close-modal-btn" onclick="closeModal('my-notes-modal')">&times;</span><h3 class="modal-title">تێبینیێن من</h3><div id="my-notes-container"><p>چ تێبینی نەهاتینە تۆمارکرن.</p></div></div></div>
-<div class="modal-overlay" id="profile-modal"><div class="modal-content"><span class="close-modal-btn" onclick="closeModal('profile-modal')">&times;</span><div id="auth-choice-view" class="auth-view"><h2 class="form-title">بخێر بهێی</h2><p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">بچە ژوور یان هەژمارەکا نوو دروست بکە</p><div class="service-button-grid" style="grid-template-columns: 1fr;"><button class="service-button" onclick="switchAuthView('login-view')"><i class="fas fa-sign-in-alt fa-fw"></i> چوونەژوور</button><button class="service-button" onclick="switchAuthView('register-view')"><i class="fas fa-user-plus fa-fw"></i> خۆتۆمارکرن</button></div></div><div id="login-view" class="auth-view" style="display: none;"><h2 class="form-title">چوونەژوور</h2><form id="login-form"><div class="form-group"><label for="login-email">ئیمێل</label><input type="email" id="login-email" class="form-input" required></div><div class="form-group"><label for="login-password">پەیڤا نهێنی</label><input type="password" id="login-password" class="form-input" required></div><button type="submit" class="form-button">بچە ژوور</button><p class="form-switch-link">هەژمارا تە نینە؟ <a href="#" onclick="switchAuthView('register-view')">ئێکێ نوو دروست بکە</a></p></form></div><div id="register-view" class="auth-view" style="display: none;"><h2 class="form-title">خۆتۆمارکرن</h2><form id="register-form"><div class="form-group"><label for="register-name">ناڤ</label><input type="text" id="register-name" class="form-input" required></div><div class="form-group"><label for="register-email">ئیمێل</label><input type="email" id="register-email" class="form-input" required></div><div class="form-group"><label for="register-password">پەیڤا نهێنی</label><input type="password" id="register-password" class="form-input" required></div><button type="submit" class="form-button">هەژمارێ دروست بکە</button><p class="form-switch-link">هەژمارا تە هەیە؟ <a href="#" onclick="switchAuthView('login-view')">بچە ژوور</a></p></form></div><div id="profile-view" class="profile-card" style="display: none;"><div class="profile-view"><div class="user-info"><div class="avatar"><i class="fas fa-user-graduate"></i></div><div><h2>قوتابیێ نموونە</h2><p>ئەندام ژ: چریا دووێ ٢٠٢٥</p></div></div><nav class="profile-tabs"><button class="profile-tab-btn active" data-tab="info">پێزانین</button><button class="profile-tab-btn" data-tab="achievements">دەستکەفت</button><button class="profile-tab-btn" data-tab="services">خزمەتگوزاری</button></nav><div id="tab-info" class="profile-tab-content active"><div class="stats-container"><div class="stat-item"><div class="stat-value" id="profile-points">0</div><div class="stat-label">کۆما خالان</div></div><div class="stat-item"><div class="stat-value" id="profile-completed-courses">0</div><div class="stat-label">خولێن ب دوماهیک هاتی</div></div><div class="stat-item" style="grid-column: 1 / -1;"><div class="stat-value" id="profile-streak">0 <i class="fas fa-fire" style="color: #ff9800;"></i></div><div class="stat-label">چالاکیا بەردەوام (ڕۆژ)</div></div></div></div><div id="tab-achievements" class="profile-tab-content"><div class="achievements"><h3>نیشانێن ڕێڕەوێ</h3><div class="badges-container" id="profile-badges"></div></div></div><div id="tab-services" class="profile-tab-content"><div class="service-button-grid"><button class="service-button" onclick="showMyNotes()"><i class="fas fa-edit fa-fw"></i> تێبینیێن من</button><button class="service-button" onclick="alert('سوپاس بۆ پێشنیارا تە!')"><i class="fas fa-lightbulb fa-fw"></i> پێشنیار بکە</button><button class="service-button" onclick="alert('ئەڤ بەشە دێ ل پاشەڕۆژێ هێتە بەردەستکرن.')"><i class="fas fa-cog fa-fw"></i> ڕێکخستن</button><button class="service-button" onclick="alert('بۆ هەر پرسیارەکێ، پەیوەندیێ ب مە بکە.')"><i class="fas fa-question-circle fa-fw"></i> هاریکاری</button></div><a href="#" class="service-button logout" onclick="logoutUser()"><i class="fas fa-sign-out-alt fa-fw"></i> چوونەدەر</a></div></div></div></div></div>
+<!-- Main Modal (Courses/Tasks) -->
+<div id="main-modal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div style="display:flex; flex-direction:column; gap:5px; flex:1;">
+                <h3 id="modal-title" style="font-size: 1.4rem;">ناڤونیشان</h3>
+                <div id="modal-timer" style="display:none;"></div>
+            </div>
+            <i class="fas fa-times modal-close" onclick="closeModal()"></i>
+        </div>
+        <div id="modal-content" class="modal-body"></div>
+    </div>
+</div>
 
-<footer><p>&copy; 2025 - سبل السلام. هەمی ماف پاراستینە.</p></footer>
+<!-- Unlock Modal -->
+<div id="unlock-modal" class="modal-overlay" style="z-index: 2200;">
+    <div class="modal-box" style="max-width: 400px; text-align:center; padding:30px;">
+        <i class="fas fa-lock" style="font-size:3rem; color:var(--accent-primary); margin-bottom:20px;"></i>
+        <h3>قفلێ ڤەکە</h3>
+        <p style="color:var(--text-secondary); margin-bottom:20px;">تکایە کۆدێ (Passcode) داخل بکە:</p>
+        <input type="text" id="unlock-code-input" class="form-input" style="text-align:center; font-size:1.5rem; letter-spacing:5px;" placeholder="____" maxlength="4">
+        <div style="margin-top:20px; display:flex; gap:10px;">
+            <button class="btn-primary" style="width:100%; justify-content:center;" onclick="submitUnlockCode()">ڤەکرن</button>
+            <button class="btn-outline" style="width:100%; justify-content:center;" onclick="document.getElementById('unlock-modal').classList.remove('open')">پاشگەزبوون</button>
+        </div>
+    </div>
+</div>
 
 <script>
-(function() {
-'use strict';
-const demoData = {
-  levels: [
-    { "level": 1, "levelName": "ئاستێ ئێکێ: بناغە", "levelIcon": "fa-seedling", "courses": [
-        { "id": "usul_thalatha", "title": "شەرحا الأصول الثلاثة", "type": "standard", "pdfUrl": "#", "suggestedDurations": [7, 15, 30], "videos": [
-            { "id": "usul_v1", "title": "وانا ١: پێشەکی", "url": "https://www.youtube.com/embed/dQw4w9WgXcQ", "points": 2 },
-            { "id": "usul_v2", "title": "وانا ٢: بناغێ ئێکێ", "url": "https://www.youtube.com/embed/dQw4w9WgXcQ", "points": 2 }
-        ]},
-        { "id": "qawaid_arbaa", "title": "شەرحا القواعد الأربعة", "type": "standard", "pdfUrl": "#", "suggestedDurations": [5, 10, 20], "videos": [
-            { "id": "qawaid_v1", "title": "وانا ١: پێشەکی", "url": "#", "points": 3 },
-            { "id": "qawaid_v2", "title": "وانا ٢: قاعدا دووێ", "url": "#", "points": 3 }
-        ]},
-        { "id": "seerah_part1", "title": "پوختەیا سیرەتا پێغەمبەری ﷺ", "type": "seerahListening", "suggestedDurations": [10, 20], "lessons": [
-            { "id": "seerah_l1", "title": "وانا ١: ژ دایکبوون و گەنجاتی", "audioUrl": "#", "points": 5 },
-            { "id": "seerah_l2", "title": "وانا ٢: پێغەمبەرایەتی", "audioUrl": "#", "points": 5 }
-        ]},
-        { "id": "arbaeen_nawawi", "title": "٥ فەرموودێن ئێکێ", "type": "hadithMemorization", "pdfUrl": "#", "suggestedDurations": [7, 14], "hadiths": [
-            { "id": "hadith_n1", "title": "فەرموودا ١: النية", "fullText": "عَنْ أَمِيرِ الْمُؤْمِنِينَ أَبِي حَفْصٍ عُمَرَ بْنِ الْخَطَّابِ رَضِيَ اللهُ عَنْهُ قَالَ: سَمِعْتُ رَسُولَ اللهِ صلى الله عليه وسلم يَقُولُ: (إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى، فَمَنْ كَانَتْ هِجْرَتُهُ إِلَى دُنْيَا يُصِيبُهَا أَوْ إِلَى امْرَأَةٍ يَنْكِحُهَا، فَهِجْرَتُهُ إِلَى مَا هَاجَرَ إِلَيْهِ).", "audioUrl": "#", "points": 10 },
-            { "id": "hadith_n2", "title": "فەرموودا ٢: مراتب الدين", "fullText": "عَنْ عُمَرَ رَضِيَ اللهُ عَنْهُ أَيْضًا قَالَ: بَيْنَمَا نَحْنُ جُلُوسٌ عِنْدَ رَسُولِ اللهِ صلى الله عليه وسلم ذَاتَ يَوْمٍ إِذْ طَلَعَ عَلَيْنَا رَجُلٌ شَدِيدُ بَيَاضِ الثِّيَابِ، شَدِيدُ سَوَادِ الشَّعَرِ، لَا يُرَى عَلَيْهِ أَثَرُ السَّفَرِ، وَلَا يَعْرِفُهُ مِنَّا أَحَدٌ...", "audioUrl": "#", "points": 10 }
-        ]},
-        { "id": "morning_adhkar", "title": "زیکرێن سپێدێ", "type": "adhkarMemorization", "pdfUrl": "#", "suggestedDurations": [7, 14], "adhkars": [
-            { "id": "adhkar_m1", "title": "سيد الاستغفار", "fullText": "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ لَكَ بِذَنْبِي فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ.", "audioUrl": "#", "points": 5 }, 
-            { "id": "adhkar_m2", "title": "رضيت بالله ربا", "fullText": "رَضِيتُ بِاللهِ رَبًّا، وِبِالإسْلامِ دِينًا، وِبِمُحَمَّدٍ صلى الله عليه وسلم نَبِيًّا.", "audioUrl": "#", "points": 2 }
-        ]},
-        { "id": "quran_juz30_part1", "title": "ژ الناس حەتا الضحى", "type": "quranMemorization", "suggestedDurations": [7, 14], "pages": [
-            { "id": "quran_p604", "pageNumber": 604, "link": "#", "points": 5 }, 
-            { "id": "quran_p603", "pageNumber": 603, "link": "#", "points": 5 }
-        ]}
-      ]
-    },
-    { "level": 2, "levelName": "ئاستێ دووێ: قوولبوون", "levelIcon": "fa-book-open-reader", "courses": [] },
-    { "level": 3, "levelName": "ئاستێ سێیێ: پسپۆری", "levelIcon": "fa-graduation-cap", "courses": [] }
-  ]
+/* --- 1. DATA STRUCTURE --- */
+// Placeholder PDF (Single PDF per course)
+const PDF_URL_DEMO = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+
+const appData = {
+    levels: [
+        {
+            id: 1,
+            title: "ئاستێ ئێکێ: بناغە",
+            description: "زانستێن سەرەتایی یێن پێتڤی بۆ هەر موسلمانەکێ",
+            icon: "fa-seedling",
+            courses: [
+                { 
+                    id: "aqidah_1", title: "عەقیدە", subtitle: "الأصول الثلاثة", icon: "fa-cubes", type: "standard", 
+                    duration: "٤ کاتژمێر", lessonCount: 3,
+                    pdf: PDF_URL_DEMO, // Unified PDF for this course
+                    lessons: [
+                        { id: "aq1_1", title: "١. گرنگیا عەقیدێ", text: "ئەو زانستە یە یێ بەحسێ باوەریێ دکەت ب خودێ و پێغەمبەران. بنەمایێ ئایینی ل سەر ڤێ چەندێ ئاڤا دبیت.", video: "https://www.youtube.com/embed/dQw4w9WgXcQ", points: 10 },
+                        { id: "aq1_2", title: "٢. بنەمایێ ئێکێ: ناسینا خودێ", text: "فَإِذَا قِيلَ لَكَ: مَنْ رَبُّكَ؟ فَقُلْ: رَبِّيَ اللَّهُ... واتە: ئەگەر ژ تە هاتە پرسیارکرن خودایێ تە کی یە؟ بێژە: خودایێ من ئەوە یێ پەرەردەیا من و هەموو جیهانیان کری.", video: "", points: 10 },
+                        { id: "aq1_3", title: "٣. بنەمایێ دووێ: ناسینا ئیسلامێ", text: "الْمَرْتَبَةُ الثَّانِيَةُ: مَعْرِفَةُ دِينِ الْإِسْلَامِ بِالْأَدِلَّةِ... واتە: پلەیا دوویێ ئەوە مرۆڤ ئایینێ ئیسلامێ ب بەڵگەوە بنیاسیت.", video: "", points: 10 }
+                    ] 
+                },
+                { 
+                    id: "seerah_1", title: "سیرەت", subtitle: "پوختەیا ژیانا پێغەمبەری ﷺ", icon: "fa-moon", type: "seerah",
+                    duration: "٣ کاتژمێر", lessonCount: 2,
+                    pdf: PDF_URL_DEMO,
+                    lessons: [
+                        { id: "sr_1", title: "١. ڕەچەڵەک و ژ دایکبوون", text: "ژ دایک بوویە ل ساڵا فیلێ، ڕۆژا دووشەمبێ... ناڤێ وی: محمد کوڕێ عەبدوللا کوڕێ عەبدولموتەلیب...", video: "", points: 15 },
+                        { id: "sr_2", title: "٢. ژیانا زارۆکینی", text: "ل دەف حەلیما سەعدیە مەزن بوو... سینگێ وی هاتە کەلێشکرن دەمێ ل دەف وێ.", video: "", points: 15 }
+                    ] 
+                }
+            ]
+        },
+        {
+            id: 2,
+            title: "ئاستێ دووێ: پێشکەفتی",
+            description: "قوولبوون د زانستێن شەرعی دا (پێدڤی ب کۆدێ یە)",
+            icon: "fa-layer-group",
+            courses: [
+                 { 
+                    id: "aqidah_2", title: "عەقیدە ٢", subtitle: "القواعد الأربعة", icon: "fa-book-quran", type: "standard", 
+                    duration: "٦ کاتژمێر", lessonCount: 2,
+                    pdf: PDF_URL_DEMO,
+                    lessons: [
+                        { id: "aq2_1", title: "١. قاعیدەیا ئێکێ", text: "کافرێن قورەیش دان ب تەوحیدا روبوبیەتێ ددنان، بەلێ ئەڤە نەبوو ئەگەرێ موسلمانبوونا وان.", video: "", points: 15 },
+                        { id: "aq2_2", title: "٢. قاعیدەیا دووێ", text: "ئەوان دگۆت ئەم پەرستنێ دکەین دا ببنە واستە بۆ مە ل دەف خودێ.", video: "", points: 15 }
+                    ]
+                }
+            ]
+        },
+        {
+            id: 3,
+            title: "ئاستێ سێیێ: تایبەتمەند",
+            description: "زانستێن ورد (پێدڤیە ئاستێ ٢ تمام بکەی)",
+            icon: "fa-graduation-cap",
+            courses: [
+                 { 
+                    id: "hadith_1", title: "فەرموودە", subtitle: "الأربعون النووية", icon: "fa-scroll", type: "standard", 
+                    duration: "١٠ کاتژمێر", lessonCount: 1,
+                    pdf: PDF_URL_DEMO,
+                    lessons: [
+                        { id: "hd_1", title: "١. إنما الأعمال بالنيات", text: "واتە هەموو کارەک ب نیتێ یە... هەموو کارەکێ مرۆڤ دکەت ل دیڤ وێ نیتێ دهێتە هەژمارتن یا د دڵێ وی دا.", video: "", points: 20 }
+                    ]
+                }
+            ]
+        }
+    ]
 };
-let allData = { levels: [] };
-const _get = (key, def) => JSON.parse(localStorage.getItem(key)) || def;
-const _set = (key, val) => localStorage.setItem(key, JSON.stringify(val));
 
-const pointsManager = { key: 'sabilSalam_Points_V11', get: () => parseInt(localStorage.getItem(pointsManager.key) || '0'), update: (amount) => { const newPoints = Math.max(0, pointsManager.get() + amount); localStorage.setItem(pointsManager.key, newPoints); pointsManager.updateDisplay(); }, updateDisplay: () => { document.getElementById('points-display').textContent = pointsManager.get(); updateProfileStats(); } };
-const progressManager = { key: 'sabilSalam_CompletedItems_V11', isItemCompleted: (itemId) => _get(progressManager.key, []).includes(itemId), toggleItemCompleted: (itemId, points, courseId, courseType) => { let items = _get(progressManager.key, []); const isCompleting = !items.includes(itemId); if (isCompleting) { items.push(itemId); pointsManager.update(points); if(courseType === 'seerahListening') document.getElementById(`benefits-${itemId}`).style.display = 'block'; } else { items = items.filter(id => id !== itemId); pointsManager.update(-points); if(courseType === 'seerahListening') document.getElementById(`benefits-${itemId}`).style.display = 'none';} _set(progressManager.key, items); progressManager.updateViews(courseId); }, updateViews: (courseId) => { buildLevelsView(); updateProfileStats(); if (document.getElementById('activity-list-modal').classList.contains('is-visible')) { const course = findCourseById(courseId); if(course) showActivityModal(course.type, findSiblingCourseIds(course.id).join(',')); } }, getCompletedCoursesCount: () => { let count = 0; allData.levels.forEach(level => level.courses.forEach(course => { if (isCourseCompleted(course)) count++; })); return count; }};
-const goalManager = { key: 'sabilSalam_Goals_V11', getGoal: (courseId) => _get(goalManager.key, {})[courseId], setGoal: (courseId, days) => { const goals = _get(goalManager.key, {}); const now = new Date().getTime(); goals[courseId] = { setDate: now, deadline: now + (days * 24 * 60 * 60 * 1000) }; _set(goalManager.key, goals); }, refreshCurrentModal: () => { const modal = document.getElementById('activity-list-modal'); if (modal.classList.contains('is-visible')) { const courseIdsStr = modal.dataset.courseIds; if(courseIdsStr) { const course = findCourseById(courseIdsStr.split(',')[0]); if (course) showActivityModal(course.type, courseIdsStr); } } } };
-const benefitsManager = { key: 'sabilSalam_Benefits_V11', getBenefits: () => _get(benefitsManager.key, {}), isBenefitSaved: (itemId) => _get(benefitsManager.key, {})[itemId] !== undefined, saveBenefit: (itemId, text, lessonTitle) => { const benefits = benefitsManager.getBenefits(); benefits[itemId] = {text, lessonTitle, date: new Date().toISOString()}; _set(benefitsManager.key, benefits); }};
-const streakManager = { key: 'sabilSalam_Streak_V11', getStreakData: () => _get(streakManager.key, { count: 0, lastLogin: null }), updateStreak: () => { const today = new Date().toISOString().split('T')[0]; let data = streakManager.getStreakData(); if (data.lastLogin === today) return; const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]; if (data.lastLogin === yesterday) { data.count++; } else { data.count = 1; } data.lastLogin = today; _set(streakManager.key, data); updateProfileStats(); }};
-const categoryTitles = { standard: 'وانە', seerahListening: 'سیرەت', quranMemorization: 'قورئان', hadithMemorization: 'فەرموودە', adhkarMemorization: 'زیکر' };
+/* --- 2. STATE MANAGEMENT --- */
+const State = {
+    usersDB: JSON.parse(localStorage.getItem('sabilUsersDB_v10')) || [],
+    currentUser: null, 
+    pendingUnlockId: null
+};
 
+// Start Up
 document.addEventListener('DOMContentLoaded', () => {
-    allData.levels = demoData.levels;
-    if (localStorage.getItem('isLoggedIn') === 'true') {
-        streakManager.updateStreak();
-        switchAuthView('profile-view');
+    setTimeout(() => document.getElementById('loading-screen').classList.add('fade-out'), 1200);
+    
+    const savedTheme = localStorage.getItem('sabilTheme');
+    if(savedTheme === 'light') document.body.setAttribute('data-theme', 'light');
+
+    const lastUserContact = localStorage.getItem('sabilLastUser_v10');
+    if (lastUserContact) {
+        const user = State.usersDB.find(u => u.contact === lastUserContact);
+        if (user) {
+            State.currentUser = user;
+            initApp();
+            return;
+        }
     }
-    buildLevelsView();
-    setupEventListeners();
-    pointsManager.updateDisplay();
-    updateProfileStats();
-    setInterval(updateAllTimers, 60000);
-    setTimeout(() => document.getElementById('loading-screen').classList.add('fade-out'), 3500);
+    renderLevels();
 });
 
-function setupEventListeners() {
-    document.querySelector('.levels-timeline').addEventListener('click', function(event) { const header = event.target.closest('.level-step-header'); if (!header) return; const step = header.closest('.level-step'); if (step.classList.contains('is-locked')) return; const wasActive = step.classList.contains('active'); document.querySelectorAll('.level-step').forEach(s => s.classList.remove('active')); if(!wasActive) step.classList.add('active'); });
-    document.querySelector('.profile-tabs')?.addEventListener('click', (e) => { if (e.target.tagName === 'BUTTON') { const tabName = e.target.dataset.tab; e.target.parentElement.querySelectorAll('.profile-tab-btn').forEach(btn => btn.classList.remove('active')); document.querySelectorAll('.profile-tab-content').forEach(content => content.classList.remove('active')); e.target.classList.add('active'); document.getElementById(`tab-${tabName}`).classList.add('active'); } });
-    document.getElementById('login-form').addEventListener('submit', (e) => { e.preventDefault(); localStorage.setItem('isLoggedIn', 'true'); streakManager.updateStreak(); switchAuthView('profile-view'); });
-    document.getElementById('register-form').addEventListener('submit', (e) => { e.preventDefault(); localStorage.setItem('isLoggedIn', 'true'); streakManager.updateStreak(); switchAuthView('profile-view'); });
-    
-    // Event delegation for dynamic content
-    document.getElementById('activity-list-container').addEventListener('click', (e) => {
-        if (e.target.matches('.toggle-text-btn, .toggle-text-btn *')) {
-            const btn = e.target.closest('.toggle-text-btn');
-            const details = btn.closest('.lesson-item').querySelector('.memorization-item-details');
-            details.classList.toggle('visible');
-            btn.querySelector('i').classList.toggle('fa-eye-slash');
-        }
-        if (e.target.matches('.rep-btn')) {
-            const parent = e.target.parentElement;
-            parent.querySelectorAll('.rep-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-        }
-        if (e.target.matches('.play-audio-btn, .play-audio-btn *')) {
-            const btn = e.target.closest('.play-audio-btn');
-            playAudioWithRepetition(btn);
-        }
-    });
+function initApp() {
+    checkStreak();
+    renderLevels();
+    updatePointsUI();
+    checkNotifications(); // Runs logic for alerts (Plan/Tasks)
 }
 
-function buildLevelsView() { const container = document.querySelector('.levels-timeline'); container.innerHTML = ''; let previousLevelCompleted = true; allData.levels.forEach(level => { const isLevelCompleted = level.courses.length > 0 && level.courses.every(isCourseCompleted); const isUnlocked = previousLevelCompleted; const completedCourses = level.courses.filter(isCourseCompleted).length; const totalCourses = level.courses.length; const step = document.createElement('div'); step.className = `level-step ${isUnlocked ? (isLevelCompleted ? 'is-completed' : 'is-active') : 'is-locked'}`; let contentHTML = isUnlocked ? `<div class="category-grid">${renderLevelCategories(level, isUnlocked)}</div>` : `<div class="locked-content-placeholder"><i class="fas fa-lock"></i><p>پێتڤیە ئاستێ بەری ڤی تەمام بکەی</p></div>`; step.innerHTML = `<div class="level-icon-wrapper"><i class="fas ${level.levelIcon || 'fa-flag-checkered'} level-icon"></i></div><div class="level-step-header"><div class="level-title"><h2>${level.levelName}</h2><p>پێشکەفتن: ${completedCourses} ژ ${totalCourses} خولان</p></div><div class="level-status">${createCircularProgress(completedCourses, totalCourses)}</div></div><div class="level-step-content"><div class="step-content-inner">${contentHTML}</div></div>`; container.appendChild(step); previousLevelCompleted = isUnlocked && isLevelCompleted; }); }
-function renderLevelCategories(level, isUnlocked) { let content = ''; Object.entries(categoryTitles).forEach(([type, title]) => { const coursesOfType = level.courses.filter(c => c.type === type); if (coursesOfType.length > 0) { const completedCount = coursesOfType.filter(isCourseCompleted).length; const progress = coursesOfType.length > 0 ? (completedCount / coursesOfType.length) * 100 : 0; const clickHandler = isUnlocked ? `showActivityModal('${type}', '${coursesOfType.map(c => c.id).join(',')}')` : ''; content += `<div class="category-card" onclick="${clickHandler}"><i class="fas ${getCategoryIcon(type)} category-icon"></i><h4>${title}</h4><p>${completedCount} / ${coursesOfType.length} خول</p><div class="category-progress-bar"><div class="category-progress-bar-inner" style="width: ${progress}%;"></div></div></div>`; } }); return content; }
-
-function showActivityModal(categoryType, courseIdsStr) {
-    const courses = courseIdsStr.split(',').map(findCourseById).filter(Boolean);
-    if (courses.length === 0) return;
-    const modal = document.getElementById('activity-list-modal');
-    modal.dataset.courseIds = courseIdsStr;
-    document.getElementById('activity-list-title').textContent = categoryTitles[categoryType] || 'چالاکی';
-    const container = document.getElementById('activity-list-container');
-    container.innerHTML = '';
-    courses.forEach(course => {
-        const items = course.videos || course.lessons || course.hadiths || course.adhkars || course.pages;
-        const completedItemsCount = items.filter(item => progressManager.isItemCompleted(item.id)).length;
-        let lessonsHTML = '';
-        const goal = goalManager.getGoal(course.id);
-        if (course.suggestedDurations && !goal) { lessonsHTML = `<div class="goal-required-placeholder"><i class="fas fa-bullseye"></i><p>بەریا دەستپێکرنێ، پێتڤیە ئارمانجەکێ بۆ تەمامکرنا ڤێ خولێ بۆ خۆ بدانێی.</p></div>`; } 
-        else { lessonsHTML = `<div class="lessons-container" id="lessons-for-${course.id}">${items.map((item, index) => renderLessonItem(item, index, course, items)).join('')}</div>`; }
-        container.innerHTML += `<div class="course-group">${renderCourseHeader(course, completedItemsCount, items.length)}${lessonsHTML}</div>`;
-    });
-    openModal('activity-list-modal');
-    updateAllTimers();
+function saveState() {
+    if(!State.currentUser) return;
+    const idx = State.usersDB.findIndex(u => u.contact === State.currentUser.contact);
+    if (idx !== -1) {
+        State.usersDB[idx] = State.currentUser;
+    } else {
+        State.usersDB.push(State.currentUser);
+    }
+    
+    localStorage.setItem('sabilUsersDB_v10', JSON.stringify(State.usersDB));
+    localStorage.setItem('sabilLastUser_v10', State.currentUser.contact);
+    updatePointsUI();
 }
-function renderCourseHeader(course, completedCount, totalCount) { const goal = goalManager.getGoal(course.id); let goalHTML = ''; if (!isCourseCompleted(course)) { if (goal) { goalHTML = `<div id="timer-${course.id}" class="time-remaining">${formatTimeRemaining(goal.deadline)}</div>`; } else if (course.suggestedDurations) { goalHTML = `<div class="goal-setter"><p>ئارمانجا خۆ دەستنیشان بکە:</p><div class="goal-buttons">${course.suggestedDurations.map(days => `<button class="action-btn goal-btn" onclick="setGoalUI('${course.id}', ${days})">${days} ڕۆژ</button>`).join('')}</div></div>`; } } const pdfButton = course.pdfUrl ? `<a href="${course.pdfUrl}" target="_blank" class="action-btn pdf-btn"><i class="fas fa-file-pdf"></i> پەرتووک</a>` : ''; return `<div class="course-group-header"><div class="course-group-info"><h4>${course.title}</h4><p>پێشکەفتن: ${completedCount} / ${totalCount}</p></div><div class="course-header-actions">${goalHTML}${pdfButton}</div></div>`; }
 
-function renderLessonItem(item, index, course, allItems) {
-    const isCompleted = progressManager.isItemCompleted(item.id);
-    let isUnlocked = index === 0 || progressManager.isItemCompleted(allItems[index - 1].id);
-    if (course.type === 'seerahListening' && index > 0) { isUnlocked = isUnlocked && benefitsManager.isBenefitSaved(allItems[index - 1].id); }
-    const isMemorizationType = course.type === 'hadithMemorization' || course.type === 'adhkarMemorization';
-    
-    let baseHTML = `
-        <div class="lesson-label-container">
-            <label for="check-${item.id}" class="lesson-label">
-                <input type="checkbox" id="check-${item.id}" class="item-checkbox" ${isCompleted ? 'checked' : ''} onchange="toggleItemUI('${item.id}', ${item.points || 1}, '${course.id}', '${course.type}')" ${!isUnlocked ? 'disabled' : ''}>
-                <span>${item.title || item.text || `لاپەر ${item.pageNumber}`}</span>
-            </label>
-            <div class="lesson-actions">`;
-    
-    if (item.url) baseHTML += `<button onclick="playMediaInModal('${item.url}', 'video')" class="action-btn" ${!isUnlocked ? 'disabled' : ''}><i class="fas fa-play"></i> بینین</button>`;
-    if (course.type === 'seerahListening' && item.audioUrl) baseHTML += `<button onclick="playMediaInModal('${item.audioUrl}', 'audio')" class="action-btn" ${!isUnlocked ? 'disabled' : ''}><i class="fas fa-volume-up"></i> گوهداری بکە</button>`;
-    if (isMemorizationType) baseHTML += `<button class="action-btn toggle-text-btn" ${!isUnlocked ? 'disabled' : ''}><i class="fas fa-eye"></i> نڤیسێ ببینە</button>`;
-    
-    baseHTML += `</div></div>`;
+function updatePointsUI() {
+    if (State.currentUser) {
+        document.getElementById('user-points').innerText = State.currentUser.points;
+    } else {
+        document.getElementById('user-points').innerText = "0";
+    }
+}
 
-    if (course.type === 'seerahListening') {
-        const isSaved = benefitsManager.isBenefitSaved(item.id); const savedBenefit = benefitsManager.getBenefits()[item.id]?.text || ""; const displayStyle = isCompleted ? 'block' : 'none';
-        baseHTML += `<div class="benefits-section" id="benefits-${item.id}" style="display: ${displayStyle};"><label for="textarea-${item.id}">فائدێن تە ژ ڤێ وانێ بنڤیسە (ئیجباریە):</label><textarea id="textarea-${item.id}" class="benefits-textarea" ${isSaved ? 'disabled' : ''}>${savedBenefit}</textarea><button id="btn-save-${item.id}" class="action-btn" onclick="saveBenefitsUI('${item.id}', '${course.id}', '${item.title}')" ${isSaved ? 'disabled' : ''}>${isSaved ? ' هاتە تۆمارکرن <i class=\\"fas fa-check\\"></i>' : 'تۆمارکرنا فائدان'}</button></div>`;
+function toggleTheme() {
+    const current = document.body.getAttribute('data-theme');
+    const newTheme = current === 'light' ? 'dark' : 'light';
+    
+    if(newTheme === 'light') document.body.setAttribute('data-theme', 'light');
+    else document.body.removeAttribute('data-theme');
+    
+    localStorage.setItem('sabilTheme', newTheme);
+}
+
+/* --- 3. TOAST & ALERTS --- */
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    let icon = 'fa-info-circle';
+    if(type === 'warning') icon = 'fa-exclamation-triangle';
+    if(type === 'danger') icon = 'fa-times-circle';
+    if(type === 'success') icon = 'fa-check-circle';
+
+    toast.innerHTML = `<i class="fas ${icon} toast-icon"></i> <span>${message}</span>`;
+    container.appendChild(toast);
+    
+    // Animate in
+    requestAnimationFrame(() => toast.classList.add('show'));
+    
+    // Remove after 4s
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+    }, 4000);
+}
+
+function checkNotifications() {
+    if (!State.currentUser) return;
+    let hasAlert = false;
+
+    // 1. Plan Progress Alerts (Behind Schedule)
+    const now = Date.now();
+    for (const [courseId, plan] of Object.entries(State.currentUser.plans)) {
+        const diffDays = (now - plan.startDate) / (1000 * 60 * 60 * 24);
+        
+        // Find Course Data
+        let course = null;
+        appData.levels.forEach(l => { const c = l.courses.find(x => x.id === courseId); if(c) course = c; });
+        
+        if (course) {
+            const completed = course.lessons.filter(l => State.currentUser.progress[l.id]).length;
+            const total = course.lessons.length;
+            
+            // Expected progress based on time passed (linear)
+            const expectedRatio = diffDays / plan.days; 
+            const expectedLessons = Math.floor(expectedRatio * total);
+            
+            // If student is behind by more than 1 lesson and time is not up
+            if (completed < expectedLessons && diffDays < plan.days) {
+                hasAlert = true;
+                setTimeout(() => showToast(`ئاگەهداری! تۆ یێ پاشکەفتی د پلانێ دا بۆ کۆرسێ: ${course.title}`, 'warning'), 1500);
+            }
+        }
+        
+        // Ending Soon Alert
+        const remaining = plan.days - diffDays;
+        if (remaining > 0 && remaining <= 1) {
+            hasAlert = true;
+        }
     }
 
-    if (isMemorizationType) {
-        baseHTML += `
-            <div class="memorization-item-details">
-                <div class="full-text-container">${item.fullText}</div>
-                <div class="audio-controls">
-                    <audio src="${item.audioUrl}" id="audio-${item.id}" preload="none"></audio>
-                    <button class="action-btn play-audio-btn" data-audio-id="audio-${item.id}" ${!isUnlocked ? 'disabled' : ''}>
-                        <i class="fas fa-play"></i> <span>لێدە</span>
-                    </button>
-                    <div class="repetition-controls">
-                        <p>دوبارەکرن:</p>
-                        <button class="rep-btn active" data-count="1">1x</button>
-                        <button class="rep-btn" data-count="3">3x</button>
-                        <button class="rep-btn" data-count="5">5x</button>
-                        <button class="rep-btn" data-count="10">10x</button>
+    // 2. Daily Tasks Alert (If not done by Evening - simplified logic: check if tasks are empty)
+    const tasks = State.currentUser.dailyTasks.tasks;
+    const completedTasks = Object.values(tasks).filter(Boolean).length;
+    if (completedTasks === 0) {
+        setTimeout(() => showToast('بیرئینان: هێشتا تە کارێن ڕۆژانە ئەنجام نەداینە!', 'info'), 3000);
+        hasAlert = true;
+    }
+
+    const dot = document.getElementById('notif-dot');
+    if(hasAlert) dot.classList.add('active');
+    else dot.classList.remove('active');
+}
+
+/* --- 4. STREAK LOGIC --- */
+function checkStreak() {
+    if(!State.currentUser) return;
+    
+    const today = new Date().toDateString();
+    const lastLogin = State.currentUser.lastLoginDate;
+    
+    if (lastLogin !== today) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        if (lastLogin === yesterday.toDateString()) {
+            State.currentUser.streak = (State.currentUser.streak || 0) + 1;
+        } else {
+            State.currentUser.streak = 1;
+        }
+        State.currentUser.lastLoginDate = today;
+        State.currentUser.dailyTasks = {
+            date: today,
+            tasks: { prayer: false, quran: false, dhikr: false, reading: false }
+        };
+        saveState();
+    }
+}
+
+/* --- 5. LOGIC: LEVELS & LOCKING --- */
+function isLevelUnlocked(levelIndex) {
+    if (levelIndex === 0) return true; 
+    
+    const prevLevel = appData.levels[levelIndex - 1];
+    if (!State.currentUser) return false;
+
+    let prevCompleted = true;
+    for (let course of prevLevel.courses) {
+        for (let lesson of course.lessons) {
+            if (!State.currentUser.progress[lesson.id]) {
+                prevCompleted = false;
+                break;
+            }
+        }
+    }
+    if (!prevCompleted) return false; 
+
+    if (appData.levels[levelIndex].id === 2) {
+        return State.currentUser.unlockedLevels.includes(2);
+    }
+    return true; 
+}
+
+function checkLevelCompletion(level) {
+    if(!State.currentUser) return false;
+    let allDone = true;
+    level.courses.forEach(c => {
+        c.lessons.forEach(l => {
+            if(!State.currentUser.progress[l.id]) allDone = false;
+        });
+    });
+    return allDone;
+}
+
+function renderLevels() {
+    const container = document.getElementById('levels-container');
+    container.innerHTML = '';
+    
+    appData.levels.forEach((level, index) => {
+        const unlocked = isLevelUnlocked(index);
+        const levelComplete = checkLevelCompletion(level);
+        
+        const html = `
+            <div class="level-card ${!unlocked ? 'locked' : ''}" id="level-${level.id}">
+                <div class="level-header" onclick="toggleLevel(${level.id}, ${index}, ${unlocked})">
+                    <div class="level-icon-box"><i class="fas ${level.icon}"></i></div>
+                    <div class="level-info" style="flex:1;">
+                        <h2 style="margin-bottom:5px;">${level.title}</h2>
+                        <p style="color:var(--text-secondary);">${level.description}</p>
+                    </div>
+                    ${levelComplete ? 
+                        `<button class="btn-primary" style="padding:8px 15px; font-size:0.9rem;" onclick="event.stopPropagation(); generateLevelCertificate('${level.title}')"><i class="fas fa-certificate"></i> بڕوانامە</button>` 
+                        : (!unlocked ? '<i class="fas fa-lock" style="font-size:1.5rem; opacity:0.5;"></i>' : '<i class="fas fa-chevron-down" style="font-size:1.2rem; transition:0.3s;"></i>')
+                    }
+                </div>
+                <div class="level-content">
+                    <div class="courses-grid">
+                        ${level.courses.map(course => {
+                            let completedCount = 0;
+                            let progressPercent = 0;
+                            let plan = null;
+                            
+                            if (State.currentUser) {
+                                completedCount = course.lessons.filter(l => State.currentUser.progress[l.id]).length;
+                                progressPercent = Math.round((completedCount / course.lessons.length) * 100);
+                                plan = State.currentUser.plans[course.id];
+                            }
+                            
+                            return `
+                                <div class="course-item" onclick="openCourse('${course.id}')">
+                                    <div>
+                                        <i class="fas ${course.icon} course-icon"></i>
+                                        <h4 class="course-title">${course.title}</h4>
+                                        <div class="course-subtitle">${course.subtitle}</div>
+                                    </div>
+                                    <div style="width:100%;">
+                                        <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-secondary); margin-bottom:5px;">
+                                            <span>پلان: <b style="color:${plan ? 'var(--accent-primary)' : 'inherit'}">${plan ? plan.days + ' ڕۆژ' : 'نەهاتیە دانان'}</b></span>
+                                            <span>%${progressPercent}</span>
+                                        </div>
+                                        <div class="progress-bar"><div class="progress-fill" style="width:${progressPercent}%"></div></div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 </div>
-            </div>`;
-    }
-
-    return `<div class="lesson-item ${isCompleted ? 'is-watched' : ''} ${!isUnlocked ? 'locked' : ''}">${baseHTML}</div>`;
+            </div>
+        `;
+        container.innerHTML += html;
+    });
 }
 
-function playAudioWithRepetition(button) {
-    if (button.dataset.audioUrl === '#') { alert('فایلا دەنگی هێشتا نەهاتیە دانان.'); return; }
-    const audioId = button.dataset.audioId;
-    const audio = document.getElementById(audioId);
-    if (!audio) return;
-
-    if (audio.paused) {
-        const repControls = button.closest('.audio-controls').querySelector('.repetition-controls');
-        const activeRepBtn = repControls.querySelector('.rep-btn.active');
-        let playCount = parseInt(activeRepBtn.dataset.count);
-
-        const icon = button.querySelector('i');
-        const text = button.querySelector('span');
-
-        const playCycle = () => {
-            if (playCount > 0) {
-                playCount--;
-                audio.currentTime = 0;
-                audio.play();
-            } else {
-                icon.className = 'fas fa-play';
-                text.textContent = 'لێدە';
-            }
-        };
+function toggleLevel(id, index, isUnlocked) {
+    if (!isUnlocked) {
+        if (!State.currentUser) { 
+            showToast("پێدڤیە دەسپێکێ تۆماربکەی یان بچیە ژوور.", "warning");
+            openProfileModal(); 
+            return; 
+        }
         
-        audio.onended = playCycle;
+        if(index > 0) {
+            const prevLevel = appData.levels[index - 1];
+            if(!checkLevelCompletion(prevLevel)) {
+                showToast("پێدڤیە ئاستێ بەرێ ب تەمامی (١٠٠٪) خلاس بکەی!", "danger");
+                return;
+            }
+        }
 
-        icon.className = 'fas fa-pause';
-        text.textContent = 'راوەستە';
-        playCycle();
+        if (id === 2 && !State.currentUser.unlockedLevels.includes(2)) {
+            State.pendingUnlockId = id;
+            document.getElementById('unlock-code-input').value = '';
+            document.getElementById('unlock-modal').classList.add('open');
+            document.getElementById('unlock-code-input').focus();
+        }
+        return;
+    }
+
+    const card = document.getElementById(`level-${id}`);
+    card.classList.toggle('active');
+    const icon = card.querySelector('.fa-chevron-down');
+    if(icon) icon.style.transform = card.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0)';
+}
+
+function submitUnlockCode() {
+    const code = document.getElementById('unlock-code-input').value;
+    if (code === "2024") {
+        State.currentUser.unlockedLevels.push(State.pendingUnlockId);
+        saveState();
+        renderLevels();
+        document.getElementById('unlock-modal').classList.remove('open');
+        showToast("پیرۆزە! ئاست ڤەبوو.", "success");
     } else {
-        audio.pause();
-        audio.onended = null;
-        button.querySelector('i').className = 'fas fa-play';
-        button.querySelector('span').textContent = 'لێدە';
+        showToast("کۆد خەلەتە!", "danger");
     }
 }
 
-function updateProfileStats() { const pointsEl = document.getElementById('profile-points'); if(pointsEl) pointsEl.textContent = pointsManager.get(); const completedCountEl = document.getElementById('profile-completed-courses'); if (completedCountEl) completedCountEl.textContent = progressManager.getCompletedCoursesCount(); const streakEl = document.getElementById('profile-streak'); if(streakEl) streakEl.innerHTML = `${streakManager.getStreakData().count} <i class="fas fa-fire" style="color: #ff9800;"></i>`; const badges = document.getElementById('profile-badges'); if (badges) { badges.innerHTML = ''; allData.levels.forEach(level => { const completed = level.courses.length > 0 && level.courses.every(isCourseCompleted); const badge = document.createElement('i'); badge.className = `fas ${level.levelIcon} badge ${completed ? 'earned' : ''}`; badge.title = `${level.levelName} - ${completed ? 'هاتە تەمامکرن' : 'نەهاتیە تەمامکرن'}`; badges.appendChild(badge); }); }}
-function createCircularProgress(value, max) { if (max === 0) return ''; const r = 20; const c = 2 * Math.PI * r; const o = c - (value / max) * c; return `<div style="width:46px;height:46px;position:relative;"><svg viewBox="0 0 46 46"><circle cx="23" cy="23" r="${r}" fill="none" stroke="${'var(--border-color)'}" stroke-width="4"></circle><circle cx="23" cy="23" r="${r}" fill="none" stroke="${'var(--success-color)'}" stroke-width="4" stroke-dasharray="${c}" stroke-dashoffset="${o}" style="transform:rotate(-90deg);transform-origin:50% 50%;transition:all .5s;"></circle></svg><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:0.8rem;">${value}/${max}</div></div>`; }
-function isCourseCompleted(course) { const items = course.videos || course.lessons || course.hadiths || course.adhkars || course.pages; if (!items || items.length === 0) return true; return items.every(item => progressManager.isItemCompleted(item.id)); }
-function findCourseById(courseId) { for (const level of allData.levels) { const course = (level.courses || []).find(c => c.id === courseId); if (course) return course; } return null; }
-function findSiblingCourseIds(courseId) { const course = findCourseById(courseId); if (!course) return []; for (const level of allData.levels) { const coursesOfType = level.courses.filter(c => c.type === course.type); if (coursesOfType.some(c => c.id === courseId)) return coursesOfType.map(c => c.id); } return [courseId]; }
-function getCategoryIcon(type) { const icons = { standard: 'fa-chalkboard-teacher', seerahListening: 'fa-moon', quranMemorization: 'fa-quran', hadithMemorization: 'fa-book-open', adhkarMemorization: 'fa-pray' }; return icons[type] || 'fa-question-circle'; }
-function formatTimeRemaining(deadline) { const t = deadline - Date.now(); if (t <= 0) return "ب دوماهیک هات"; const d = Math.floor(t / 86400000); const h = Math.floor((t % 86400000) / 3600000); return `${d} ڕۆژ و ${h} دەمژمێر`; }
-function updateAllTimers() { const goals = _get(goalManager.key, {}); Object.keys(goals).forEach(courseId => { const el = document.getElementById(`timer-${courseId}`); if (el) el.textContent = formatTimeRemaining(goals[courseId].deadline); }); }
+/* --- 6. LOGIC: COURSES & PLANS (STRICT 24H) --- */
+function openCourse(courseId) {
+    if(!State.currentUser) {
+        openProfileModal();
+        return;
+    }
 
-window.openModal = id => document.getElementById(id)?.classList.add('is-visible');
-window.closeModal = id => { const m = document.getElementById(id); if (m) { m.classList.remove('is-visible'); if (id === 'media-player-modal') document.getElementById('media-player-container').innerHTML = ''; } };
-window.playMediaInModal = (url, type) => { if(url === '#') { alert('دێ دەنگ لڤێرێ هێتە کارپێکرن'); return; } const container = document.getElementById('media-player-container'); if (type === 'video') { container.innerHTML = `<iframe src="${url}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`; } else if (type === 'audio') { container.innerHTML = `<audio controls autoplay><source src="${url}" type="audio/mpeg">Your browser does not support the audio element.</audio>`; } openModal('media-player-modal'); };
-window.toggleItemUI = (itemId, points, courseId, courseType) => { progressManager.toggleItemCompleted(itemId, points, courseId, courseType); };
-window.showActivityModal = showActivityModal;
-window.setGoalUI = (courseId, days) => { goalManager.setGoal(courseId, days); goalManager.refreshCurrentModal(); };
-window.saveBenefitsUI = (itemId, courseId, lessonTitle) => { const textarea = document.getElementById(`textarea-${itemId}`); const text = textarea.value.trim(); if (text === '') { alert('تکایە فائدێن خۆ ژ وانێ بنڤیسە پێش تۆمارکرنێ.'); return; } benefitsManager.saveBenefit(itemId, text, lessonTitle); const btn = document.getElementById(`btn-save-${itemId}`); btn.disabled = true; textarea.disabled = true; btn.innerHTML = 'هاتە تۆمارکرن <i class="fas fa-check"></i>'; progressManager.updateViews(courseId); alert('فائدێن تە هاتنە تۆمارکرن.'); };
-window.switchAuthView = (viewId) => { document.querySelectorAll('#profile-modal .auth-view, #profile-modal .profile-card').forEach(v => v.style.display = 'none'); document.getElementById(viewId).style.display = 'block'; };
-window.logoutUser = () => { localStorage.removeItem('isLoggedIn'); switchAuthView('auth-choice-view'); }
-window.showMyNotes = () => { const notesContainer = document.getElementById('my-notes-container'); const allBenefits = benefitsManager.getBenefits(); const savedNotes = Object.values(allBenefits); if (savedNotes.length > 0) { notesContainer.innerHTML = savedNotes.map(note => `<div class="saved-note"><h5>${note.lessonTitle}</h5><p>${note.text}</p></div>`).join(''); } else { notesContainer.innerHTML = '<p>چ تێبینی نەهاتینە تۆمارکرن.</p>'; } openModal('my-notes-modal'); };
+    let course = null;
+    let levelIndex = -1;
+    appData.levels.forEach((l, idx) => {
+        const c = l.courses.find(x => x.id === courseId);
+        if(c) { course = c; levelIndex = idx; }
+    });
 
-})();
+    if (!isLevelUnlocked(levelIndex)) {
+        showToast("ئەڤ ئاستە هێشتا قفلە!", "warning");
+        return;
+    }
+
+    const modalTitle = document.getElementById('modal-title');
+    const modalContent = document.getElementById('modal-content');
+    modalTitle.innerText = course.title;
+    
+    const hasPlan = !!State.currentUser.plans[courseId];
+    if(hasPlan) {
+        renderTimer(courseId);
+    } else {
+        document.getElementById('modal-timer').style.display = 'none';
+    }
+
+    modalContent.innerHTML = renderLessonList(course, hasPlan);
+    document.getElementById('main-modal').classList.add('open');
+}
+
+function renderPlanSelectionId(courseId) {
+    let course = null;
+    appData.levels.forEach(l => {
+        let c = l.courses.find(x => x.id === courseId);
+        if(c) course = c;
+    });
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = `
+        <div style="text-align:center; padding:20px 10px;">
+            <h3 style="margin-bottom:10px;">دانانا پلانێ (ئیجباری)</h3>
+            <p style="margin-bottom:20px; color:var(--text-secondary);">هەژمارا وانەیان: ${course.lessons.length}</p>
+            <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+                ${[1, 3, 7, 10].map(d => `
+                    <div onclick="selectPlan('${course.id}', ${d})" 
+                         style="background:var(--bg-main); border:2px solid var(--border-color); padding:20px; width:100px; border-radius:15px; cursor:pointer;">
+                        <span style="font-size:2rem; font-weight:800; display:block; color:var(--accent-secondary);">${d}</span>
+                        <span style="font-size:0.9rem; color:var(--text-secondary);">ڕۆژ</span>
+                    </div>
+                `).join('')}
+            </div>
+            <button class="btn-outline" onclick="openCourse('${course.id}')" style="margin-top:20px;">پاشگەزبوون</button>
+        </div>
+    `;
+}
+
+function selectPlan(courseId, days) {
+    if(!confirm(`تە پلانێ ${days} ڕۆژی هەڵبژارد. ئەرێ تۆ پشتڕاستی؟`)) return;
+    
+    State.currentUser.plans[courseId] = { 
+        days: days, 
+        startDate: Date.now()
+    };
+    saveState();
+    openCourse(courseId);
+    renderLevels();
+    showToast("پلان ب سەرکەفتیانە هاتە دانان", "success");
+}
+
+function changePlan(courseId) {
+    const plan = State.currentUser.plans[courseId];
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const timeDiff = Date.now() - plan.startDate;
+
+    // Strict Rule: ONLY allowed within first 24 hours
+    if (timeDiff > msPerDay) {
+        showToast("بورن، دەمێ گۆڕینا پلانێ ب سەرڤەچوو (تەنێ ٢٤ دەمژمێرێن دەسپێکێ).", "danger");
+        return;
+    }
+
+    if(confirm("ئەرێ تۆ پشتڕاستی دتەڤێت پلانێ بگۆڕی؟ (تەنێ ل دەسپێکێ ماف هەیە)")) {
+        renderPlanSelectionId(courseId);
+    }
+}
+
+function renderTimer(courseId) {
+    const plan = State.currentUser.plans[courseId];
+    if(!plan) return;
+    
+    const diffDays = (Date.now() - plan.startDate) / (1000 * 60 * 60 * 24); 
+    const remainingDays = Math.ceil(plan.days - diffDays);
+    const modalTimer = document.getElementById('modal-timer');
+    
+    let timerHTML = '';
+    if (remainingDays > 0) {
+        timerHTML = `<span style="font-size:0.9rem; color:var(--text-secondary);"><i class="fas fa-clock"></i> ماوە: <b style="color:var(--accent-primary)">${remainingDays} ڕۆژ</b></span>`;
+    } else {
+        timerHTML = `<span style="font-size:0.9rem; color:var(--danger-color); font-weight:bold;"><i class="fas fa-exclamation-triangle"></i> دەم ب سەرڤەچوو</span>`;
+    }
+    modalTimer.innerHTML = timerHTML;
+    modalTimer.style.display = 'block';
+}
+
+function renderLessonList(course, hasPlan) {
+    const isSeerah = course.type === 'seerah';
+    let completedCount = 0;
+    if(State.currentUser) {
+        course.lessons.forEach(l => { if(State.currentUser.progress[l.id]) completedCount++; });
+    }
+    const isCourseCompleted = completedCount === course.lessons.length;
+    
+    // Check if change is allowed
+    let changeAllowed = false;
+    if (hasPlan) {
+        const msPerDay = 24 * 60 * 60 * 1000;
+        if (Date.now() - State.currentUser.plans[course.id].startDate < msPerDay) {
+            changeAllowed = true;
+        }
+    }
+
+    return `
+    <div style="animation: fadeIn 0.5s;">
+        ${!hasPlan ? `
+            <div style="background:rgba(251, 191, 36, 0.1); border:1px solid var(--accent-primary); padding:15px; border-radius:10px; margin-bottom:20px; text-align:center;">
+                <p style="margin-bottom:10px; color:var(--accent-primary);">هێشتا تە پلان دانەناتیە. دشێی لیستی ببینی، بەلێ بۆ تۆمارکرنا وانان پێدڤیە پلانێ دابنێی.</p>
+                <button class="btn-primary" onclick="renderPlanSelectionId('${course.id}')" style="font-size:0.9rem; padding:8px 20px;">
+                    <i class="fas fa-calendar-alt"></i> دانانا پلانێ
+                </button>
+            </div>
+        ` : `
+            <div style="text-align:left; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.85rem; color:var(--text-secondary); background:var(--bg-main); padding:5px 10px; border-radius:5px; border:1px solid var(--border-color);">
+                     ${changeAllowed ? '<i class="fas fa-check-circle" style="color:var(--success-color)"></i> گۆڕین یا بەردەستە' : '<i class="fas fa-lock" style="color:var(--danger-color)"></i> گۆڕین هاتیە گرتن'}
+                </span>
+                <button onclick="changePlan('${course.id}')" style="background:transparent; border:none; color:${changeAllowed ? 'var(--text-primary)' : 'var(--text-secondary)'}; cursor:${changeAllowed ? 'pointer' : 'not-allowed'}; font-size:0.85rem; opacity:${changeAllowed ? 1 : 0.5}">
+                    <i class="fas fa-edit"></i> گۆڕین
+                </button>
+            </div>
+        `}
+
+        ${isCourseCompleted && hasPlan ? `
+            <div style="background:linear-gradient(90deg, #10b981, #059669); padding:15px; border-radius:10px; color:white; margin-bottom:20px; text-align:center;">
+                <i class="fas fa-check-circle" style="font-size:1.5rem;"></i>
+                <h4 style="margin-top:5px;">نایابە! تە ئەڤ کۆرسە تەواو کر.</h4>
+            </div>
+        ` : ''}
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+        ${course.lessons.map((lesson, idx) => {
+            const isCompleted = State.currentUser && State.currentUser.progress[lesson.id];
+            
+            let isLocked = false;
+            if(hasPlan && idx > 0) {
+                if(!State.currentUser.progress[course.lessons[idx-1].id]) isLocked = true;
+            }
+            
+            let checkboxAction = "";
+            if (!hasPlan) {
+                checkboxAction = `showToast('پێدڤیە دەسپێکێ پلانێ دابنێی!', 'warning');`;
+            } else if (isLocked) {
+                checkboxAction = "";
+            } else if (isSeerah) {
+                checkboxAction = `showToast('بۆ ڤی بابەتی، فەرە تێبینیان ل خوارێ بنڤیسی.', 'info')`;
+            } else {
+                checkboxAction = `toggleLesson('${lesson.id}', ${lesson.points}, '${course.id}', ${idx})`;
+            }
+
+            // Open Content Action
+            let openAction = `openLessonContent('${course.id}', ${idx})`;
+
+            return `
+            <div class="lesson-row ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:15px; margin-bottom:10px;">
+                    <div style="display:flex; align-items:center; gap:15px; flex:1;">
+                        <div class="checkbox-custom ${isCompleted ? 'checked' : ''} ${(!hasPlan || isLocked) ? 'disabled' : ''}" 
+                            onclick="${checkboxAction}">
+                            ${isCompleted ? '<i class="fas fa-check"></i>' : (isSeerah ? '<i class="fas fa-pen" style="font-size:0.8rem; opacity:0.5;"></i>' : '')}
+                        </div>
+                        <div style="cursor:pointer;" onclick="${openAction}">
+                            <h4 style="font-weight:700; font-size:1.05rem;">${lesson.title}</h4>
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:3px;">
+                                <i class="fas fa-book-open"></i> وانە &nbsp; <i class="fas fa-video"></i> ڤیدیۆ
+                            </p>
+                        </div>
+                    </div>
+                    <button onclick="${openAction}" style="background:var(--accent-secondary); border:none; color:white; width:40px; height:40px; border-radius:50%; cursor:pointer; box-shadow:0 5px 15px rgba(14,165,233,0.3);">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                ${(isSeerah && hasPlan && !isLocked) ? `
+                <div style="margin-top:10px;">
+                     <textarea id="input-${lesson.id}" style="width:100%; min-height:60px; background:var(--bg-main); border:1px solid var(--border-color); color:var(--text-primary); padding:10px; border-radius:8px;" placeholder="تێبینی..." ${isCompleted ? 'disabled' : ''}>${State.currentUser.notes[lesson.id] || ''}</textarea>
+                     ${!isCompleted ? `<button class="btn-primary" style="margin-top:5px; width:100%; justify-content:center; padding:5px;" onclick="saveNoteAndComplete('${lesson.id}', ${lesson.points}, '${course.id}', ${idx})">تۆمارکرن</button>` : ''}
+                </div>` : ''}
+            </div>`;
+        }).join('')}
+        </div>
+    </div>`;
+}
+
+function toggleLesson(id, points, courseId, index) {
+    let course = null;
+    appData.levels.forEach(l => { let c = l.courses.find(x => x.id === courseId); if(c) course = c; });
+
+    if (index > 0) {
+        if (!State.currentUser.progress[course.lessons[index-1].id]) {
+            showToast("نابت بچیە ڤێ وانەیێ هەتا یا بەری وێ تەمام نەکەی!", "warning");
+            return;
+        }
+    }
+    
+    if (State.currentUser.progress[id]) {
+        if (index + 1 < course.lessons.length) {
+            if (State.currentUser.progress[course.lessons[index+1].id]) {
+                showToast("نەشێی ڤێ وانێ هەڵبوەشینی چونکی تە وانەیا دویڤدا خلاس کریە.", "warning");
+                return;
+            }
+        }
+        delete State.currentUser.progress[id];
+        State.currentUser.points -= points;
+    } else {
+        State.currentUser.progress[id] = true;
+        State.currentUser.points += points;
+    }
+    saveState();
+    openCourse(courseId);
+    renderLevels();
+}
+
+function saveNoteAndComplete(lessonId, points, courseId, index) {
+    const text = document.getElementById(`input-${lessonId}`).value.trim();
+    if(text.length < 5) { showToast("تکایە تێبینیەکێ بنڤیسە.", "warning"); return; }
+    
+    State.currentUser.notes[lessonId] = text;
+    State.currentUser.progress[lessonId] = true;
+    State.currentUser.points += points;
+    saveState();
+    openCourse(courseId);
+    renderLevels();
+}
+
+/* --- 7. CONTENT VIEWER (UNIFIED PDF) --- */
+function openLessonContent(courseId, lessonIdx) {
+    let course = null;
+    appData.levels.forEach(l => { let c = l.courses.find(x => x.id === courseId); if(c) course = c; });
+    const lesson = course.lessons[lessonIdx];
+
+    const modalTitle = document.getElementById('modal-title');
+    const modalContent = document.getElementById('modal-content');
+    
+    modalTitle.innerText = lesson.title;
+    document.getElementById('modal-timer').style.display = 'none';
+
+    // Use Course PDF (Unified), fallback if missing
+    const pdfUrl = course.pdf || "about:blank";
+
+    // Build the Content
+    modalContent.innerHTML = `
+        <div class="lesson-viewer-grid">
+            <div>
+                ${lesson.video ? `
+                <div class="video-wrapper">
+                     <iframe src="${lesson.video}" title="Video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                ` : `<div style="padding:40px; text-align:center; background:var(--bg-main); border:1px solid var(--border-color); border-radius:10px; margin-bottom:20px; color:var(--text-secondary);">ڤیدیۆ نینە</div>`}
+                
+                <h4 style="margin-bottom:10px; color:var(--accent-secondary);"><i class="fas fa-align-right"></i> مەتنێ وانەیێ</h4>
+                <div class="matn-box">
+                    ${lesson.text}
+                </div>
+            </div>
+            
+            <div>
+                 <h4 style="margin-bottom:10px; color:var(--accent-secondary);"><i class="fas fa-file-pdf"></i> پەرتووکا کۆرسی (PDF)</h4>
+                 <div class="pdf-wrapper">
+                    <iframe src="${pdfUrl}" width="100%" height="100%" style="border:none;"></iframe>
+                 </div>
+                 <a href="${pdfUrl}" target="_blank" class="btn-outline" style="width:100%; justify-content:center; margin-top:10px;"><i class="fas fa-download"></i> داگرتن PDF</a>
+            </div>
+        </div>
+        <div style="margin-top:20px; text-align:left;">
+             <button class="btn-outline" onclick="openCourse('${courseId}')"> <i class="fas fa-arrow-right"></i> زڤڕین بۆ لیستێ</button>
+        </div>
+    `;
+    
+    document.getElementById('main-modal').classList.add('open');
+}
+
+function generateLevelCertificate(levelTitle) {
+    const modalContent = document.getElementById('modal-content');
+    const modalTitle = document.getElementById('modal-title');
+    document.getElementById('modal-timer').style.display = 'none';
+    modalTitle.innerText = "وەرگرتنا بڕوانامێ";
+    
+    const userName = State.currentUser.name;
+    const today = new Date().toLocaleDateString('ku-IQ');
+    
+    document.getElementById('main-modal').classList.add('open');
+    modalContent.innerHTML = `
+        <div id="print-area">
+            <div id="certificate-view" style="display:block;">
+                <i class="fas fa-kaaba" style="font-size:4rem; color:var(--accent-primary); margin-bottom:10px;"></i>
+                <h1>بڕوانامەیا ڕێزگرتنێ</h1>
+                <p class="cert-subtitle">ئەڤ بڕوانامە پێشکێشە بۆ بەڕێز:</p>
+                <div class="cert-name">${userName}</div>
+                <p class="cert-subtitle">ژبەر تەواوکرنا سەرکەفتیانە یا:</p>
+                <div class="cert-level">${levelTitle}</div>
+                <p>ل پلاتفۆرما سبل السلام بۆ زانستێ شەرعی</p>
+                <div style="margin-top:40px; display:flex; justify-content:space-between; padding:0 30px; border-top:1px solid #ddd; padding-top:10px;">
+                    <span>ڕێکەوت: ${today}</span>
+                    <span>واژوو: سبل السلام</span>
+                </div>
+            </div>
+        </div>
+        <button class="btn-primary" onclick="window.print()" style="width:100%; margin-top:20px; justify-content:center;">
+            <i class="fas fa-print"></i> چاپکرن / PDF
+        </button>
+    `;
+}
+
+/* --- 8. PROFILE, TASKS & NOTIFICATIONS --- */
+function openNotifications() { 
+    if(!State.currentUser) { openProfileModal(); return; }
+    let msgs = [];
+    
+    // Generate Messages based on Plan
+    for (const [courseId, plan] of Object.entries(State.currentUser.plans)) {
+        const diffDays = (Date.now() - plan.startDate) / (1000 * 60 * 60 * 24); 
+        const remaining = Math.ceil(plan.days - diffDays);
+        if(remaining < 3 && remaining >= 0) msgs.push(`ماوەیا کۆرسێ <b>${courseId}</b> تەنێ ${remaining} ڕۆژ ماینە.`);
+        if(remaining < 0) msgs.push(`دەمێ کۆرسێ <b>${courseId}</b> ب سەرڤەچوویە.`);
+    }
+
+    document.getElementById('main-modal').classList.add('open');
+    const modalContent = document.getElementById('modal-content');
+    const modalTitle = document.getElementById('modal-title');
+    modalTitle.innerText = "ئاگەهدارکرن";
+    document.getElementById('modal-timer').style.display = 'none';
+    if(msgs.length === 0) modalContent.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">چ ئاگەهدارکرن نینن.</p>';
+    else modalContent.innerHTML = msgs.map(m => `<div style="padding:10px; border-bottom:1px solid var(--border-color);">${m}</div>`).join('');
+}
+
+function toggleDailyTask(taskKey) {
+    if(!State.currentUser.dailyTasks) return;
+    State.currentUser.dailyTasks.tasks[taskKey] = !State.currentUser.dailyTasks.tasks[taskKey];
+    if(State.currentUser.dailyTasks.tasks[taskKey]) State.currentUser.points += 2;
+    else State.currentUser.points -= 2;
+    saveState();
+    openProfileModal(); 
+}
+
+function getTreeStage(percent) {
+    if (percent < 5) return { icon: "fa-seedling", color: "#854d0e" };   
+    if (percent < 25) return { icon: "fa-seedling", color: "#a3e635" };  
+    if (percent < 50) return { icon: "fa-leaf", color: "#4ade80" };  
+    if (percent < 80) return { icon: "fa-tree", color: "#16a34a" };  
+    return { icon: "fa-tree", color: "#fbbf24" };                    
+}
+
+function renderUserProfile(titleElem, contentElem) {
+    const percent = calculateTotalPercent();
+    const stage = getTreeStage(percent);
+    
+    if(!State.currentUser.dailyTasks) {
+        State.currentUser.dailyTasks = { date: new Date().toDateString(), tasks: { prayer: false, quran: false, dhikr: false, reading: false } };
+    }
+    const tasks = State.currentUser.dailyTasks.tasks;
+    const d = State.currentUser.details || {};
+
+    titleElem.innerText = "پڕۆفایلێ من";
+    contentElem.innerHTML = `
+        <div style="animation: fadeIn 0.5s;">
+            <div class="tree-container">
+                <div class="tree-circle" style="border-color:${stage.color}; box-shadow: 0 0 30px ${stage.color}40;">
+                    <i class="fas ${stage.icon} tree-icon" style="color:${stage.color};"></i>
+                </div>
+                <div style="color:var(--text-secondary); margin-bottom:15px;">ڕێژەیا گشتی: <span style="color:var(--accent-primary); font-weight:bold;">%${percent}</span></div>
+            </div>
+            
+            <div class="streak-card">
+                <div class="streak-icon-box"><i class="fas fa-fire"></i></div>
+                <div>
+                    <div style="font-weight:bold; font-size:1.1rem; color:var(--text-primary);">ستریك: ${State.currentUser.streak || 0} ڕۆژ</div>
+                    <div style="font-size:0.85rem; color:var(--text-secondary);">بەردەوام بە!</div>
+                </div>
+            </div>
+
+            <div style="margin-bottom:25px;">
+                <h4 style="margin-bottom:10px; color:var(--text-primary);"><i class="fas fa-list-check"></i> کارێن ڕۆژانە</h4>
+                <div class="task-card" onclick="toggleDailyTask('prayer')">
+                    <span><i class="fas fa-pray" style="color:var(--accent-secondary); width:25px;"></i> نڤێژێن فەرز</span>
+                    ${tasks.prayer ? '<i class="fas fa-check-circle" style="color:var(--success-color);"></i>' : '<i class="far fa-circle"></i>'}
+                </div>
+                <div class="task-card" onclick="toggleDailyTask('quran')">
+                    <span><i class="fas fa-book-open" style="color:var(--accent-secondary); width:25px;"></i> خوێندنا قورئانێ</span>
+                    ${tasks.quran ? '<i class="fas fa-check-circle" style="color:var(--success-color);"></i>' : '<i class="far fa-circle"></i>'}
+                </div>
+            </div>
+
+            <div style="background:var(--bg-secondary); padding:20px; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+                <h3 style="margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px;">${State.currentUser.name}</h3>
+                <div style="font-size:0.9rem; color:var(--text-secondary); display:grid; gap:10px;">
+                    <div class="row-2">
+                        <p><i class="fas fa-id-card"></i> ${State.currentUser.contact}</p>
+                        <p><i class="fab fa-telegram"></i> ${d.telegram || '-'}</p>
+                    </div>
+                    <div class="row-2">
+                        <p><i class="fas fa-map-marker-alt"></i> ${d.province} - ${d.city}</p>
+                        <p><i class="fas fa-graduation-cap"></i> ${d.eduLevel || '-'}</p>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="logout()" class="btn-primary" style="margin-top:30px; width:100%; justify-content:center; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); box-shadow:none;">
+                <i class="fas fa-sign-out-alt"></i> دەرکەفتن
+            </button>
+        </div>
+    `;
+}
+
+function calculateTotalPercent() {
+    if (!State.currentUser) return 0;
+    let totalLessons = 0;
+    let completedLessons = 0;
+    appData.levels.forEach(level => {
+        level.courses.forEach(course => {
+            totalLessons += course.lessons.length;
+            course.lessons.forEach(lesson => { if(State.currentUser.progress[lesson.id]) completedLessons++; });
+        });
+    });
+    return totalLessons === 0 ? 0 : Math.floor((completedLessons / totalLessons) * 100);
+}
+
+function renderAuthForms(titleElem, contentElem) {
+    titleElem.innerText = "چوونە ژوور / تۆمارکرن";
+    contentElem.innerHTML = `
+        <div class="auth-tabs">
+            <div class="auth-tab active" onclick="switchAuthTab('login')">چوونە ژوور</div>
+            <div class="auth-tab" onclick="switchAuthTab('register')">تۆمارکرن (نوێ)</div>
+        </div>
+
+        <form id="login-form" onsubmit="loginUser(event)" style="animation:fadeIn 0.4s;">
+            <div class="form-group">
+                <label class="form-label">ئیمێل یان ژمارا موبایلێ</label>
+                <input type="text" id="login-id" class="form-input" required placeholder="0750...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">پاسوورد</label>
+                <input type="password" id="login-pass" class="form-input" required placeholder="******">
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">بچۆ ژوور</button>
+        </form>
+
+        <form id="register-form" onsubmit="registerUser(event)" style="display:none; animation:fadeIn 0.4s;">
+            
+            <h4 class="form-section-title">١. زانیاریێن کەسی</h4>
+            <div class="form-group">
+                <label class="form-label">ناڤێ سیانی (تەواو)</label>
+                <input type="text" id="reg-name" class="form-input" required placeholder="ناڤ - باب - باپیر">
+            </div>
+            <div class="row-2">
+                <div class="form-group">
+                    <label class="form-label">ساڵا ژ دایکبوونێ</label>
+                    <input type="number" id="reg-birth" class="form-input" required placeholder="2000" min="1950" max="2020">
+                </div>
+                 <div class="form-group">
+                    <label class="form-label">ڕەگەز</label>
+                    <select id="reg-gender" class="form-input" required>
+                        <option value="male">نێر</option>
+                        <option value="female">مێ</option>
+                    </select>
+                </div>
+            </div>
+             <div class="form-group">
+                <label class="form-label">ژمارا موبایلێ (وەک ID دهێتە بکارینان)</label>
+                <input type="tel" id="reg-contact" class="form-input" required placeholder="0750..." pattern="[0-9]{11}">
+            </div>
+             <div class="form-group">
+                <label class="form-label">تیلیگرام (ناڤ / ژمارە / لینک)</label>
+                <input type="text" id="reg-telegram" class="form-input" placeholder="@username ...">
+            </div>
+
+            <h4 class="form-section-title">٢. جهـ و نیشتەجێبوون</h4>
+            <div class="row-2">
+                 <div class="form-group">
+                    <label class="form-label">پارێزگە</label>
+                    <select id="reg-province" class="form-input" required>
+                        <option value="دهۆک">دهۆک</option>
+                        <option value="هەولێر">هەولێر</option>
+                        <option value="سلێمانی">سلێمانی</option>
+                        <option value="کەرکوک">کەرکوک</option>
+                        <option value="هەڵەبجە">هەڵەبجە</option>
+                        <option value="نەینەوا">نەینەوا</option>
+                        <option value="دی">دی...</option>
+                    </select>
+                </div>
+                 <div class="form-group">
+                    <label class="form-label">قەزا / باژێر</label>
+                    <input type="text" id="reg-city" class="form-input" required placeholder="نموونە: ئاکرێ">
+                </div>
+            </div>
+
+            <h4 class="form-section-title">٣. زانیاریێن زانستی</h4>
+             <div class="row-2">
+                <div class="form-group">
+                    <label class="form-label">ئاستێ خواندنێ</label>
+                    <select id="reg-edu-level" class="form-input" required>
+                        <option value="" disabled selected>هەڵبژێرە...</option>
+                        <option value="sereke">سەرەتایی</option>
+                        <option value="navendi">ناوەندی</option>
+                        <option value="amadeyi_w">ئامادەیی (وێژەیی)</option>
+                        <option value="amadeyi_z">ئامادەیی (زانستی)</option>
+                        <option value="peymangeh">پەیمانگەهـ</option>
+                        <option value="zanko">زانکۆ (بەکالۆریۆس)</option>
+                        <option value="master">ماستەر</option>
+                        <option value="doctora">دکتۆرا</option>
+                        <option value="islamic">خوێندنا ئیسلامی / حوجرە</option>
+                    </select>
+                </div>
+                 <div class="form-group">
+                    <label class="form-label">پیشە</label>
+                    <select id="reg-role" class="form-input" required>
+                        <option value="student">قوتابی</option>
+                        <option value="employee">فەرمانبەر</option>
+                        <option value="other">کاسب</option>
+                        <option value="none">بێ ئیش</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:15px;">
+                <label class="form-label">پاسوورد (وشەیا نهێنی)</label>
+                <input type="password" id="reg-pass" class="form-input" required minlength="4" placeholder="******">
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%; justify-content:center; margin-top:10px;">دروستکرنا هەژمارێ</button>
+        </form>
+    `;
+}
+
+function switchAuthTab(tab) {
+    const tabs = document.querySelectorAll('.auth-tab');
+    const loginForm = document.getElementById('login-form');
+    const regForm = document.getElementById('register-form');
+    if (tab === 'login') {
+        tabs[0].classList.add('active'); tabs[1].classList.remove('active');
+        loginForm.style.display = 'block'; regForm.style.display = 'none';
+    } else {
+        tabs[0].classList.remove('active'); tabs[1].classList.add('active');
+        loginForm.style.display = 'none'; regForm.style.display = 'block';
+    }
+}
+
+function registerUser(e) {
+    e.preventDefault();
+    // Getting values
+    const name = document.getElementById('reg-name').value;
+    const birthYear = document.getElementById('reg-birth').value;
+    const gender = document.getElementById('reg-gender').value;
+    const contact = document.getElementById('reg-contact').value;
+    const telegram = document.getElementById('reg-telegram').value;
+    const province = document.getElementById('reg-province').value;
+    const city = document.getElementById('reg-city').value;
+    
+    const eduSelect = document.getElementById('reg-edu-level');
+    const eduLevel = eduSelect.options[eduSelect.selectedIndex].text;
+    
+    const roleSelect = document.getElementById('reg-role');
+    const roleText = roleSelect.options[roleSelect.selectedIndex].text;
+    const pass = document.getElementById('reg-pass').value;
+
+    if(State.usersDB.some(u => u.contact === contact)) {
+        showToast("ئەڤ ژمارە یان ئیمێلە بەری نوکە هاتیە تۆمارکرن!", "warning");
+        return;
+    }
+
+    const newUser = { 
+        name, contact, pass, 
+        details: { 
+            birthYear, gender, telegram, province, city, eduLevel, roleText 
+        },
+        joined: Date.now(),
+        lastLoginDate: new Date().toDateString(),
+        streak: 1,
+        points: 0,
+        progress: {}, 
+        plans: {},
+        unlockedLevels: [1],
+        notes: {},
+        dailyTasks: { date: new Date().toDateString(), tasks: { prayer: false, quran: false, dhikr: false, reading: false } }
+    };
+    
+    State.usersDB.push(newUser);
+    State.currentUser = newUser;
+    saveState();
+    closeModal();
+    initApp();
+    showToast("پیرۆزە! هەژمارا تە هاتە دروستکرن.", "success");
+}
+
+function loginUser(e) {
+    e.preventDefault();
+    const id = document.getElementById('login-id').value;
+    const pass = document.getElementById('login-pass').value;
+    const user = State.usersDB.find(u => u.contact === id && u.pass === pass);
+
+    if(user) {
+        State.currentUser = user;
+        if(!State.currentUser.unlockedLevels) State.currentUser.unlockedLevels = [1];
+        if(!State.currentUser.details) State.currentUser.details = {}; 
+        saveState();
+        closeModal();
+        initApp();
+        showToast("بەخێرهاتی!", "success");
+    } else {
+        showToast("ناڤێ بەکارهێنەری یان پاسوورد خەلەتە!", "danger");
+    }
+}
+
+function logout() {
+    if(confirm('دەرکەفتن ژ بەرنامەی؟')) {
+        State.currentUser = null;
+        localStorage.removeItem('sabilLastUser_v10');
+        location.reload();
+    }
+}
+
+function openProfileModal() {
+    const modalContent = document.getElementById('modal-content');
+    const modalTitle = document.getElementById('modal-title');
+    document.getElementById('modal-timer').style.display = 'none';
+    document.getElementById('main-modal').classList.add('open');
+
+    if (State.currentUser) {
+        renderUserProfile(modalTitle, modalContent);
+    } else {
+        renderAuthForms(modalTitle, modalContent);
+    }
+}
+
+function closeModal() { document.getElementById('main-modal').classList.remove('open'); }
+function openTutorial() {
+    document.getElementById('main-modal').classList.add('open');
+    document.getElementById('modal-content').innerHTML = '<p style="text-align:center;">لێرە ڤیدیۆیا فێرکاری دێ هێتە دانان...</p>';
+}
 </script>
-
 </body>
-</html>
-
+    </html>
