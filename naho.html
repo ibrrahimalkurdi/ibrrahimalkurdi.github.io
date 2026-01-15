@@ -160,11 +160,11 @@
     </div>
 
     <div class="legend">
-‎        رێزبەندی: عدد الكلمات - اسم - فعل ماضي - فعل مضارع - فعل أمر - حرف
+        رێزبەندی: عدد الكلمات - اسم - فعل ماضي - فعل مضارع - فعل أمر - حرف
     </div>
 
     <div id="verses-container">
-‎        <!-- ئایەت دێ لێرە زیاد بن -->
+        <!-- ئایەت دێ لێرە زیاد بن -->
     </div>
 
     <button class="btn" onclick="addVerse()">+ ئایەتەکا دی زیاد بکە</button>
@@ -181,15 +181,15 @@
     let verseCount = 0;
     let lastVerseNum = 0; // بو دەستپێکرنێ
 
-‎    // فەنکشن بو زیادکرنا ئایەتەکا نوی
+    // فەنکشن بو زیادکرنا ئایەتەکا نوی
     function addVerse() {
         verseCount++;
-‎        // ئەگەر ئایەتەک هەبیت، ژمارا وێ بینە و ئێکێ سەر زیاد بکە
+        // ئەگەر ئایەتەک هەبیت، ژمارا وێ بینە و ئێکێ سەر زیاد بکە
         if (verseCount > 1) {
             const lastInput = document.getElementById(`v-num-${verseCount-1}`);
             if(lastInput) lastVerseNum = parseInt(lastInput.value);
         } else {
-‎             // دەستپێک
+             // دەستپێک
              lastVerseNum = 4; // Default start previous to 5
         }
 
@@ -272,7 +272,7 @@
             // Converting numbers to Arabic numerals implies standard digits are fine, 
             // but usually in text format standard digits (1,2,3) are accepted. 
             // Let's keep it clean format:
-‎            // الآية ٥ : ١٢ - ٧ - ٠ - ٠ - ٠ - ٥
+            // الآية ٥ : ١٢ - ٧ - ٠ - ٠ - ٠ - ٥
             
             report += `الآية ${vNum} : ${total} - ${noun} - ${past} - ${present} - ${command} - ${particle}\n`;
         }
