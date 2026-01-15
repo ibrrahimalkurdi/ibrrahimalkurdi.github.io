@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستەمێ ئەرکێن نەحوێ</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #27ae60;
+            --bg-color: #f5f6fa;
+            --text-color: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .header-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .verse-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .verse-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-inputs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .label-input {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.9rem;
+        }
+        
+        .label-input label {
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #219150;
+        }
+
+        .btn-delete {
+            background-color: #e74c3c;
+            width: auto;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .result-area {
+            margin-top: 20px;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            direction: rtl;
+            font-family: monospace;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            resize: vertical;
+        }
+
+        .copy-btn {
+            background-color: #3498db;
+            margin-top: 10px;
+        }
+
+        .legend {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 15px;
+            background: #ecf0f1;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📝 سیستەمێ شیکارکرنا ئایەتان (نەحو)</h1>
+    
+    <div class="header-inputs">
+        <input type="text" id="studentName" placeholder="ناڤێ قوتابی">
+        <input type="text" id="surahName" value="سورة البقرة" placeholder="ناڤێ سورەتێ">
+    </div>
+
+    <div class="legend">
+‎        رێزبەندی: عدد الكلمات - اسم - فعل ماضي - فعل مضارع - فعل أمر - حرف
+    </div>
+
+    <div id="verses-container">
+‎        <!-- ئایەت دێ لێرە زیاد بن -->
+    </div>
+
+    <button class="btn" onclick="addVerse()">+ ئایەتەکا دی زیاد بکە</button>
+    <button class="btn" style="background-color: #34495e;" onclick="generateReport()">کۆمکرنا راپورتێ</button>
+
+    <div class="result-area" id="resultSection" style="display:none;">
+        <h3>ئەنجام:</h3>
+        <textarea id="finalOutput"></textarea>
+        <button class="btn copy-btn" onclick="copyToClipboard()">📋 کۆپیکرنا ئەنجامی</button>
+    </div>
+</div>
+
+<script>
+    let verseCount = 0;
+    let lastVerseNum = 0; // بو دەستپێکرنێ
+
+‎    // فەنکشن بو زیادکرنا ئایەتەکا نوی
+    function addVerse() {
+        verseCount++;
+‎        // ئەگەر ئایەتەک هەبیت، ژمارا وێ بینە و ئێکێ سەر زیاد بکە
+        if (verseCount > 1) {
+            const lastInput = document.getElementById(`v-num-${verseCount-1}`);
+            if(lastInput) lastVerseNum = parseInt(lastInput.value);
+        } else {
+‎             // دەستپێک
+             lastVerseNum = 4; // Default start previous to 5
+        }
+
+        let currentVerseNum = lastVerseNum + 1;
+
+        const container = document.getElementById('verses-container');
+        const div = document.createElement('div');
+        div.className = 'verse-card';
+        div.id = `card-${verseCount}`;
+        
+        div.innerHTML = `
+            <div class="verse-header">
+                <span>تومارا نوی</span>
+                <button class="btn btn-delete" onclick="removeVerse(${verseCount})">ژێبرن X</button>
+            </div>
+            <div class="grid-inputs">
+                <div class="label-input">
+                    <label>ژمارا ئایەتێ</label>
+                    <input type="number" id="v-num-${verseCount}" value="${currentVerseNum}">
+                </div>
+                <div class="label-input">
+                    <label>عدد الكلمات</label>
+                    <input type="number" class="data-input" id="v-total-${verseCount}" placeholder="0">
+                </div>
+                <div class="label-input">
+                    <label>اسم</label>
+                    <input type="number" class="data-input" id="v-noun-${verseCount}" placeholder="0">
+                </div>
+                <div class="label-input">
+                    <label>فعل ماضي</label>
+                    <input type="number" class="data-input" id="v-past-${verseCount}" placeholder="0">
+                </div>
+                <div class="label-input">
+                    <label>فعل مضارع</label>
+                    <input type="number" class="data-input" id="v-present-${verseCount}" placeholder="0">
+                </div>
+                <div class="label-input">
+                    <label>فعل أمر</label>
+                    <input type="number" class="data-input" id="v-command-${verseCount}" placeholder="0">
+                </div>
+                <div class="label-input">
+                    <label>حرف</label>
+                    <input type="number" class="data-input" id="v-particle-${verseCount}" placeholder="0">
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    function removeVerse(id) {
+        const element = document.getElementById(`card-${id}`);
+        element.remove();
+    }
+
+    function generateReport() {
+        const studentName = document.getElementById('studentName').value;
+        const surahName = document.getElementById('surahName').value;
+        const cards = document.getElementsByClassName('verse-card');
+        
+        let report = `السلام عليكم ماموستا\n`;
+        if(studentName) report += `ناڤێ قوتابی: ${studentName}\n`;
+        report += `ئەرکێ شیکارکرنا ( ${surahName} )\n`;
+        report += `-----------------------------\n`;
+        report += `الترتیب: عدد الكلمات - اسم - فعل ماضي - فعل مضارع - فعل أمر - حرف\n`;
+        report += `-----------------------------\n\n`;
+
+        for (let i = 0; i < cards.length; i++) {
+            // We need to find inputs inside this specific card
+            const card = cards[i];
+            const vNum = card.querySelector('input[id^="v-num"]').value;
+            
+            // Getting values, defaulting to 0 if empty
+            const total = card.querySelector('input[id^="v-total"]').value || 0;
+            const noun = card.querySelector('input[id^="v-noun"]').value || 0;
+            const past = card.querySelector('input[id^="v-past"]').value || 0;
+            const present = card.querySelector('input[id^="v-present"]').value || 0;
+            const command = card.querySelector('input[id^="v-command"]').value || 0;
+            const particle = card.querySelector('input[id^="v-particle"]').value || 0;
+
+            // Converting numbers to Arabic numerals implies standard digits are fine, 
+            // but usually in text format standard digits (1,2,3) are accepted. 
+            // Let's keep it clean format:
+‎            // الآية ٥ : ١٢ - ٧ - ٠ - ٠ - ٠ - ٥
+            
+            report += `الآية ${vNum} : ${total} - ${noun} - ${past} - ${present} - ${command} - ${particle}\n`;
+        }
+
+        document.getElementById('finalOutput').value = report;
+        document.getElementById('resultSection').style.display = 'block';
+        
+        // Scroll to result
+        document.getElementById('resultSection').scrollIntoView({behavior: "smooth"});
+    }
+
+    function copyToClipboard() {
+        const copyText = document.getElementById("finalOutput");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); 
+        navigator.clipboard.writeText(copyText.value).then(() => {
+            alert("تم النسخ بنجاح! نوکە دشێی بۆ ماموستای فرێکەی.");
+        });
+    }
+
+    // Add first verse automatically on load
+    window.onload = addVerse;
+</script>
+
+</body>
+</html>
