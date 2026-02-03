@@ -1,0 +1,204 @@
+‏<!DOCTYPE html>
+‏<html lang="ku" dir="rtl">
+‏<head>
+‏    <meta charset="UTF-8">
+‏    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+‏    <title>Data Duhok - Barcode System</title>
+    <!-- کێبخانەیا بارکۆدی -->
+‏    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+‏    <style>
+‏        :root {
+‏            --primary-color: #2c3e50;
+‏            --accent-color: #e67e22;
+        }
+‏        body {
+‏            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+‏            background-color: #f0f2f5;
+‏            margin: 0;
+‏            padding: 20px;
+‏            display: flex;
+‏            flex-direction: column;
+‏            align-items: center;
+        }
+‏        .main-card {
+‏            background: white;
+‏            padding: 30px;
+‏            border-radius: 15px;
+‏            box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
+‏            max-width: 450px;
+‏            width: 100%;
+‏            text-align: center;
+        }
+‏        .logo-text {
+‏            font-size: 24px;
+‏            font-weight: bold;
+‏            color: var(--primary-color);
+‏            margin-bottom: 5px;
+        }
+‏        .logo-sub {
+‏            font-size: 14px;
+‏            color: var(--accent-color);
+‏            margin-bottom: 20px;
+‏            letter-spacing: 2px;
+        }
+‏        .input-group {
+‏            margin-bottom: 15px;
+‏            text-align: right;
+        }
+‏        label {
+‏            display: block;
+‏            margin-bottom: 5px;
+‏            font-weight: bold;
+‏            color: #555;
+        }
+‏        input {
+‏            width: 100%;
+‏            padding: 12px;
+‏            border: 2px solid #ddd;
+‏            border-radius: 8px;
+‏            box-sizing: border-box;
+‏            font-size: 16px;
+‏            transition: 0.3s;
+        }
+‏        input:focus {
+‏            border-color: var(--accent-color);
+‏            outline: none;
+        }
+‏        .btn-container {
+‏            display: flex;
+‏            gap: 10px;
+‏            margin-top: 10px;
+        }
+‏        button {
+‏            flex: 1;
+‏            padding: 12px;
+‏            font-size: 16px;
+‏            font-weight: bold;
+‏            cursor: pointer;
+‏            border: none;
+‏            border-radius: 8px;
+‏            transition: 0.3s;
+        }
+‏        .btn-auto {
+‏            background-color: #3498db;
+‏            color: white;
+        }
+‏        .btn-print {
+‏            background-color: #27ae60;
+‏            color: white;
+        }
+‏        button:hover {
+‏            opacity: 0.9;
+‏            transform: translateY(-2px);
+        }
+
+        /* لێرە ستیکەرێ بارکودی دهێتە دیزاین کرن */
+‏        #print-area {
+‏            margin-top: 30px;
+‏            padding: 15px;
+‏            border: 1px solid #eee;
+‏            background: white;
+‏            width: fit-content;
+‏            display: flex;
+‏            flex-direction: column;
+‏            align-items: center;
+‏            border-radius: 5px;
+        }
+‏        .barcode-label {
+‏            font-size: 18px;
+‏            font-weight: bold;
+‏            margin-bottom: 5px;
+‏            color: black;
+        }
+‏        .shop-name {
+‏            font-size: 12px;
+‏            font-weight: bold;
+‏            margin-top: 2px;
+‏            border-top: 1px solid #000;
+‏            width: 100%;
+‏            padding-top: 2px;
+        }
+
+        /* رێکخستنا پرینتێ */
+‏        @media print {
+‏            body * {
+‏                visibility: hidden;
+            }
+‏            #print-area, #print-area * {
+‏                visibility: visible;
+            }
+‏            #print-area {
+‏                position: absolute;
+‏                left: 50%;
+‏                top: 20px;
+‏                transform: translateX(-50%);
+‏                border: none;
+            }
+        }
+‏    </style>
+‏</head>
+‏<body>
+
+‏    <div class="main-card">
+‏        <div class="logo-text">DATA DUHOK</div>
+‏        <div class="logo-sub"></div>
+        
+‏        <div class="input-group">
+‏            <label>ناڤێ کەلوپەلی:</label>
+‏            <input type="text" id="itemName" placeholder="بۆ نموونە: دەفتەرا 100 لاپەری" oninput="updateBarcode()">
+‏        </div>
+
+‏        <div class="input-group">
+‏            <label>کۆدێ بارکۆدی:</label>
+‏            <input type="text" id="barcodeValue" placeholder="ژمارێ بنڤیسە" oninput="updateBarcode()">
+‏        </div>
+
+‏        <div class="btn-container">
+‏            <button class="btn-auto" onclick="generateRandomCode()">کۆدەکێ ئۆتۆماتیکی</button>
+‏            <button class="btn-print" onclick="window.print()">پرینت کرن</button>
+‏        </div>
+
+        <!-- پیشاندانا بارکودی -->
+‏        <div id="print-area">
+‏            <div id="display-name" class="barcode-label">Data Duhok</div>
+‏            <svg id="barcode"></svg>
+‏            <div class="shop-name">DATA DUHOK - STATIONERY</div>
+‏        </div>
+‏    </div>
+
+‏    <script>
+        // دروستکرنا ژمارەکا ئۆتۆماتیکی (8 ژمارە)
+‏        function generateRandomCode() {
+‏            let randomNum = Math.floor(10000000 + Math.random() * 90000000);
+‏            document.getElementById("barcodeValue").value = randomNum;
+‏            updateBarcode();
+        }
+
+‏        function updateBarcode() {
+‏            let name = document.getElementById("itemName").value;
+‏            let code = document.getElementById("barcodeValue").value;
+            
+            // ئەگەر ناڤ هەبیت دیار بکە، ئەگەر نە ناڤێ دوکانێ بنڤیسە
+‏            document.getElementById("display-name").innerText = name ? name : "Data Duhok";
+
+‏            if (code.trim() !== "") {
+‏                JsBarcode("#barcode", code, {
+‏                    format: "CODE128",
+‏                    lineColor: "#000",
+‏                    width: 2,
+‏                    height: 60,
+‏                    displayValue: true,
+‏                    fontSize: 14,
+‏                    fontOptions: "bold"
+                });
+            }
+        }
+
+        // ل دەسپێکێ بارکودەکێ ئامادە نیشان بدە
+‏        window.onload = () => {
+‏            generateRandomCode();
+        };
+‏    </script>
+
+‏</body>
+‏</html>
